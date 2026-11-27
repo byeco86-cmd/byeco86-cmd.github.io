@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>대장님 AI 오피스</title>
+<meta name="theme-color" content="#FAF5EC">
+<meta name="description" content="대장님 전용 AI 오피스 — 1호·2호·3호가 움직이는 본부 맵, 회의실, 대시보드, 캘린더, AI한도, 응모/당첨">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="대장님 AI 오피스">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23FAF5EC'/%3E%3Cellipse cx='32' cy='34' rx='17' ry='22' fill='%238FB254'/%3E%3Ccircle cx='26' cy='31' r='2.6' fill='%232B2118'/%3E%3Ccircle cx='38' cy='31' r='2.6' fill='%232B2118'/%3E%3Cpath d='M27 38c2.6 2.6 7.4 2.6 10 0' fill='none' stroke='%232B2118' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 64 64" role="img">
+          <defs>
+            <linearGradient id="logoPickle" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#B6D07C"/>
+              <stop offset="1" stop-color="#7FA24C"/>
+            </linearGradient>
+          </defs>
+          <ellipse cx="32" cy="35" rx="18" ry="23" fill="url(#logoPickle)"/>
+          <ellipse cx="25" cy="26" rx="6" ry="8" fill="#FFFFFF" opacity=".25"/>
+          <circle cx="26" cy="33" r="2.6" fill="#2B2118"/>
+          <circle cx="38" cy="33" r="2.6" fill="#2B2118"/>
+          <circle cx="26.9" cy="32.2" r=".9" fill="#FFF"/>
+          <circle cx="38.9" cy="32.2" r=".9" fill="#FFF"/>
+          <circle cx="20.5" cy="39" r="3" fill="#E58B7C" opacity=".55"/>
+          <circle cx="43.5" cy="39" r="3" fill="#E58B7C" opacity=".55"/>
+          <path d="M27.5 40c2.4 2.6 6.6 2.6 9 0" fill="none" stroke="#2B2118" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M46 20l3-5 3 4-4 2z" fill="#E0B24A"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>대장님 AI 오피스</h1>
+        <p class="brand-sub"><span class="live-dot" aria-hidden="true"></span>대장님 전용</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="icon-btn bell" id="btnBell" type="button" aria-label="알림">
+        <span aria-hidden="true">🔔</span>
+        <span class="badge" id="notifBadge" hidden>0</span>
+      </button>
+      <button class="relay-btn" id="btnRelay" type="button" aria-label="크레딧 릴레이 현황">
+        <span aria-hidden="true">⚡</span><span class="relay-text">릴레이</span>
+      </button>
+      <button class="icon-btn" id="btnTheme" type="button" aria-label="테마 전환">
+        <span id="themeIcon" aria-hidden="true">🌙</span>
+      </button>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs" role="tablist" aria-label="오피스 메뉴">
+    <button class="tab is-active" type="button" role="tab" data-tab="map" aria-selected="true" aria-controls="view-map">
+      <span class="tab-ico" aria-hidden="true">🗺️</span><span class="tab-label">맵</span>
+    </button>
+    <button class="tab" type="button" role="tab" data-tab="meeting" aria-selected="false" aria-controls="view-meeting">
+      <span class="tab-ico" aria-hidden="true">💬</span><span class="tab-label">회의실</span>
+    </button>
+    <button class="tab" type="button" role="tab" data-tab="dash" aria-selected="false" aria-controls="view-dash">
+      <span class="tab-ico" aria-hidden="true">📊</span><span class="tab-label">대시보드</span>
+    </button>
+    <button class="tab" type="button" role="tab" data-tab="cal" aria-selected="false" aria-controls="view-cal">
+      <span class="tab-ico" aria-hidden="true">📅</span><span class="tab-label">캘린더</span>
+    </button>
+    <button class="tab" type="button" role="tab" data-tab="credits" aria-selected="false" aria-controls="view-credits">
+      <span class="tab-ico" aria-hidden="true">⚡</span><span class="tab-label">AI한도</span>
+    </button>
+    <button class="tab" type="button" role="tab" data-tab="entries" aria-selected="false" aria-controls="view-entries">
+      <span class="tab-ico" aria-hidden="true">🎟️</span><span class="tab-label">응모/당첨</span>
+    </button>
+  </nav>
+
+  <main id="views">
+
+    <!-- ================= 맵 ================= -->
+    <section class="view is-active" id="view-map" data-view="map" role="tabpanel" aria-labelledby="tab-map">
+      <div class="sec-head">
+        <h2>본부 오피스</h2>
+        <p>공간을 눌러 들어가 보세요. 방마다 봇들이 일하고 있어요.</p>
+      </div>
+
+      <div class="map-controls">
+        <div class="seg" role="group" aria-label="오피스 배경">
+          <button class="seg-btn is-on" type="button" data-style="basic" aria-pressed="true">🏢 기본</button>
+          <button class="seg-btn" type="button" data-style="clay" aria-pressed="false">🧸 클레이</button>
+        </div>
+        <button class="motion-btn is-on" id="motionBtn" type="button" aria-pressed="true">
+          <span class="motion-ico" aria-hidden="true">✨</span><span id="motionLabel">움직임 ON</span>
+        </button>
+      </div>
+
+      <div class="status-chips">
+        <span class="chip chip-green"><span class="live-dot" aria-hidden="true"></span>3개 방 가동</span>
+        <span class="chip">👥 3명 ON</span>
+        <span class="chip" id="clockChip">🕘 --:--</span>
+      </div>
+      <p class="map-roster">1호 기획실장 · 2호 크리 부장 · 3호 합류대기</p>
+
+      <div class="stage-wrap">
+        <div class="office-stage style-basic" id="officeStage" aria-label="대장님 AI 오피스 맵">
+          <button class="zone zone-grand" type="button" data-room="grand" aria-label="대회의실 열기">
+            <span class="zone-tag">🏛️ 대회의실</span>
+          </button>
+          <button class="zone zone-command" type="button" data-room="command" aria-label="지휘실 열기">
+            <span class="zone-tag">🩵 지휘실</span>
+          </button>
+          <button class="zone zone-lounge" type="button" data-room="lounge" aria-label="응모·핫딜 라운지 열기">
+            <span class="zone-tag">☕ 응모·핫딜 라운지</span>
+          </button>
+          <div class="agents" id="agents" aria-hidden="true"></div>
+        </div>
+        <p class="stage-caption">클릭 공간을 열면 지시·메모·회의가 이어집니다</p>
+      </div>
+
+      <div class="room-panel" id="roomPanel" hidden>
+        <div class="rp-head">
+          <span class="rp-icon" id="rpIcon" aria-hidden="true">🏛️</span>
+          <div class="rp-title">
+            <h3 id="rpName">대회의실</h3>
+            <p id="rpDesc">1호가 브리핑을 준비하는 방</p>
+          </div>
+          <button class="icon-btn sm" id="rpClose" type="button" aria-label="방 패널 닫기">✕</button>
+        </div>
+        <ul class="rp-list" id="rpList"></ul>
+        <button class="btn-primary block" id="rpEnter" type="button">회의실 입장 →</button>
+      </div>
+
+      <h3 class="sec-title">지금 본부에서는</h3>
+      <div class="room-cards" id="roomCards"></div>
+
+      <p class="foot-note">방 3개 · 봇 3명 · 오늘 처리 <strong id="todayCount">–</strong>건 · 데이터는 이 기기에 저장됩니다</p>
+    </section>
+
+    <!-- ================= 회의실 ================= -->
+    <section class="view" id="view-meeting" data-view="meeting" role="tabpanel" aria-labelledby="tab-meeting" hidden>
+      <div class="sec-head">
+        <h2>💬 회의실</h2>
+        <p>1·2·3호가 같은 판을 보고 움직입니다.</p>
+      </div>
+
+      <div class="team-grid" id="teamGrid"></div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3>5번 · 3단 검증 파이프라인</h3>
+          <span class="pill pill-amber">검증 게이트 ON</span>
+        </div>
+        <div class="pipe" id="pipe"></div>
+        <p class="foot-note">리서치 → 검증 → 실행. 검증 승인 없이는 실행 단계 지시가 나가지 않습니다.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3>최근 보고 로그</h3>
+          <span class="muted-sm">오늘</span>
+        </div>
+        <div class="log-list" id="logList"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3>대장님 지시·메모</h3>
+          <button class="btn-ghost" id="btnExport" type="button">JSON 내보내기</button>
+        </div>
+        <div class="memo-form">
+          <label class="sr-only" for="memoInput">지시·메모 입력</label>
+          <textarea id="memoInput" rows="2" placeholder="예) 내일 3호 검증 게이트 먼저 확인해줘"></textarea>
+          <button class="btn-primary sm" id="btnMemoSave" type="button">저장</button>
+        </div>
+        <div class="memo-list" id="memoList"></div>
+      </div>
+    </section>
+
+    <!-- ================= 대시보드 ================= -->
+    <section class="view" id="view-dash" data-view="dash" role="tabpanel" aria-labelledby="tab-dash" hidden>
+      <div class="sec-head">
+        <h2>📊 대시보드</h2>
+        <p>오늘 숫자로 보는 본부 상태입니다.</p>
+      </div>
+
+      <div class="stat-grid" id="statGrid"></div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3>100% 페이백 체험단</h3>
+          <span class="pill pill-green">자부담 0원 24건</span>
+        </div>
+        <div class="bars" id="dealBars"></div>
+        <div class="mini-list" id="dealMini"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3>선착순 쿠폰·앱테크</h3>
+          <span class="muted-sm">07:30 루틴</span>
+        </div>
+        <div class="mini-list" id="couponMini"></div>
+        <p class="foot-note left">앱테크 퀴즈 정답 10건 정리 · 편의점 만근 27일차 — 오늘 빠지면 이번 달 리셋</p>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3>가족 집안일·생일</h3>
+          <span class="pill">17:00 알람</span>
+        </div>
+        <div class="home-ring" id="homeRing"></div>
+        <div class="mini-list" id="familyMini"></div>
+      </div>
+    </section>
+
+    <!-- ================= 캘린더 ================= -->
+    <section class="view" id="view-cal" data-view="cal" role="tabpanel" aria-labelledby="tab-cal" hidden>
+      <div class="sec-head">
+        <h2>📅 캘린더</h2>
+        <p>매일 도는 루틴과 다가오는 발표일.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3>매일 루틴</h3>
+          <span class="muted-sm" id="todayLabel">오늘</span>
+        </div>
+        <div class="timeline" id="timeline"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3>다가오는 당첨 발표</h3>
+          <span class="muted-sm">11/30 ~ 12/4</span>
+        </div>
+        <div class="award-list" id="awardList"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3>가족 생일</h3>
+          <span class="muted-sm">1주일 전 알람</span>
+        </div>
+        <div class="bday-list" id="bdayList"></div>
+      </div>
+    </section>
+
+    <!-- ================= AI한도 ================= -->
+    <section class="view" id="view-credits" data-view="credits" role="tabpanel" aria-labelledby="tab-credits" hidden>
+      <div class="sec-head">
+        <h2>⚡ AI한도</h2>
+        <p>크레딧이 끊겨도 일은 끊기지 않게.</p>
+      </div>
+
+      <div class="credit-list" id="creditList"></div>
+
+      <div class="card relay-board">
+        <div class="card-head">
+          <h3>크레딧 릴레이 무중단 가동</h3>
+          <span class="pill pill-green">승인됨</span>
+        </div>
+        <div class="relay-chain" id="relayChain"></div>
+        <p class="relay-rule" id="relayRule"></p>
+        <ul class="rule-list" id="relayRules"></ul>
+      </div>
+    </section>
+
+    <!-- ================= 응모/당첨 ================= -->
+    <section class="view" id="view-entries" data-view="entries" role="tabpanel" aria-labelledby="tab-entries" hidden>
+      <div class="sec-head">
+        <h2>🎟️ 응모/당첨</h2>
+        <p>오늘 넣은 것, 아직 알짜인 것, 0원으로 받는 것.</p>
+      </div>
+
+      <div class="entries-summary" id="entriesSummary"></div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3>오늘 응모 <span class="count" id="entryCount">10</span>건</h3>
+          <span class="pill pill-green">제출 완료</span>
+        </div>
+        <div class="entry-list" id="entryList"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3>100% 페이백 알짜</h3>
+          <span class="pill pill-amber">미달 26건</span>
+        </div>
+        <div class="deal-list" id="dealList"></div>
+        <button class="btn-ghost block" type="button" data-goto="dash">대시보드에서 전체 보기 →</button>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3>오늘 0원 쿠폰 핵심</h3>
+          <span class="pill pill-green">오늘 마감</span>
+        </div>
+        <div class="coupon-list" id="couponList"></div>
+      </div>
+
+      <p class="foot-note">응모 결과는 04:00 자동 확인 후 08:00 통합 브리핑에 합쳐집니다.</p>
+    </section>
+
+  </main>
+
+  <footer class="app-foot">
+    <span>대장님 AI 오피스 v2</span>
+    <span class="dot-sep" aria-hidden="true">·</span>
+    <span>1호 기획실장 · 2호 크리 부장 · 3호</span>
+  </footer>
+</div>
+
+<div class="sheet-backdrop" id="sheetBackdrop" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-head">
+      <h2 id="sheetTitle">알림</h2>
+      <button class="icon-btn sm" id="sheetClose" type="button" aria-label="닫기">✕</button>
+    </div>
+    <div class="sheet-body" id="sheetBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="seed.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
