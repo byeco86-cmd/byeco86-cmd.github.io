@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""헤드리스 검증 — 390x844 모바일 화면, 부대장 클로드·참모 GPT 포함 5명 캐릭터 렌더링,
+"""헤드리스 검증 — 390x844 모바일 화면, 클로드 부장·챗지피티 과장 포함 5명 캐릭터 렌더링,
 탭 전환, 테마/배경 전환, 콘솔 에러 0건, preview.png 갱신."""
 import http.server
 import json
@@ -16,8 +16,8 @@ SHOTS = ROOT / ".verify"
 SHOTS.mkdir(exist_ok=True)
 
 REQUIRED_LINES = [
-    "📋 총괄 검토", "⚡ 브리핑 조율", "🔗 GitHub 동기화",
-    "💡 아이디어 제안", "🔍 교차 검증", "💬 전략 조언",
+    "🛠️ 웹앱 4층 개편", "📣 08:00 통합 브리핑", "🔗 GitHub 동기화",
+    "🔍 교차 검증 완료", "💡 아이디어 제안", "💬 전략 조언",
 ]
 
 
@@ -43,14 +43,25 @@ def main():
     def check(name, ok, detail=""):
         checks.append({"name": name, "ok": bool(ok), "detail": str(detail)[:200]})
 
-    # 소스에 부대장 말풍선 문구가 실제로 들어있는지 (정적)
+    # 소스에 새 직급 명칭이 실제로 들어있는지 / 옛 직급이 남아있지 않은지 (정적)
     appjs = (ROOT / "app.js").read_text(encoding="utf-8")
+    indexhtml = (ROOT / "index.html").read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
     for line in REQUIRED_LINES:
         check(f"source_line:{line}", line in appjs, "app.js LINES")
+    legacy = ["부대장", "참모", "기획실장", "합류대기"]
+    stale = [w for w in legacy if any(w in s for s in (appjs, indexhtml, readme))]
+    check("no_legacy_titles", not stale, stale)
 
     # ---- data.json 정적 점검 (요일·통계·검증 필드) ----
     import datetime as _dt
     data = json.loads((ROOT / "data.json").read_text(encoding="utf-8"))
+    raw_data = (ROOT / "data.json").read_text(encoding="utf-8")
+    stale_data = [w for w in legacy if w in raw_data]
+    check("no_legacy_titles_data", not stale_data, stale_data)
+    check("roster_new", data["roster"] == "1호 총괄실장 · 2호 크리 부실장 · 챗지피티 과장 · 클로드 부장 · 3호 대리", data["roster"])
+    check("chain_new_order", [c["id"] for c in data["chain"]] == ["captain", "p1", "p2", "p0", "p4", "p3"], [c["id"] for c in data["chain"]])
+    check("chain_new_roles", [c["role"] for c in data["chain"]] == ["대표", "총괄실장", "부실장", "부장", "과장", "대리"], [c["role"] for c in data["chain"]])
     dow_ko = ["월", "화", "수", "목", "금", "토", "일"]
     for a in data.get("awards", []):
         m, dd = [int(x) for x in a["date"].split("/")]
@@ -98,7 +109,7 @@ def main():
         results.append(("tabs", page.locator(".tab").count()))
         results.append(("views", page.locator(".view").count()))
         results.append(("agents", page.locator(".agent").count()))
-        results.append(("zones", page.locator(".zone").count()))
+        results.append(("floors", page.locator(".floor").count()))
         results.append(("clock", page.inner_text("#clockChip")))
         results.append(("body_scroll_w", page.evaluate("document.documentElement.scrollWidth")))
         results.append(("body_client_w", page.evaluate("document.documentElement.clientWidth")))
@@ -112,8 +123,8 @@ def main():
         tags = page.eval_on_selector_all(
             ".agent .agent-tag", "els => els.map(e => e.textContent.trim())")
         results.append(("agent_tags", tags))
-        check("p0_tag", "부대장 클로드" in tags, tags)
-        check("p4_tag", "참모 GPT" in tags, tags)
+        check("p0_tag", "클로드 부장" in tags, tags)
+        check("p4_tag", "챗지피티 과장" in tags, tags)
 
         p0_box = page.eval_on_selector(
             '.agent[data-agent="p0"] svg.sprite',
@@ -157,13 +168,40 @@ def main():
         results.append(("on_count", on_count))
         results.append(("map_roster", roster))
         check("on_count_5", "5명 ON" in on_count, on_count)
-        check("roster_claude", "부대장 클로드" in roster, roster)
-        check("roster_gpt", "참모 GPT" in roster, roster)
-        check("roster_order", roster.replace(" ", "") == "부대장클로드·참모GPT·1호기획실장·2호크리부장·3호합류대기", roster)
+        check("roster_claude", "클로드 부장" in roster, roster)
+        check("roster_gpt", "챗지피티 과장" in roster, roster)
+        check("roster_order", roster.replace(" ", "") == "1호총괄실장·2호크리부실장·챗지피티과장·클로드부장·3호대리", roster)
         check("no_4myeong", "4명 ON" not in page.inner_text("#view-map"), "")
         results.append(("map_footnote", page.inner_text("#view-map .foot-note")))
 
-        # ---- 부대장·참모 말풍선이 실제로 뜨는지 (최대 100초 관찰) ----
+        # ---- 4층 건물 구조 ----
+        floor_btns = page.eval_on_selector_all(
+            ".floor-btn", "els => els.map(e => ({f: e.getAttribute('data-floor'), t: e.textContent.trim()}))")
+        results.append(("floor_buttons", floor_btns))
+        check("floor_buttons_5", [b["f"] for b in floor_btns] == ["all", "4", "3", "2", "1"], floor_btns)
+
+        floors = page.eval_on_selector_all(
+            ".floor", "els => els.map(e => e.getAttribute('data-floor'))")
+        results.append(("floor_order", floors))
+        check("floors_4", floors == ["4", "3", "2", "1"], floors)
+
+        assign = page.evaluate("""() => {
+          const out = {};
+          document.querySelectorAll('.agent').forEach(a => {
+            const fl = a.closest('.floor');
+            out[a.getAttribute('data-agent')] = fl ? fl.getAttribute('data-floor') : null;
+          });
+          return out;
+        }""")
+        results.append(("agent_floors", assign))
+        check("floor_assign", assign == {"p1": "4", "p2": "3", "p4": "3", "p0": "2", "p3": "1"}, assign)
+
+        cards_all = page.eval_on_selector_all(
+            "#floorCards .floor-card .fc-name", "els => els.map(e => e.textContent.trim())")
+        results.append(("floor_cards_all", cards_all))
+        check("floor_cards_all", len(cards_all) == 4 and "대표·총괄 지휘실" in cards_all, cards_all)
+
+        # ---- 클로드 부장·챗지피티 과장 말풍선이 실제로 뜨는지 (최대 100초 관찰) ----
         seen = {"p0": "", "p4": ""}
         for _ in range(200):
             snap = page.evaluate("""() => {
@@ -184,7 +222,7 @@ def main():
         results.append(("p4_bubble_seen", seen["p4"]))
         check("p0_talk", bool(seen["p0"]), seen["p0"] or "100초 안에 말풍선 못 봄")
         check("p4_talk", bool(seen["p4"]), seen["p4"] or "100초 안에 말풍선 못 봄")
-        check("p4_line_set", seen["p4"] in ["💡 아이디어 제안", "🔍 교차 검증", "💬 전략 조언"], seen["p4"])
+        check("p4_line_set", seen["p4"] in ["💡 아이디어 제안", "🔍 교차 검증 완료", "💬 전략 조언", "📰 아침 뉴스 브리핑"], seen["p4"])
         page.screenshot(path=str(SHOTS / "01-map-basic.png"))
         for aid in ["p0", "p1", "p2", "p3", "p4"]:
             try:
@@ -223,17 +261,96 @@ def main():
         page.wait_for_timeout(300)
         results.append(("motion_on_label", page.inner_text("#motionLabel")))
 
-        # 방 클릭
-        page.click('.zone[data-room="command"]')
-        page.wait_for_timeout(500)
-        results.append(("room_panel_hidden", page.get_attribute("#roomPanel", "hidden")))
-        results.append(("room_panel_name", page.inner_text("#rpName")))
-        page.screenshot(path=str(SHOTS / "03-room-panel.png"))
-        page.click("#rpEnter")
-        page.wait_for_timeout(500)
-        results.append(("rp_enter_tab", page.locator('.view[data-view="dash"]').is_visible()))
-        page.click('.tab[data-tab="map"]')
-        page.wait_for_timeout(300)
+        # ---- 층 전환: 4F ----
+        page.click('.floor-btn[data-floor="4"]')
+        page.wait_for_timeout(750)
+        focus_4 = page.evaluate("""() => {
+          const f4 = document.querySelector('.floor[data-floor="4"]');
+          const f3 = document.querySelector('.floor[data-floor="3"]');
+          const p1 = document.querySelector('.agent[data-agent="p1"]');
+          const vis = {};
+          document.querySelectorAll('.agent').forEach(a => { vis[a.getAttribute('data-agent')] = !a.classList.contains('is-hidden'); });
+          return {
+            f4: f4.className, f3: f3.className,
+            h4: Math.round(f4.getBoundingClientRect().height),
+            h3: Math.round(f3.getBoundingClientRect().height),
+            vis: vis,
+            talk: p1.classList.contains('talk') ? p1.querySelector('.bubble').textContent.trim() : ''
+          };
+        }""")
+        results.append(("focus_4", focus_4))
+        check("floor_focus_4", "is-focus" in focus_4["f4"] and "is-dim" in focus_4["f3"] and focus_4["h4"] > focus_4["h3"] * 2, focus_4)
+        check("floor_chip_4", "4F" in page.inner_text("#floorChip"), page.inner_text("#floorChip"))
+        check("elevator_4", page.inner_text("#shaftCar") == "4F", page.get_attribute("#shaftCar", "style"))
+        check("floor_visible_4", focus_4["vis"] == {"p1": True, "p2": False, "p4": False, "p0": False, "p3": False}, focus_4["vis"])
+        check("floor4_bubble", focus_4["talk"] in ["📣 08:00 통합 브리핑", "🗂️ 04:00 전체 상황공유", "🧭 최종 의사결정 대기", "⚡ 크레딧 릴레이 총괄"], focus_4["talk"])
+        cards_4 = page.inner_text("#floorCards")
+        results.append(("floor_cards_4", cards_4[:220]))
+        check("floor_card_4", all(k in cards_4 for k in ["대표·총괄 지휘실", "대장님 대표", "08:00 통합 브리핑", "크레딧 릴레이 총괄"]), cards_4[:140])
+        page.screenshot(path=str(SHOTS / "03-floor-4.png"))
+
+        # ---- 층 전환: 3F ----
+        page.click('.floor-btn[data-floor="3"]')
+        page.wait_for_timeout(750)
+        focus_3 = page.evaluate("""() => {
+          const f3 = document.querySelector('.floor[data-floor="3"]');
+          const f4 = document.querySelector('.floor[data-floor="4"]');
+          const vis = {};
+          document.querySelectorAll('.agent').forEach(a => { vis[a.getAttribute('data-agent')] = !a.classList.contains('is-hidden'); });
+          const p4 = document.querySelector('.agent[data-agent="p4"]');
+          return {f3: f3.className, f4: f4.className, h3: Math.round(f3.getBoundingClientRect().height), h4: Math.round(f4.getBoundingClientRect().height), vis: vis,
+                  talk: p4.classList.contains('talk') ? p4.querySelector('.bubble').textContent.trim() : ''};
+        }""")
+        results.append(("focus_3", focus_3))
+        check("floor_focus_3", "is-focus" in focus_3["f3"] and "is-dim" in focus_3["f4"] and focus_3["h3"] > focus_3["h4"] * 2, focus_3)
+        check("floor_visible_3", focus_3["vis"] == {"p1": False, "p2": True, "p4": True, "p0": False, "p3": False}, focus_3["vis"])
+        check("floor3_bubble", focus_3["talk"] in ["🔍 교차 검증 완료", "💬 전략 조언 3건", "📰 아침 뉴스 브리핑", "🩺 의료기기 브리핑"], focus_3["talk"])
+        cards_3 = page.inner_text("#floorCards")
+        results.append(("floor_cards_3", cards_3[:220]))
+        check("floor_card_3", all(k in cards_3 for k in ["전략·검수·기획실", "2호 크리 부실장", "챗지피티 과장", "교차 검증·전략 조언"]), cards_3[:140])
+        page.screenshot(path=str(SHOTS / "03-floor-3.png"))
+
+        # ---- 층 전환: 1F ----
+        page.click('.floor-btn[data-floor="1"]')
+        page.wait_for_timeout(750)
+        vis_1 = page.evaluate("""() => {
+          const o = {};
+          document.querySelectorAll('.agent').forEach(a => { o[a.getAttribute('data-agent')] = !a.classList.contains('is-hidden'); });
+          return o;
+        }""")
+        results.append(("visible_1", vis_1))
+        check("floor_visible_1", vis_1 == {"p1": False, "p2": False, "p4": False, "p0": False, "p3": True}, vis_1)
+        cards_1 = page.inner_text("#floorCards")
+        results.append(("floor_cards_1", cards_1[:220]))
+        check("floor_card_1", all(k in cards_1 for k in ["현장 실행·응모 라운지", "3호 대리", "무료 경품·퀴즈 응모 124건+", "0원 쿠폰 줍줍"]), cards_1[:140])
+        page.screenshot(path=str(SHOTS / "03-floor-1.png"))
+
+        # ---- 층 카드에서 2F, 다시 전체 ----
+        page.click('#floorCards [data-floor="all"]')
+        page.wait_for_timeout(650)
+        check("floor_back_all_chip", "전체" in page.inner_text("#floorChip"), page.inner_text("#floorChip"))
+        page.click('.floor[data-floor="2"] .floor-scene')
+        page.wait_for_timeout(750)
+        check("floor_click_2", "is-focus" in (page.get_attribute('.floor[data-floor="2"]', "class") or ""), page.get_attribute('.floor[data-floor="2"]', "class"))
+        check("floor_chip_2", "2F" in page.inner_text("#floorChip"), page.inner_text("#floorChip"))
+        cards_2 = page.inner_text("#floorCards")
+        check("floor_card_2", all(k in cards_2 for k in ["핵심 실무·개발실", "클로드 부장", "GitHub 동기화"]), cards_2[:140])
+        page.click('.floor-btn[data-floor="all"]')
+        page.wait_for_timeout(750)
+        all_state = page.evaluate("""() => {
+          const dim = document.querySelectorAll('.floor.is-dim').length;
+          const focus = document.querySelectorAll('.floor.is-focus').length;
+          const vis = {};
+          document.querySelectorAll('.agent').forEach(a => { vis[a.getAttribute('data-agent')] = !a.classList.contains('is-hidden'); });
+          return {dim: dim, focus: focus, vis: vis};
+        }""")
+        results.append(("floor_all_state", all_state))
+        check("floor_all_reset", all_state["dim"] == 0 and all_state["focus"] == 0 and all(v for v in all_state["vis"].values()), all_state)
+        cards_all2 = page.eval_on_selector_all("#floorCards .floor-card .fc-name", "els => els.map(e => e.textContent.trim())")
+        check("floor_cards_back", len(cards_all2) == 4, cards_all2)
+        check("map_no_hscroll", page.evaluate("document.documentElement.scrollWidth") <= 390, page.evaluate("document.documentElement.scrollWidth"))
+        page.screenshot(path=str(SHOTS / "04-map-all.png"))
+        page.wait_for_timeout(400)
 
         # 알림 시트
         page.click("#btnBell")
@@ -255,12 +372,16 @@ def main():
         page.wait_for_timeout(500)
         chain_names = page.eval_on_selector_all(
             "#chainStrip .chain-node .cn-name", "els => els.map(e => e.textContent.trim())")
+        chain_roles = page.eval_on_selector_all(
+            "#chainStrip .chain-node small", "els => els.map(e => e.textContent.trim())")
         team_names = page.eval_on_selector_all(
             "#teamGrid .team-name", "els => els.map(e => e.textContent.trim())")
         results.append(("chain_names", chain_names))
+        results.append(("chain_roles", chain_roles))
         results.append(("team_names", team_names))
-        check("chain_6", chain_names == ["대장님", "부대장 클로드", "참모 GPT", "1호", "2호 크리", "3호"], chain_names)
-        check("team_5", len(team_names) == 5 and "부대장 클로드" in team_names and "참모 GPT" in team_names, team_names)
+        check("chain_6", chain_names == ["대장님", "1호", "2호 크리", "클로드", "챗지피티", "3호"], chain_names)
+        check("chain_roles", chain_roles == ["대표", "총괄실장", "부실장", "부장", "과장", "대리"], chain_roles)
+        check("team_5", len(team_names) == 5 and "클로드 부장" in team_names and "챗지피티 과장" in team_names, team_names)
         results.append(("team_scroll_w", page.evaluate("document.documentElement.scrollWidth")))
         check("meeting_no_hscroll", page.evaluate("document.documentElement.scrollWidth") <= 390, "")
         page.screenshot(path=str(SHOTS / "05-meeting.png"))
@@ -325,7 +446,7 @@ def main():
         results.append(("packet_items", packets))
         check("packet_rendered", packets == 7, packets)
 
-        # AI한도: 부대장 카드
+        # AI한도: 클로드 부장 카드
         page.click('.tab[data-tab="credits"]')
         page.wait_for_timeout(400)
         credit_names = page.eval_on_selector_all(
@@ -334,10 +455,10 @@ def main():
             "#creditList .cc-note", "els => els.map(e => e.textContent.trim())")
         results.append(("credit_names", credit_names))
         results.append(("credit_notes", credit_notes))
-        check("credit_5", len(credit_names) == 5 and "부대장 클로드" in credit_names and "참모 GPT" in credit_names, credit_names)
+        check("credit_5", len(credit_names) == 5 and "클로드 부장" in credit_names and "챗지피티 과장" in credit_names, credit_names)
         p0_note = credit_notes[0] if credit_notes else ""
         check("credit_p0_note", "Claude Pro" in p0_note and "GitHub" in p0_note, p0_note)
-        idx4 = credit_names.index("참모 GPT") if "참모 GPT" in credit_names else -1
+        idx4 = credit_names.index("챗지피티 과장") if "챗지피티 과장" in credit_names else -1
         p4_note = credit_notes[idx4] if idx4 >= 0 and idx4 < len(credit_notes) else ""
         p4_state = page.eval_on_selector_all("#creditList .cc-state", "els => els.map(e => e.textContent.trim())")
         results.append(("credit_states", p4_state))
@@ -392,7 +513,7 @@ def main():
         results.append(("persist_theme", page.get_attribute("html", "data-theme")))
         results.append(("persist_style", page.get_attribute("#officeStage", "class")))
 
-        # 초기 상태로 되돌리고 preview.png 촬영 (부대장 말풍선 우선)
+        # 초기 상태로 되돌리고 preview.png 촬영 (클로드 부장 말풍선 우선)
         page.click("#btnTheme")
         page.click('.seg-btn[data-style="basic"]')
         page.wait_for_timeout(1800)

@@ -50,6 +50,7 @@
   var data = null;
   var state = {
     tab: "map",
+    floor: "all",
     mapStyle: "basic",
     motion: true,
     theme: "light",
@@ -100,7 +101,7 @@
     /* accessories */
     var extra = "";
     if (id === "p0") {
-      /* 왕관 + 별 배지 — 부대장 클로드 */
+      /* 왕관 + 별 배지 — 클로드 부장 */
       extra += '<path d="M16.5 21.5l2.2-9.4 5.1 5.2 4.2-8 4.2 8 5.1-5.2 2.2 9.4z" fill="#F2C64E" stroke="#C08F1E" stroke-width="1.1" stroke-linejoin="round"/>' +
         '<rect x="16.2" y="21.4" width="23.6" height="3.1" rx="1.55" fill="#E3B33A" stroke="#C08F1E" stroke-width="1"/>' +
         '<circle cx="18.7" cy="12.8" r="1" fill="#B98413"/>' +
@@ -119,7 +120,7 @@
         '<path d="M45 41.5c0 3.4-3.4 5.4-6.4 5.4" fill="none" stroke="#3F6079" stroke-width="1.6" stroke-linecap="round"/>' +
         '<circle cx="38" cy="47" r="1.4" fill="#3F6079"/>';
     } else if (id === "p4") {
-      /* 전구 · 모노클 · 노트 배지 — 참모 GPT */
+      /* 전구 · 모노클 · 노트 배지 — 챗지피티 과장 */
       extra += '<path d="M28 4.6v-3M22.2 6.8l-1.6-1.8M33.8 6.8l1.6-1.8" stroke="#E8C64B" stroke-width="1.2" stroke-linecap="round"/>' +
         '<circle cx="28" cy="13.4" r="4.7" fill="#FFE07A" stroke="#C9A02C" stroke-width="1.1"/>' +
         '<path d="M26.2 17.6h3.6v2.4h-3.6z" fill="#C9A02C"/>' +
@@ -311,6 +312,7 @@
     applyMotion(state.motion, true);
     renderAll();
     buildAgents();
+    applyFloorState();
     bind();
     setTab(initialTab(), true);
     updateClock();
@@ -328,10 +330,11 @@
      전체 렌더
      ------------------------------------------------------------ */
   function renderAll() {
-    renderMapRooms();
+    renderFloors();
     renderTeam();
     renderChain();
     renderRoster();
+    renderFloorCards();
     renderPipeline();
     renderLogs();
     renderMemos();
@@ -349,19 +352,70 @@
     if (todayEl) todayEl.textContent = count;
   }
 
-  function renderMapRooms() {
-    var cards = $("#roomCards");
-    if (!cards) return;
-    cards.innerHTML = data.rooms.map(function (room) {
-      return '<button class="room-card" type="button" data-room="' + esc(room.id) + '" data-tab="' + esc(room.tab) + '">' +
-        '<span class="rc-icon" aria-hidden="true">' + room.icon + '</span>' +
-        '<span class="rc-body">' +
-        '<span class="rc-name">' + esc(room.name) + '</span>' +
-        '<span class="rc-line">' + esc(room.line) + '</span>' +
-        '</span>' +
-        '<span class="rc-enter">입장 →</span>' +
-        '</button>';
+  function floorById(id) {
+    return (data.floors || []).filter(function (f) { return f.id === id; })[0];
+  }
+
+  function renderFloors() {
+    var stack = $("#floorStack");
+    if (!stack || !data.floors) return;
+    stack.innerHTML = data.floors.map(function (f) {
+      return '<div class="floor tone-' + esc(f.tone) + '" data-floor="' + esc(f.id) + '"' +
+        ' role="button" tabindex="0" aria-label="' + esc(f.label + " " + f.name + " 보기") + '">' +
+        '<div class="floor-scene" aria-hidden="true"></div>' +
+        '<div class="floor-top">' +
+        '<span class="fl-no">' + esc(f.label) + '</span>' +
+        '<span class="fl-name">' + esc(f.name) + '</span>' +
+        '<span class="fl-who">' + esc(f.members) + '</span>' +
+        '<span class="fl-icon" aria-hidden="true">' + esc(f.icon || "") + '</span>' +
+        '</div>' +
+        '<div class="floor-agents" data-floor-agents="' + esc(f.id) + '"></div>' +
+        '<span class="floor-line">' + esc(f.line || "") + '</span>' +
+        '</div>';
     }).join("");
+  }
+
+  function floorCardBrief(f) {
+    var t = f.tasks || [];
+    return t.slice(0, 3).join(" · ") + (t.length > 3 ? " 외 " + (t.length - 3) : "");
+  }
+
+  function renderFloorCards() {
+    var box = $("#floorCards");
+    if (!box || !data.floors) return;
+    if (state.floor === "all") {
+      box.innerHTML = data.floors.map(function (f) {
+        return '<button class="floor-card tone-' + esc(f.tone) + '" type="button" data-floor="' + esc(f.id) + '">' +
+          '<span class="fc-no">' + esc(f.label) + '</span>' +
+          '<span class="fc-body">' +
+          '<span class="fc-name">' + esc(f.name) + '</span>' +
+          '<span class="fc-who">' + esc(f.members) + '</span>' +
+          '<span class="fc-tasks">' + esc(floorCardBrief(f)) + '</span>' +
+          '</span>' +
+          '<span class="fc-enter">보기 →</span>' +
+          '</button>';
+      }).join("");
+    } else {
+      var f = floorById(state.floor);
+      if (!f) return;
+      box.innerHTML = '<div class="floor-card is-detail tone-' + esc(f.tone) + '">' +
+        '<div class="fc-head">' +
+        '<span class="fc-no">' + esc(f.label) + '</span>' +
+        '<span class="fc-body">' +
+        '<span class="fc-name">' + esc(f.name) + '</span>' +
+        '<span class="fc-who">' + esc(f.members) + '</span>' +
+        '</span>' +
+        '<button class="btn-ghost" type="button" data-floor="all">전체 보기</button>' +
+        '</div>' +
+        '<p class="fc-line">' + esc(f.line || "") + '</p>' +
+        '<ul class="fc-list">' + (f.tasks || []).map(function (t) {
+          return '<li>' + esc(t) + '</li>';
+        }).join("") + '</ul>' +
+        '</div>';
+    }
+    box.classList.remove("is-in");
+    void box.offsetWidth;
+    box.classList.add("is-in");
   }
 
   function renderTeam() {
@@ -431,7 +485,7 @@
     }).join("") + '</ol><p class="eff-note">' + esc(p.note || "") + '</p>';
   }
 
-  var WHO = { p0: "부대장 클로드", p1: "1호", p2: "2호 크리", p3: "3호", p4: "참모 GPT", captain: "대장님" };
+  var WHO = { p0: "클로드 부장", p1: "1호 총괄실장", p2: "2호 크리 부실장", p3: "3호 대리", p4: "챗지피티 과장", captain: "대장님" };
 
   function renderLogs() {
     var box = $("#logList");
@@ -908,54 +962,64 @@
   /* ------------------------------------------------------------
      캐릭터 · 이동
      ------------------------------------------------------------ */
-  var SPOTS = {
-    grand: [[13, 33], [20, 26], [26, 42], [15, 48], [28, 32], [32, 44]],
-    command: [[46, 40], [55, 29], [61, 44], [71, 34], [50, 54], [69, 51], [76, 42], [64, 53]],
-    lounge: [[58, 72], [66, 80], [75, 69], [83, 78]],
-    corridor: [[40, 56], [44, 63], [37, 41], [43, 47], [33, 55]]
+  /* 층별 좌표 — 각 층 안에서의 % */
+  var FLOOR_SPOTS = {
+    "4": [[46, 74], [57, 78], [66, 72], [52, 82]],
+    "3": [[24, 76], [36, 80], [64, 74], [75, 78]],
+    "2": [[38, 78], [50, 74], [60, 80], [45, 84]],
+    "1": [[44, 78], [56, 74], [66, 80], [50, 84]]
   };
-  var ROUTE = {
-    p0: ["grand", "command", "lounge", "corridor"],
-    p1: ["grand", "command", "corridor", "grand"],
-    p2: ["command", "lounge", "corridor", "command"],
-    p3: ["command", "grand", "corridor"],
-    p4: ["grand", "command", "lounge", "corridor"]
-  };
+  var HOME = { p1: [46, 74], p2: [24, 76], p4: [64, 74], p0: [45, 78], p3: [44, 78] };
   var LINES = {
-    p0: ["📋 총괄 검토", "⚡ 브리핑 조율", "🔗 GitHub 동기화", "📋 총괄 검토 완료", "⚡ 5명 체제 정렬"],
-    p1: ["💬 브리핑 준비 완료", "💬 3호 게이트 확인 중", "⚡ 지시 정리 중", "🎯 12/1 발표 9건"],
-    p2: ["🎯 페토세라 0/16!", "💬 0원 쿠폰 6종", "⚡ 응모 10건 완료", "🎯 미달 26건 추렸어요", "☕ 잠깐 충전 중"],
-    p3: ["💬 검증 게이트 세팅", "⚡ 실행 승인 대기", "🎯 중복 0건 확인"],
-    p4: ["💡 아이디어 제안", "🔍 교차 검증", "💬 전략 조언"]
+    p0: ["🛠️ 웹앱 4층 개편", "🔗 GitHub 동기화", "⚙️ 자동화 개발 중", "📋 고난도 실무 처리"],
+    p1: ["📣 08:00 통합 브리핑", "🧭 최종 의사결정 대기", "⚡ 크레딧 릴레이 총괄", "🗂️ 04:00 상황공유"],
+    p2: ["🔎 리서치 정리 중", "🎟️ 체험단 조사", "🧺 가족 일정 확인", "☕ 잠깐 충전 중"],
+    p3: ["🎯 응모 124건 진행", "☕ 0원 쿠폰 줍줍", "✅ 사전 검증 게이트", "📊 시장 조사 중"],
+    p4: ["🔍 교차 검증 완료", "💡 아이디어 제안", "💬 전략 조언", "📰 아침 뉴스 브리핑"]
   };
-  var POS = { p0: [36, 52], p1: [16, 36], p2: [55, 47], p3: [71, 31], p4: [46, 62] };
+  var FLOOR_LINES = {
+    "4": { p1: ["📣 08:00 통합 브리핑", "🗂️ 04:00 전체 상황공유", "🧭 최종 의사결정 대기", "⚡ 크레딧 릴레이 총괄"] },
+    "3": {
+      p2: ["🔎 리서치 정리 중", "🧺 가족 일정 확인", "🗓️ 일정표 업데이트", "🎟️ 체험단 조사"],
+      p4: ["🔍 교차 검증 완료", "💬 전략 조언 3건", "📰 아침 뉴스 브리핑", "🩺 의료기기 브리핑"]
+    },
+    "2": { p0: ["🛠️ 웹앱 4층 개편", "🔗 GitHub 동기화", "⚙️ 자동화 개발 중", "📋 고난도 실무 처리"] },
+    "1": { p3: ["🎯 응모 124건 진행", "☕ 0원 쿠폰 줍줍", "✅ 사전 검증 게이트", "📊 시장 조사 중"] }
+  };
 
   function buildAgents() {
-    var box = $("#agents");
-    var stage = $("#officeStage");
-    if (!box || !stage) return;
-    box.innerHTML = "";
-    agents = data.team.map(function (t) {
+    agents = [];
+    data.team.forEach(function (t) {
+      var box = $('.floor-agents[data-floor-agents="' + t.floor + '"]');
+      if (!box) return;
       var el = document.createElement("div");
       el.className = "agent " + t.id;
       el.setAttribute("data-agent", t.id);
+      el.setAttribute("data-floor", t.floor);
       el.innerHTML = '<span class="bubble"></span>' +
         '<span class="sprite-wrap">' + spriteSvg(t.id) + '</span>' +
         '<span class="agent-tag">' + esc(t.name) + '</span>';
       box.appendChild(el);
-      var p = POS[t.id] || [50, 40];
+      var p = HOME[t.id] || [50, 74];
       el.style.left = p[0] + "%";
       el.style.top = p[1] + "%";
-      return {
-        id: t.id,
-        el: el,
-        x: p[0],
-        y: p[1],
-        rooms: ROUTE[t.id] || ["command"],
-        timer: null,
-        waiting: null
-      };
+      agents.push({ id: t.id, floor: t.floor, el: el, x: p[0], y: p[1], timer: null, waiting: null });
     });
+  }
+
+  function visible(a) { return state.floor === "all" || state.floor === a.floor; }
+
+  function lineFor(a) {
+    if (state.floor === "all") return pick(LINES[a.id] || ["💬"]);
+    return pick((FLOOR_LINES[a.floor] || {})[a.id] || ["💬"]);
+  }
+
+  function setAgentPos(a, pt, dur) {
+    a.el.style.transitionDuration = dur + "s";
+    a.x = pt[0];
+    a.y = pt[1];
+    a.el.style.left = pt[0] + "%";
+    a.el.style.top = pt[1] + "%";
   }
 
   function startMotion() {
@@ -963,12 +1027,13 @@
     agents.forEach(function (a) {
       window.clearTimeout(a.timer);
       window.clearTimeout(a.waiting);
-      a.timer = window.setTimeout(function () { moveAgent(a); }, 400 + Math.random() * 1200);
+      if (!visible(a)) return;
+      a.timer = window.setTimeout(function () { moveAgent(a); }, 500 + Math.random() * 1600);
     });
     scheduleTalk();
   }
 
-  function stopMotion(freeze) {
+  function stopMotion() {
     window.clearTimeout(talkTimer);
     talkTimer = null;
     agents.forEach(function (a) {
@@ -976,72 +1041,61 @@
       window.clearTimeout(a.waiting);
       a.el.classList.remove("walk");
       a.el.classList.remove("talk");
-      if (freeze) freezeAgent(a);
     });
   }
 
-  function freezeAgent(a) {
-    var stage = $("#officeStage");
-    if (!stage) return;
-    var sr = stage.getBoundingClientRect();
-    var ar = a.el.getBoundingClientRect();
-    if (!sr.width || !sr.height) return;
-    var x = ((ar.left + ar.width / 2 - sr.left) / sr.width) * 100;
-    var y = ((ar.top + ar.height - sr.top) / sr.height) * 100;
-    a.x = x;
-    a.y = y;
-    a.el.style.transitionDuration = "0s";
-    a.el.style.left = x + "%";
-    a.el.style.top = y + "%";
-    void a.el.offsetWidth;
-    a.el.style.transitionDuration = "";
-  }
-
   function pickSpot(a) {
-    var best = null;
+    var all = (FLOOR_SPOTS[a.floor] || [[50, 74]]).slice();
+    var spots = all.filter(function (p) {
+      var dx = p[0] - a.x;
+      var dy = p[1] - a.y;
+      return Math.sqrt(dx * dx + dy * dy) >= 6;
+    });
+    if (!spots.length) spots = all;
+    spots.sort(function () { return Math.random() - 0.5; });
+    var best = spots[0];
     var bestGap = -1;
-    for (var i = 0; i < 12; i++) {
-      var room = pick(a.rooms);
-      var candidate = pick(SPOTS[room] || SPOTS.command);
+    spots.forEach(function (candidate) {
       var gap = 99;
       agents.forEach(function (other) {
-        if (other === a) return;
+        if (other === a || other.floor !== a.floor) return;
         var dx = other.x - candidate[0];
         var dy = other.y - candidate[1];
         var dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < gap) gap = dist;
       });
       if (gap > bestGap) { bestGap = gap; best = candidate; }
-      if (bestGap > 13) break;
-    }
-    return best || pick(SPOTS.command);
+    });
+    return best;
   }
 
-  function moveAgent(a) {
-    if (!state.motion || state.tab !== "map" || document.hidden) return;
+  function moveAgent(a, quick) {
+    if (state.tab !== "map" || document.hidden) return;
+    if (!visible(a)) return;
+    if (!state.motion && !quick) return;
     var pt = pickSpot(a);
     var dx = pt[0] - a.x;
     var dy = pt[1] - a.y;
     var dist = Math.sqrt(dx * dx + dy * dy);
-    if (dist < 4) {
-      a.waiting = window.setTimeout(function () { moveAgent(a); }, 500);
+    if (dist < 3 && !quick) {
+      a.waiting = window.setTimeout(function () { moveAgent(a); }, 600);
       return;
     }
-    var dur = Math.max(1.7, Math.min(6.5, dist / 8.5));
-    a.el.style.transitionDuration = dur + "s";
+    var dur = quick ? 1.0 : Math.max(1.8, Math.min(6, dist / 7));
+    setAgentPos(a, pt, dur);
     a.el.classList.add("walk");
     if (dx < -0.8) a.el.classList.add("face-left");
     else if (dx > 0.8) a.el.classList.remove("face-left");
-    a.x = pt[0];
-    a.y = pt[1];
-    a.el.style.left = a.x + "%";
-    a.el.style.top = a.y + "%";
+    var bubble = a.el.querySelector(".bubble");
+    if (bubble && Math.random() < 0.5) bubble.textContent = lineFor(a);
     window.clearTimeout(a.timer);
     a.timer = window.setTimeout(function () {
       a.el.classList.remove("walk");
-      a.waiting = window.setTimeout(function () {
-        moveAgent(a);
-      }, 900 + Math.random() * 2800);
+      if (bubble && Math.random() < 0.35) {
+        a.el.classList.add("talk");
+        window.setTimeout(function () { a.el.classList.remove("talk"); }, 2200);
+      }
+      a.waiting = window.setTimeout(function () { moveAgent(a); }, 900 + Math.random() * 2600);
     }, dur * 1000 + 90);
   }
 
@@ -1049,17 +1103,80 @@
     window.clearTimeout(talkTimer);
     talkTimer = window.setTimeout(function () {
       if (state.motion && state.tab === "map" && !document.hidden) {
+        var pool = agents.filter(visible);
         agents.forEach(function (x) { x.el.classList.remove("talk"); });
-        var a = pick(agents);
+        var a = pick(pool);
         if (a) {
           var bubble = a.el.querySelector(".bubble");
-          bubble.textContent = pick(LINES[a.id] || ["💬"]);
+          bubble.textContent = lineFor(a);
           a.el.classList.add("talk");
-          window.setTimeout(function () { a.el.classList.remove("talk"); }, 2600);
+          window.setTimeout(function () { a.el.classList.remove("talk"); }, 2800);
         }
       }
       scheduleTalk();
     }, 3600 + Math.random() * 3600);
+  }
+
+  function pokeFloorAgents() {
+    agents.forEach(function (a) {
+      var on = visible(a);
+      a.el.classList.toggle("is-hidden", !on);
+      a.el.classList.remove("walk");
+      if (!on) {
+        a.el.classList.remove("talk");
+        a.el.style.transitionDuration = "";
+        return;
+      }
+      var b = a.el.querySelector(".bubble");
+      if (b) b.textContent = lineFor(a);
+      a.el.classList.add("talk");
+      (function (el) {
+        window.setTimeout(function () { el.classList.remove("talk"); }, 2800);
+      })(a.el);
+      setAgentPos(a, pickSpot(a), 1.0);
+    });
+  }
+
+  function applyFloorState() {
+    $$(".floor").forEach(function (el) {
+      var id = el.getAttribute("data-floor");
+      var focused = state.floor !== "all" && id === state.floor;
+      el.classList.toggle("is-focus", focused);
+      el.classList.toggle("is-dim", state.floor !== "all" && !focused);
+      el.setAttribute("aria-current", focused ? "true" : "false");
+    });
+    $$(".floor-btn").forEach(function (btn) {
+      var on = btn.getAttribute("data-floor") === state.floor;
+      btn.classList.toggle("is-on", on);
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+    var car = $("#shaftCar");
+    if (car) {
+      car.textContent = state.floor === "all" ? "ALL" : state.floor + "F";
+      car.style.top = state.floor === "all" ? "38%" :
+        ({ "4": "2%", "3": "27%", "2": "52%", "1": "77%" })[state.floor];
+    }
+    var chip = $("#floorChip");
+    if (chip) {
+      var f = state.floor === "all" ? null : floorById(state.floor);
+      chip.textContent = f ? "🏢 " + f.label : "🏢 전체 4개 층";
+    }
+  }
+
+  function focusFloor(id, silent) {
+    if (!id) return;
+    state.floor = (id !== "all" && id === state.floor) ? "all" : id;
+    applyFloorState();
+    renderFloorCards();
+    if (state.motion) {
+      stopMotion();
+      startMotion();
+    }
+    pokeFloorAgents();
+    if (!silent) {
+      var f = state.floor === "all" ? null : floorById(state.floor);
+      toast(f ? "🛗 " + f.label + " " + f.name + "으로 이동했어요" : "🏢 4개 층 전체 보기");
+    }
   }
 
   /* ------------------------------------------------------------
@@ -1083,7 +1200,7 @@
       stage.classList.toggle("style-basic", style === "basic");
       stage.classList.toggle("style-clay", style === "clay");
     }
-    $$(".seg-btn").forEach(function (btn) {
+    $$(".seg-btn[data-style]").forEach(function (btn) {
       var on = btn.getAttribute("data-style") === style;
       btn.classList.toggle("is-on", on);
       btn.setAttribute("aria-pressed", on ? "true" : "false");
@@ -1201,35 +1318,6 @@
   }
 
   /* ------------------------------------------------------------
-     방 패널
-     ------------------------------------------------------------ */
-  function openRoom(id) {
-    var room = data.rooms.filter(function (r) { return r.id === id; })[0];
-    if (!room) return;
-    $("#rpIcon").textContent = room.icon;
-    $("#rpName").textContent = room.name;
-    $("#rpDesc").textContent = room.desc;
-    $("#rpList").innerHTML = room.activities.map(function (a) {
-      return "<li>" + esc(a) + "</li>";
-    }).join("");
-    var enter = $("#rpEnter");
-    enter.textContent = room.tabLabel + " →";
-    enter.setAttribute("data-tab", room.tab);
-    var panel = $("#roomPanel");
-    panel.hidden = false;
-    $$(".zone").forEach(function (z) {
-      z.classList.toggle("is-open", z.getAttribute("data-room") === id);
-    });
-    panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }
-
-  function closeRoom() {
-    var panel = $("#roomPanel");
-    if (panel) panel.hidden = true;
-    $$(".zone").forEach(function (z) { z.classList.remove("is-open"); });
-  }
-
-  /* ------------------------------------------------------------
      메모
      ------------------------------------------------------------ */
   function addMemo() {
@@ -1299,7 +1387,7 @@
     $("#btnBell").addEventListener("click", openAlerts);
     $("#btnRelay").addEventListener("click", openRelay);
 
-    $$(".seg-btn").forEach(function (btn) {
+    $$(".seg-btn[data-style]").forEach(function (btn) {
       btn.addEventListener("click", function () {
         var style = btn.getAttribute("data-style");
         if (style !== state.mapStyle) applyMapStyle(style);
@@ -1309,23 +1397,32 @@
       applyMotion(!state.motion);
     });
 
-    $$(".zone").forEach(function (zone) {
-      zone.addEventListener("click", function () {
-        openRoom(zone.getAttribute("data-room"));
+    $$(".floor-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        focusFloor(btn.getAttribute("data-floor"));
       });
     });
-    $("#rpClose").addEventListener("click", closeRoom);
-    $("#rpEnter").addEventListener("click", function () {
-      var tab = $("#rpEnter").getAttribute("data-tab");
-      closeRoom();
-      setTab(tab);
-    });
-
-    $("#roomCards").addEventListener("click", function (ev) {
-      var card = ev.target.closest ? ev.target.closest(".room-card") : null;
-      if (!card) return;
-      openRoom(card.getAttribute("data-room"));
-    });
+    var floorStack = $("#floorStack");
+    if (floorStack) {
+      floorStack.addEventListener("click", function (ev) {
+        var el = ev.target.closest ? ev.target.closest(".floor") : null;
+        if (el) focusFloor(el.getAttribute("data-floor"));
+      });
+      floorStack.addEventListener("keydown", function (ev) {
+        if (ev.key !== "Enter" && ev.key !== " ") return;
+        var el = ev.target.closest ? ev.target.closest(".floor") : null;
+        if (!el) return;
+        ev.preventDefault();
+        focusFloor(el.getAttribute("data-floor"));
+      });
+    }
+    var floorCards = $("#floorCards");
+    if (floorCards) {
+      floorCards.addEventListener("click", function (ev) {
+        var el = ev.target.closest ? ev.target.closest("[data-floor]") : null;
+        if (el) focusFloor(el.getAttribute("data-floor"));
+      });
+    }
 
     document.addEventListener("click", function (ev) {
       var goto = ev.target.closest ? ev.target.closest("[data-goto]") : null;
@@ -1377,7 +1474,11 @@
       window.clearTimeout(a.timer);
       window.clearTimeout(a.waiting);
       a.el.classList.remove("walk");
-      freezeAgent(a);
+      a.el.style.transitionDuration = "0s";
+      a.el.style.left = a.x + "%";
+      a.el.style.top = a.y + "%";
+      void a.el.offsetWidth;
+      a.el.style.transitionDuration = "";
     });
     if (state.motion) startMotion();
   }

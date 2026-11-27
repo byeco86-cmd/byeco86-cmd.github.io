@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>대장님 AI 오피스</title>
 <meta name="theme-color" content="#FAF5EC">
-<meta name="description" content="대장님 전용 AI 오피스 — 부대장 클로드·참모 GPT·1호·2호·3호가 움직이는 본부 맵, 회의실, 대시보드, 캘린더, AI한도, 응모/당첨">
+<meta name="description" content="대장님 전용 AI 오피스 — 1호 총괄실장·2호 부실장·클로드 부장·챗지피티 과장·3호 대리가 움직이는 본부 맵, 회의실, 대시보드, 캘린더, AI한도, 응모/당첨">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="대장님 AI 오피스">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -87,8 +87,8 @@
     <!-- ================= 맵 ================= -->
     <section class="view is-active" id="view-map" data-view="map" role="tabpanel" aria-labelledby="tab-map">
       <div class="sec-head">
-        <h2>본부 오피스</h2>
-        <p>공간을 눌러 들어가 보세요. 방마다 봇들이 일하고 있어요.</p>
+        <h2>4층 오피스</h2>
+        <p>층을 눌러 올라가 보세요. 층마다 맡은 일과 봇이 달라요.</p>
       </div>
 
       <div class="map-controls">
@@ -102,58 +102,56 @@
       </div>
 
       <div class="status-chips">
-        <span class="chip chip-green"><span class="live-dot" aria-hidden="true"></span>3개 방 가동</span>
+        <span class="chip chip-green"><span class="live-dot" aria-hidden="true"></span>4개 층 가동</span>
         <span class="chip" id="onCount">👥 5명 ON</span>
+        <span class="chip" id="floorChip">🏢 전체 4개 층</span>
         <span class="chip" id="clockChip">🕘 --:--</span>
       </div>
-      <p class="map-roster" id="mapRoster">부대장 클로드 · 참모 GPT · 1호 기획실장 · 2호 크리 부장 · 3호 합류대기</p>
+      <p class="map-roster" id="mapRoster">1호 총괄실장 · 2호 크리 부실장 · 챗지피티 과장 · 클로드 부장 · 3호 대리</p>
+
+      <div class="seg floor-switch" role="group" aria-label="층 선택">
+        <button class="seg-btn floor-btn is-on" type="button" data-floor="all" aria-pressed="true">전체</button>
+        <button class="seg-btn floor-btn" type="button" data-floor="4" aria-pressed="false">4F</button>
+        <button class="seg-btn floor-btn" type="button" data-floor="3" aria-pressed="false">3F</button>
+        <button class="seg-btn floor-btn" type="button" data-floor="2" aria-pressed="false">2F</button>
+        <button class="seg-btn floor-btn" type="button" data-floor="1" aria-pressed="false">1F</button>
+      </div>
 
       <div class="stage-wrap">
-        <div class="office-stage style-basic" id="officeStage" aria-label="대장님 AI 오피스 맵">
-          <button class="zone zone-grand" type="button" data-room="grand" aria-label="대회의실 열기">
-            <span class="zone-tag">🏛️ 대회의실</span>
-          </button>
-          <button class="zone zone-command" type="button" data-room="command" aria-label="지휘실 열기">
-            <span class="zone-tag">🩵 지휘실</span>
-          </button>
-          <button class="zone zone-lounge" type="button" data-room="lounge" aria-label="응모·핫딜 라운지 열기">
-            <span class="zone-tag">☕ 응모·핫딜 라운지</span>
-          </button>
-          <div class="agents" id="agents" aria-hidden="true"></div>
-        </div>
-        <p class="stage-caption">클릭 공간을 열면 지시·메모·회의가 이어집니다</p>
-      </div>
-
-      <div class="room-panel" id="roomPanel" hidden>
-        <div class="rp-head">
-          <span class="rp-icon" id="rpIcon" aria-hidden="true">🏛️</span>
-          <div class="rp-title">
-            <h3 id="rpName">대회의실</h3>
-            <p id="rpDesc">1호가 브리핑을 준비하는 방</p>
+        <div class="office-stage style-basic" id="officeStage" aria-label="4층 AI 오피스 건물">
+          <div class="bld-roof" aria-hidden="true">
+            <span class="bld-sign">🏢 대장님 AI 오피스</span>
+            <span class="roof-lights"><i></i><i></i><i></i></span>
           </div>
-          <button class="icon-btn sm" id="rpClose" type="button" aria-label="방 패널 닫기">✕</button>
+          <div class="bld-body">
+            <div class="bld-shaft" aria-hidden="true">
+              <span class="shaft-rail"></span>
+              <span class="shaft-car" id="shaftCar">ALL</span>
+            </div>
+            <div class="bld-floors" id="floorStack"></div>
+          </div>
+          <div class="bld-ground" aria-hidden="true"><span>정문 · 방문 수령 데스크</span></div>
         </div>
-        <ul class="rp-list" id="rpList"></ul>
-        <button class="btn-primary block" id="rpEnter" type="button">회의실 입장 →</button>
+        <p class="stage-caption">층을 누르면 그 층의 봇과 업무로 전환됩니다 · 엘리베이터로도 이동</p>
       </div>
 
-      <h3 class="sec-title">지금 본부에서는</h3>
-      <div class="room-cards" id="roomCards"></div>
+      <h3 class="sec-title">지금 이 층에서는</h3>
+      <div class="floor-cards" id="floorCards"></div>
 
-      <p class="foot-note">방 3개 · 봇 <span id="botCount">5</span>명 · 오늘 처리 <strong id="todayCount">–</strong>건 · 데이터는 이 기기에 저장됩니다</p>
+      <p class="foot-note">4개 층 · 봇 <span id="botCount">5</span>명 · 오늘 처리 <strong id="todayCount">–</strong>건 · 데이터는 이 기기에 저장됩니다</p>
     </section>
 
     <!-- ================= 회의실 ================= -->
     <section class="view" id="view-meeting" data-view="meeting" role="tabpanel" aria-labelledby="tab-meeting" hidden>
       <div class="sec-head">
         <h2>💬 회의실</h2>
-        <p>부대장 클로드가 총괄 검토하고, 참모 GPT가 교차 검증으로 덧붙이며 1·2·3호가 같은 판을 보고 움직입니다.</p>
+        <p>1호 총괄실장이 지휘하고, 클로드 부장이 총괄 실무·동기화를 맡으며, 챗지피티 과장이 검수·아이디어로 덧붙입니다. 2호 부실장·3호 대리까지 같은 판을 보고 움직입니다.</p>
       </div>
 
       <div class="card chain-card">
         <div class="card-head">
           <h3>지휘 체계</h3>
-          <span class="muted-sm">대장님 &gt; 부대장 &gt; 1호 &gt; 2호 &gt; 3호 · 참모 GPT 교차 검증</span>
+          <span class="muted-sm">대장님 &gt; 1호 총괄실장 &gt; 2호 부실장 &gt; 클로드 부장 &gt; 챗지피티 과장 &gt; 3호 대리</span>
         </div>
         <div class="chain-strip" id="chainStrip" aria-label="지휘 체계"></div>
       </div>
@@ -166,7 +164,7 @@
           <span class="pill pill-amber">검증 게이트 ON</span>
         </div>
         <div class="pipe" id="pipe"></div>
-        <p class="foot-note">2호 수집 → 3호 사전검증 → 1호 실행 → 3호 사후검수 → 클로드 총괄. 검증자와 실행자를 분리해 자기 검증을 막습니다.</p>
+        <p class="foot-note">2호 수집 → 3호 사전검증 → 1호 실행 → 3호 사후검수 → 클로드 부장 총괄. 검증자와 실행자를 분리해 자기 검증을 막습니다.</p>
       </div>
 
       <div class="card">
@@ -352,7 +350,7 @@
   <footer class="app-foot">
     <span>대장님 AI 오피스 v2</span>
     <span class="dot-sep" aria-hidden="true">·</span>
-    <span>부대장 클로드 · 참모 GPT · 1호 기획실장 · 2호 크리 부장 · 3호</span>
+    <span>1호 총괄실장 · 2호 부실장 · 클로드 부장 · 챗지피티 과장 · 3호 대리</span>
   </footer>
 </div>
 
