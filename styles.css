@@ -1334,6 +1334,26 @@ html[data-theme="dark"] .relay-node.is-now {
 .coupon-due.amber { color: var(--amber); background: var(--amber-soft); border-color: #efd9b4; }
 .coupon-due.blue { color: var(--blue); background: var(--blue-soft); border-color: #d5e3ef; }
 
+/* 참여 완료 / 미참여 배지 (쿠폰 done 필드) */
+.coupon-side {
+  flex: 0 0 auto;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 4px;
+}
+.coupon-done {
+  font: inherit;
+  font-size: 9.5px; font-weight: 850;
+  padding: 2.5px 7px; border-radius: 999px;
+  background: var(--card); border: 1px solid var(--line);
+  color: var(--muted);
+  white-space: nowrap; cursor: pointer;
+}
+.coupon-done:hover { border-color: var(--green); color: var(--green); }
+.coupon-done.is-done {
+  color: var(--green); background: var(--green-soft); border-color: var(--green-line);
+}
+.coupon-item.is-done { background: var(--card); }
+.coupon-item.is-done .coupon-title { color: var(--muted); }
+
 /* ---------------- sheet ---------------- */
 .sheet-backdrop {
   position: fixed;

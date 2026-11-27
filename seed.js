@@ -1,7 +1,7 @@
 /* 자동 생성 파일입니다. 원본은 data.json — scripts/build-seed.py 로 다시 만듭니다. */
 window.SECRETARY_SEED = {
-  "version": 3,
-  "updatedAt": "2026-11-27T12:56:28+09:00",
+  "version": 4,
+  "updatedAt": "2026-11-27T13:36:07+09:00",
   "captain": {
     "name": "대장님",
     "badge": "대장님 전용",
@@ -208,6 +208,13 @@ window.SECRETARY_SEED = {
   ],
   "reports": [
     {
+      "at": "13:36",
+      "from": "p2",
+      "to": "p1",
+      "tag": "수정 반영",
+      "text": "부대장 클로드 개선사항 반영해 재배포했습니다. ① scripts 폴더(빌드·검증·캐릭터 QA)도 저장소에 함께 배포 ② 체험단 d-01~d-06 C등급 6건 검증 상태 verified→partial 정정 ③ 마감일을 YYYY-MM-DD(+시각·표시 라벨)로 통일 ④ 쿠폰 6건에 참여 완료(done) 필드와 응모/당첨 탭 완료·미참여 배지 추가. 18:30 저녁 점검 알람은 대장님 지시로 등록하지 않고 제안·보류로 두었습니다."
+    },
+    {
       "at": "12:56",
       "from": "p2",
       "to": "p1",
@@ -297,7 +304,10 @@ window.SECRETARY_SEED = {
       "zero": 6,
       "quiz": 10,
       "naverPoint": 840,
-      "naverPointActual": null
+      "naverPointActual": null,
+      "done": 0,
+      "total": 6,
+      "note": "참여 완료는 응모/당첨 탭 쿠폰 카드의 배지를 눌러 기록합니다. data.json done 값이 기본값입니다."
     },
     "home": {
       "done": 0,
@@ -319,7 +329,7 @@ window.SECRETARY_SEED = {
       "host": "노사발전재단",
       "title": "2026 적극행정 우수사례 국민참여조사",
       "prize": "모바일 커피쿠폰 5,000원",
-      "deadline": "11/27",
+      "deadline": "2026-11-27",
       "announce": "공지",
       "url": "https://form.naver.com/response/BwhYx2MCHfY",
       "dedupeKey": "노사발전재단|2026 적극행정 우수사례 국민참여조사|~11/27",
@@ -335,14 +345,16 @@ window.SECRETARY_SEED = {
         "announce": "공지",
         "value": 0,
         "receivedAt": null
-      }
+      },
+      "deadlineTime": null,
+      "deadlineLabel": "11/27"
     },
     {
       "id": "e-02",
       "host": "노사발전재단",
       "title": "2026 혁신 실행과제 국민참여조사",
       "prize": "모바일 커피쿠폰 5,000원",
-      "deadline": "11/27",
+      "deadline": "2026-11-27",
       "announce": "공지",
       "url": "https://form.naver.com/response/B5kx1Zw4eZb",
       "dedupeKey": "노사발전재단|2026 혁신 실행과제 국민참여조사|~11/27",
@@ -358,14 +370,16 @@ window.SECRETARY_SEED = {
         "announce": "공지",
         "value": 0,
         "receivedAt": null
-      }
+      },
+      "deadlineTime": null,
+      "deadlineLabel": "11/27"
     },
     {
       "id": "e-03",
       "host": "한국수목원정원관리원",
       "title": "SNS채널 만족도 조사 (24문항)",
       "prize": "커피 기프티콘 100명",
-      "deadline": "11/27",
+      "deadline": "2026-11-27",
       "announce": "공지",
       "url": "https://form.naver.com/response/EAy2sPNruwB",
       "dedupeKey": "한국수목원정원관리원|SNS채널 만족도 조사 (24문항)|~11/27",
@@ -381,14 +395,16 @@ window.SECRETARY_SEED = {
         "announce": "공지",
         "value": 0,
         "receivedAt": null
-      }
+      },
+      "deadlineTime": null,
+      "deadlineLabel": "11/27"
     },
     {
       "id": "e-04",
       "host": "미추홀구시설관리공단",
       "title": "가치체계 공유도 조사 (외부용)",
       "prize": "모바일 기프티콘 5,000원 10명",
-      "deadline": "11/27",
+      "deadline": "2026-11-27",
       "announce": "12/4",
       "url": "https://form.naver.com/response/EWE8wZXhZZR",
       "dedupeKey": "미추홀구시설관리공단|가치체계 공유도 조사 (외부용)|~11/27",
@@ -404,14 +420,16 @@ window.SECRETARY_SEED = {
         "announce": "12/4",
         "value": 0,
         "receivedAt": null
-      }
+      },
+      "deadlineTime": null,
+      "deadlineLabel": "11/27"
     },
     {
       "id": "e-05",
       "host": "부산 영도구",
       "title": "SNS 만족도 설문조사",
       "prize": "배달의민족 2만원 20명",
-      "deadline": "11/30",
+      "deadline": "2026-11-30",
       "announce": "12/4",
       "url": "https://docs.google.com/forms/d/e/1FAIpQLSet7I1zkhbNFEVvQ7IguMATvpcQOePqbcX6XsjjAFRcHe3Nzw/viewform",
       "dedupeKey": "부산 영도구|SNS 만족도 설문조사|~11/30",
@@ -427,14 +445,16 @@ window.SECRETARY_SEED = {
         "announce": "12/4",
         "value": 0,
         "receivedAt": null
-      }
+      },
+      "deadlineTime": null,
+      "deadlineLabel": "11/30"
     },
     {
       "id": "e-06",
       "host": "산림청",
       "title": "개청 60주년 기념 캐치프레이즈 공모",
       "prize": "3만원 상당 쿠폰 50명",
-      "deadline": "11/30 18시",
+      "deadline": "2026-11-30",
       "announce": "12월 셋째 주",
       "url": "https://form.naver.com/response/14VjklO69Hq",
       "dedupeKey": "산림청|개청 60주년 기념 캐치프레이즈 공모|~11/30 18시",
@@ -450,14 +470,16 @@ window.SECRETARY_SEED = {
         "announce": "12월 셋째 주",
         "value": 0,
         "receivedAt": null
-      }
+      },
+      "deadlineTime": "18:00",
+      "deadlineLabel": "11/30 18시"
     },
     {
       "id": "e-07",
       "host": "전남도박문제예방치유센터",
       "title": "여수 개소 기념 퀴즈",
       "prize": "모바일 기프티콘 추첨",
-      "deadline": "12/2 17시",
+      "deadline": "2026-12-02",
       "announce": "12/4 이후 개별",
       "url": "https://form.naver.com/response/IhgdAYMLMr5",
       "dedupeKey": "전남도박문제예방치유센터|여수 개소 기념 퀴즈|~12/2 17시",
@@ -473,14 +495,16 @@ window.SECRETARY_SEED = {
         "announce": "12/4 이후 개별",
         "value": 0,
         "receivedAt": null
-      }
+      },
+      "deadlineTime": "17:00",
+      "deadlineLabel": "12/2 17시"
     },
     {
       "id": "e-08",
       "host": "충북청소년활동진흥센터",
       "title": "청소년 활동 퀴즈 이벤트",
       "prize": "편의점 5,000원 상품권",
-      "deadline": "11/30 18시",
+      "deadline": "2026-11-30",
       "announce": "공지",
       "url": "https://form.naver.com/response/8semjCIivVV",
       "dedupeKey": "충북청소년활동진흥센터|청소년 활동 퀴즈 이벤트|~11/30 18시",
@@ -496,14 +520,16 @@ window.SECRETARY_SEED = {
         "announce": "공지",
         "value": 0,
         "receivedAt": null
-      }
+      },
+      "deadlineTime": "18:00",
+      "deadlineLabel": "11/30 18시"
     },
     {
       "id": "e-09",
       "host": "금산군",
       "title": "공식 SNS 만족도 조사 (6페이지)",
       "prize": "삼동이 캘린더·스티커 200명",
-      "deadline": "12/4",
+      "deadline": "2026-12-04",
       "announce": "12/10",
       "url": "https://form.naver.com/response/1sj76eYNSTI",
       "dedupeKey": "금산군|공식 SNS 만족도 조사 (6페이지)|~12/4",
@@ -519,14 +545,16 @@ window.SECRETARY_SEED = {
         "announce": "12/10",
         "value": 0,
         "receivedAt": null
-      }
+      },
+      "deadlineTime": null,
+      "deadlineLabel": "12/4"
     },
     {
       "id": "e-10",
       "host": "서울시 동부권직장맘지원센터",
       "title": "서비스 욕구조사 및 홍보채널 만족도",
       "prize": "음료 쿠폰 300명",
-      "deadline": "12/6 23시",
+      "deadline": "2026-12-06",
       "announce": "공지",
       "url": "https://form.naver.com/response/KQGTgvaVkib",
       "dedupeKey": "서울시 동부권직장맘지원센터|서비스 욕구조사 및 홍보채널 만족도|~12/6 23시",
@@ -542,7 +570,9 @@ window.SECRETARY_SEED = {
         "announce": "공지",
         "value": 0,
         "receivedAt": null
-      }
+      },
+      "deadlineTime": "23:00",
+      "deadlineLabel": "12/6 23시"
     }
   ],
   "deals": {
@@ -556,7 +586,7 @@ window.SECRETARY_SEED = {
         "slots": 16,
         "applied": 0,
         "pay": "0원",
-        "deadline": "12-02",
+        "deadline": "2026-12-02",
         "url": "https://www.reviewplace.co.kr/pr/?id=323690",
         "category": "반려동물",
         "scoreBreakdown": {
@@ -570,12 +600,14 @@ window.SECRETARY_SEED = {
         "score": 91,
         "dedupeKey": "리뷰플레이스|페토세라 논슬립 포우크림 40ml|~12-02",
         "verification": {
-          "status": "verified",
+          "status": "partial",
           "sourceGrade": "C",
           "checkedAt": "2026-11-27T12:56:28+09:00",
           "checkedBy": "p2",
           "note": "이벤트 전문 사이트 공고 확인 · 모집 조건 원문 재확인 필요"
-        }
+        },
+        "deadlineTime": null,
+        "deadlineLabel": "12/2"
       },
       {
         "id": "d-02",
@@ -585,7 +617,7 @@ window.SECRETARY_SEED = {
         "slots": 35,
         "applied": 3,
         "pay": "0원",
-        "deadline": "12-01",
+        "deadline": "2026-12-01",
         "url": "https://www.reviewplace.co.kr/pr/?id=323015",
         "category": "생활",
         "scoreBreakdown": {
@@ -599,12 +631,14 @@ window.SECRETARY_SEED = {
         "score": 75,
         "dedupeKey": "리뷰플레이스|SKY CLIMBER BOOST 액상비료 100ml|~12-01",
         "verification": {
-          "status": "verified",
+          "status": "partial",
           "sourceGrade": "C",
           "checkedAt": "2026-11-27T12:56:28+09:00",
           "checkedBy": "p2",
           "note": "이벤트 전문 사이트 공고 확인 · 모집 조건 원문 재확인 필요"
-        }
+        },
+        "deadlineTime": null,
+        "deadlineLabel": "12/1"
       },
       {
         "id": "d-03",
@@ -614,7 +648,7 @@ window.SECRETARY_SEED = {
         "slots": 15,
         "applied": 3,
         "pay": "0원",
-        "deadline": "12-01",
+        "deadline": "2026-12-01",
         "url": "https://www.reviewplace.co.kr/pr/?id=323012",
         "category": "생활",
         "scoreBreakdown": {
@@ -628,12 +662,14 @@ window.SECRETARY_SEED = {
         "score": 68,
         "dedupeKey": "리뷰플레이스|SUAN GROWSTALK PRIME 액상비료 500ml|~12-01",
         "verification": {
-          "status": "verified",
+          "status": "partial",
           "sourceGrade": "C",
           "checkedAt": "2026-11-27T12:56:28+09:00",
           "checkedBy": "p2",
           "note": "이벤트 전문 사이트 공고 확인 · 모집 조건 원문 재확인 필요"
-        }
+        },
+        "deadlineTime": null,
+        "deadlineLabel": "12/1"
       },
       {
         "id": "d-04",
@@ -643,7 +679,7 @@ window.SECRETARY_SEED = {
         "slots": 50,
         "applied": 4,
         "pay": "0원",
-        "deadline": "12-07",
+        "deadline": "2026-12-07",
         "url": "https://www.reviewplace.co.kr/pr/?id=323796",
         "category": "생활",
         "scoreBreakdown": {
@@ -657,12 +693,14 @@ window.SECRETARY_SEED = {
         "score": 94,
         "dedupeKey": "리뷰플레이스|SOMO 고체 탈취제 코지 340g|~12-07",
         "verification": {
-          "status": "verified",
+          "status": "partial",
           "sourceGrade": "C",
           "checkedAt": "2026-11-27T12:56:28+09:00",
           "checkedBy": "p2",
           "note": "이벤트 전문 사이트 공고 확인 · 모집 조건 원문 재확인 필요"
-        }
+        },
+        "deadlineTime": null,
+        "deadlineLabel": "12/7"
       },
       {
         "id": "d-05",
@@ -672,7 +710,7 @@ window.SECRETARY_SEED = {
         "slots": 40,
         "applied": 2,
         "pay": "0원",
-        "deadline": "11-29",
+        "deadline": "2026-11-29",
         "url": "https://www.stylec.co.kr/trials/166856",
         "category": "주방",
         "scoreBreakdown": {
@@ -686,12 +724,14 @@ window.SECRETARY_SEED = {
         "score": 89,
         "dedupeKey": "스타일씨|티타늄 굽대접 (금빛 반상기)|~11-29",
         "verification": {
-          "status": "verified",
+          "status": "partial",
           "sourceGrade": "C",
           "checkedAt": "2026-11-27T12:56:28+09:00",
           "checkedBy": "p2",
           "note": "이벤트 전문 사이트 공고 확인 · 모집 조건 원문 재확인 필요"
-        }
+        },
+        "deadlineTime": null,
+        "deadlineLabel": "11/29"
       },
       {
         "id": "d-06",
@@ -701,7 +741,7 @@ window.SECRETARY_SEED = {
         "slots": 24,
         "applied": 5,
         "pay": "0원",
-        "deadline": "11-30",
+        "deadline": "2026-11-30",
         "url": "https://www.reviewplace.co.kr/pr/?id=323232",
         "category": "교육/도서",
         "scoreBreakdown": {
@@ -715,12 +755,14 @@ window.SECRETARY_SEED = {
         "score": 91,
         "dedupeKey": "리뷰플레이스|중학 독파민 1단계 (비문학/문학/어휘 택1)|~11-30",
         "verification": {
-          "status": "verified",
+          "status": "partial",
           "sourceGrade": "C",
           "checkedAt": "2026-11-27T12:56:28+09:00",
           "checkedBy": "p2",
           "note": "이벤트 전문 사이트 공고 확인 · 모집 조건 원문 재확인 필요"
-        }
+        },
+        "deadlineTime": null,
+        "deadlineLabel": "11/30"
       }
     ],
     "definition": {
@@ -752,7 +794,7 @@ window.SECRETARY_SEED = {
       "title": "금감원 홈페이지 설문",
       "prize": "1만원 상품권 500명",
       "note": "스벅·배민·네이버페이 택1 · 로그인 없음",
-      "deadline": "오늘 11/27 종료",
+      "deadline": "2026-11-27",
       "tone": "red",
       "url": "https://kon.kric.com/project/2610028_A/INDEX.asp",
       "dedupeKey": "금감원 홈페이지 설문|오늘 11/27 종료",
@@ -762,14 +804,18 @@ window.SECRETARY_SEED = {
         "checkedAt": "2026-11-27T12:56:28+09:00",
         "checkedBy": "p2",
         "note": "공식 페이지 확인"
-      }
+      },
+      "deadlineTime": null,
+      "deadlineLabel": "오늘 11/27 종료",
+      "done": false,
+      "doneAt": null
     },
     {
       "id": "c-02",
       "title": "삼성증권 채권투자 유튜브 라이브 OX",
       "prize": "투썸 아메리카노 1,000명",
       "note": "오늘 16:00 라이브 · 17:00 마감 · 폼은 라이브 중 공개",
-      "deadline": "오늘 17:00",
+      "deadline": "2026-11-27",
       "tone": "red",
       "url": "",
       "dedupeKey": "삼성증권 채권투자 유튜브 라이브 OX|오늘 17:00",
@@ -781,14 +827,18 @@ window.SECRETARY_SEED = {
         "note": "링크·마감 시각 일부 미확인"
       },
       "watchPath": "삼성증권 공식 유튜브 채널 라이브 16:00 — 라이브 중 폼 공개, 시청 링크 미확인(확인 불가 시 이 문구 유지)",
-      "channel": "YouTube · 삼성증권 공식 채널"
+      "channel": "YouTube · 삼성증권 공식 채널",
+      "deadlineTime": "17:00",
+      "deadlineLabel": "오늘 17:00",
+      "done": false,
+      "doneAt": null
     },
     {
       "id": "c-03",
       "title": "채널카페 AI 전화 체험",
       "prize": "아메리카노 기프티콘 100명",
       "note": "전화 체험 후 문자폼 · 1인 1회",
-      "deadline": "~12/2",
+      "deadline": "2026-12-02",
       "tone": "green",
       "url": "https://event.channel.io/cafe2026/",
       "dedupeKey": "채널카페 AI 전화 체험|~12/2",
@@ -798,14 +848,18 @@ window.SECRETARY_SEED = {
         "checkedAt": "2026-11-27T12:56:28+09:00",
         "checkedBy": "p4",
         "note": "공식 페이지 확인"
-      }
+      },
+      "deadlineTime": null,
+      "deadlineLabel": "~12/2",
+      "done": false,
+      "doneAt": null
     },
     {
       "id": "c-04",
       "title": "LG U+ 양림동 설문",
       "prize": "메가MGC커피 100명",
       "note": "U+one 앱에서 참여",
-      "deadline": "~11/30",
+      "deadline": "2026-11-30",
       "tone": "green",
       "url": "https://www.lguplus.com/benefit-event/ongoing/82623",
       "dedupeKey": "LG U+ 양림동 설문|~11/30",
@@ -815,14 +869,18 @@ window.SECRETARY_SEED = {
         "checkedAt": "2026-11-27T12:56:28+09:00",
         "checkedBy": "p2",
         "note": "공식 페이지 확인"
-      }
+      },
+      "deadlineTime": null,
+      "deadlineLabel": "~11/30",
+      "done": false,
+      "doneAt": null
     },
     {
       "id": "c-05",
       "title": "권리지켜 가입 + 카톡채널",
       "prize": "스타벅스 음료 선착순 850명",
       "note": "소진 시까지 · 발표일까지 채널 유지 필수",
-      "deadline": "선착순",
+      "deadline": null,
       "tone": "amber",
       "url": "https://allrights.kr/kakao-event/",
       "dedupeKey": "권리지켜 가입 + 카톡채널|선착순",
@@ -832,14 +890,18 @@ window.SECRETARY_SEED = {
         "checkedAt": "2026-11-27T12:56:28+09:00",
         "checkedBy": "p2",
         "note": "링크·마감 시각 일부 미확인"
-      }
+      },
+      "deadlineTime": null,
+      "deadlineLabel": "선착순",
+      "done": false,
+      "doneAt": null
     },
     {
       "id": "c-06",
       "title": "네이버페이 클릭 적립",
       "prize": "최대 840원",
       "note": "10시 3건 180원씩 · 11시 180원 · 06시 120원",
-      "deadline": "시간대별",
+      "deadline": null,
       "tone": "blue",
       "url": "https://point.pay.naver.com",
       "dedupeKey": "네이버페이 클릭 적립|시간대별",
@@ -874,7 +936,11 @@ window.SECRETARY_SEED = {
           "status": "기록 전"
         }
       ],
-      "efficiencyNote": "예상 합계 840원 · 실제 적립·소요시간은 루틴 후 직접 기록"
+      "efficiencyNote": "예상 합계 840원 · 실제 적립·소요시간은 루틴 후 직접 기록",
+      "deadlineTime": null,
+      "deadlineLabel": "시간대별",
+      "done": false,
+      "doneAt": null
     }
   ],
   "routine": [
@@ -925,7 +991,7 @@ window.SECRETARY_SEED = {
       "title": "저녁 점검 (제안)",
       "owner": "2호",
       "slot": "저녁",
-      "note": "당첨 발표·미완료 건 확인 · 참모 GPT 제안, 알람 등록 전 대장님 확인 필요"
+      "note": "당첨 발표·미완료 건 확인 제안 · 대장님 지시로 알람 등록하지 않음(보류)"
     }
   ],
   "awards": [

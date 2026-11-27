@@ -10,7 +10,8 @@
     style: "office.mapStyle",
     motion: "office.motion",
     memo: "office.directives",
-    read: "office.notifRead"
+    read: "office.notifRead",
+    couponDone: "office.couponDone"
   };
 
   var $ = function (sel, root) { return (root || document).querySelector(sel); };
@@ -52,7 +53,8 @@
     mapStyle: "basic",
     motion: true,
     theme: "light",
-    directives: []
+    directives: [],
+    couponDone: {}
   };
 
   var agents = [];
@@ -207,11 +209,48 @@
     return DOW_KO[new Date(p.y, p.m - 1, p.d).getDay()];
   }
 
-  function deadlineKey(md) {
-    var p = String(md).split(/[^0-9]+/).filter(function (x) { return x !== ""; });
-    var m = parseInt(p[0], 10) || 99;
-    var d = parseInt(p[1], 10) || 99;
-    return m * 100 + d;
+  /* 마감일은 data.json에서 YYYY-MM-DD(deadline) + HH:MM(deadlineTime) + 표시용 deadlineLabel 로 통일했습니다.
+     예전 MM/DD · M-D 표기가 남아 있어도 읽도록 남겨 둡니다. */
+  function isoDateOf(item) {
+    var raw = item && item.deadline != null ? String(item.deadline) : "";
+    if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+    var p = raw.split(/[^0-9]+/).filter(function (x) { return x !== ""; });
+    if (p.length < 2) return "";
+    var y = dataYear();
+    var m = parseInt(p[0], 10), d = parseInt(p[1], 10);
+    if (!m || !d) return "";
+    var baseM = data && data.updatedAt ? parseInt(String(data.updatedAt).slice(5, 7), 10) : (new Date().getMonth() + 1);
+    if (m < baseM) y += 1;   /* 11월 데이터에 1/5 마감 = 이듬해 */
+    return y + "-" + pad(m) + "-" + pad(d);
+  }
+
+  /* 응모·체험단 공통 표시 형식: 11/30 (월) 18:00 */
+  function deadlineShort(item) {
+    if (!item) return "";
+    var iso = isoDateOf(item);
+    if (!iso) return item.deadlineLabel || "미정";
+    var y = parseInt(iso.slice(0, 4), 10);
+    var m = parseInt(iso.slice(5, 7), 10);
+    var d = parseInt(iso.slice(8, 10), 10);
+    var wd = DOW_KO[new Date(y, m - 1, d).getDay()];
+    return m + "/" + d + " (" + wd + ")" + (item.deadlineTime ? " " + item.deadlineTime : "");
+  }
+
+  /* 쿠폰은 "선착순"·"시간대별"처럼 날짜가 없는 마감도 있어 label을 우선합니다. */
+  function deadlineText(item) {
+    if (!item) return "";
+    if (!isoDateOf(item) && item.deadlineLabel) return item.deadlineLabel;
+    return deadlineShort(item);
+  }
+
+  function deadlineKey(item) {
+    var iso = isoDateOf(item) || "9999-12-31";
+    return parseInt(iso.replace(/-/g, ""), 10) || 99991231;
+  }
+
+  function isDueToday(item) {
+    var iso = isoDateOf(item);
+    return !!iso && iso === todayKey();
   }
 
   function gradeBadge(v) {
@@ -264,6 +303,8 @@
     state.motion = motionRaw === null ? true : motionRaw === "on";
     state.directives = loadJSON(KEY.memo, []);
     if (!Array.isArray(state.directives)) state.directives = [];
+    state.couponDone = loadJSON(KEY.couponDone, {});
+    if (!state.couponDone || typeof state.couponDone !== "object") state.couponDone = {};
 
     applyTheme(state.theme, true);
     applyMapStyle(state.mapStyle, true);
@@ -495,7 +536,7 @@
         return '<div class="mini-row"><span class="mr-dot ' + esc(c.tone) + '"></span>' +
           '<div class="mr-main"><div class="mr-title">' + esc(c.title) + '</div>' +
           '<div class="mr-sub">' + esc(c.prize) + '</div></div>' +
-          '<span class="mr-val">' + esc(c.deadline) + '</span></div>';
+          '<span class="mr-val">' + esc(deadlineText(c)) + '</span></div>';
       }).join("");
     }
   }
@@ -657,7 +698,7 @@
     var list = $("#entryList");
     if (list) {
       list.innerHTML = data.entries.map(function (e, i) {
-        var due = /^11\/27/.test(e.deadline);
+        var due = isDueToday(e);
         var st = (e.result && e.result.status) || "발표예정";
         return '<div class="entry-item">' +
           '<span class="entry-no">' + pad(i + 1) + '</span>' +
@@ -669,7 +710,7 @@
           '<div class="entry-host">' + esc(e.host) + '</div>' +
           '<div class="entry-meta">' +
           '<span class="prize">' + esc(e.prize) + '</span>' +
-          '<span class="' + (due ? "due" : "") + '">마감 ' + esc(e.deadline) + '</span>' +
+          '<span class="' + (due ? "due" : "") + '">마감 ' + esc(deadlineShort(e)) + '</span>' +
           '<span>발표 ' + esc(e.announce) + '</span>' +
           '<span class="status s-' + esc(statusKey(st)) + '">' + esc(st) + '</span>' +
           '</div></div></div>';
@@ -692,7 +733,7 @@
           '<span class="dm">' + esc(d.platform) + '</span>' +
           '<span class="dm">' + esc(d.market) + '</span>' +
           '<span class="dm' + (hot ? " hot" : "") + '">정원 ' + d.slots + ' / 신청 ' + d.applied + '</span>' +
-          '<span class="dm">~' + esc(d.deadline) + '</span>' +
+          '<span class="dm">~' + esc(deadlineShort(d)) + '</span>' +
           '</div>' +
           '<div class="deal-slots" aria-hidden="true"><i style="width:' + Math.max(2, Math.min(100, pct)).toFixed(0) + '%"></i></div>' +
           '</div>';
@@ -702,7 +743,8 @@
     var coupons = $("#couponList");
     if (coupons) {
       coupons.innerHTML = data.coupons.map(function (c) {
-        return '<div class="coupon-item">' +
+        var done = couponIsDone(c);
+        return '<div class="coupon-item' + (done ? " is-done" : "") + '">' +
           '<span class="coupon-ico" aria-hidden="true">🎫</span>' +
           '<div class="coupon-body">' +
           '<div class="coupon-title">' +
@@ -714,9 +756,21 @@
           (c.verification ? ' ' + gradeBadge(c.verification) : '') +
           '</div>' +
           '</div>' +
-          '<span class="coupon-due ' + esc(c.tone) + '">' + esc(c.deadline) + '</span>' +
+          '<div class="coupon-side">' +
+          '<span class="coupon-due ' + esc(c.tone) + '">' + esc(deadlineText(c)) + '</span>' +
+          '<button class="coupon-done' + (done ? " is-done" : "") + '" type="button" ' +
+          'data-cdone="' + esc(c.id) + '" aria-pressed="' + (done ? "true" : "false") + '" ' +
+          'title="참여하면 눌러서 완료 표시">' +
+          (done ? "✓ 참여 완료" : "미참여") + '</button>' +
+          '</div>' +
           '</div>';
       }).join("");
+    }
+    var donePill = $("#couponDoneNote");
+    if (donePill && data.coupons) {
+      var doneCount = data.coupons.filter(couponIsDone).length;
+      donePill.textContent = "참여 완료 " + doneCount + " / " + data.coupons.length +
+        " · 배지를 누르면 이 기기에 기록됩니다.";
     }
     renderCouponEfficiency();
     renderTracking();
@@ -727,8 +781,24 @@
     return (data.deals.items || []).slice().sort(function (a, b) {
       var diff = (b.score || 0) - (a.score || 0);
       if (diff) return diff;
-      return deadlineKey(a.deadline) - deadlineKey(b.deadline);
+      return deadlineKey(a) - deadlineKey(b);
     });
+  }
+
+  /* 쿠폰 참여 완료 — data.json done이 기본값, 배지를 누르면 이 기기에만 기록됩니다. */
+  function couponIsDone(c) {
+    var o = state.couponDone || {};
+    return Object.prototype.hasOwnProperty.call(o, c.id) ? !!o[c.id] : !!c.done;
+  }
+
+  function markCoupon(id) {
+    var c = (data.coupons || []).filter(function (x) { return x.id === id; })[0];
+    if (!c) return;
+    var next = !couponIsDone(c);
+    state.couponDone[id] = next;
+    saveJSON(KEY.couponDone, state.couponDone);
+    renderEntries();
+    toast(next ? "🎫 참여 완료로 표시했어요" : "미참여로 되돌렸어요");
   }
 
   function statusKey(status) {
@@ -1271,6 +1341,16 @@
       if (btn) deleteMemo(btn.getAttribute("data-del"));
     });
     $("#btnExport").addEventListener("click", exportJson);
+
+    var couponList = $("#couponList");
+    if (couponList) {
+      couponList.addEventListener("click", function (ev) {
+        var btn = ev.target.closest ? ev.target.closest("[data-cdone]") : null;
+        if (!btn) return;
+        ev.preventDefault();
+        markCoupon(btn.getAttribute("data-cdone"));
+      });
+    }
 
     $("#sheetClose").addEventListener("click", closeSheet);
     $("#sheetBackdrop").addEventListener("click", function (ev) {
