@@ -148,9 +148,27 @@
 
       <div class="team-grid" id="teamGrid"></div>
 
+      <div class="card role-card">
+        <div class="card-head">
+          <h3>역할 디테일 · 일일 루틴</h3>
+          <span class="muted-sm">진행률 = 오늘 목표 완료 비율</span>
+        </div>
+        <div class="role-picker" id="rolePicker" role="tablist" aria-label="구성원 선택"></div>
+        <div class="role-panel" id="rolePanel"></div>
+      </div>
+
       <div class="card">
         <div class="card-head">
-          <h3>5번 · 5단 검증 파이프라인</h3>
+          <h3>협업 파이프라인 · 3단 게이트</h3>
+          <span class="pill pill-blue">리서치 → 검증 → 실행</span>
+        </div>
+        <div class="gate-flow" id="gateFlow"></div>
+        <p class="eff-note" id="gateNote"></p>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3>5단 검증 파이프라인 (게이트 세부)</h3>
           <span class="pill pill-amber">검증 게이트 ON</span>
         </div>
         <div class="pipe" id="pipe"></div>
@@ -336,6 +354,37 @@
       <p class="foot-note">응모 결과는 04:00 자동 확인 후 08:00 통합 브리핑에 합쳐집니다.</p>
     </section>
 
+    <!-- ================= 수익화 ================= -->
+    <section class="view" id="view-money" data-view="money" role="tabpanel" aria-labelledby="tab-money" hidden>
+      <div class="sec-head">
+        <h2>💰 수익화 5대 트랙</h2>
+        <p>트랙별 예상 수익·자본·리스크·주간 체크리스트와 대장님 결정 대기 항목.</p>
+      </div>
+
+      <div class="money-summary" id="moneySummary"></div>
+      <p class="money-note" id="moneyNote"></p>
+
+      <div class="track-chips" id="trackChips" role="group" aria-label="트랙 바로가기"></div>
+      <div class="track-list" id="trackList"></div>
+
+      <div class="card decide-card" id="decideCard">
+        <div class="card-head">
+          <h3>👑 대장님 의사결정 대기</h3>
+          <span class="pill pill-amber" id="decidePill">대기</span>
+        </div>
+        <div class="decide-list" id="decisionList"></div>
+        <p class="eff-note">승인·보류 표시는 이 기기에만 기록되고, 회의실의 JSON 내보내기에 함께 담깁니다.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3>역할 매핑</h3>
+          <span class="muted-sm">누가 어느 트랙의 무엇을 맡나</span>
+        </div>
+        <div class="role-map" id="roleMap"></div>
+      </div>
+    </section>
+
   </main>
 
   <nav class="tabs" id="tabs" role="tablist" aria-label="오피스 메뉴">
@@ -356,6 +405,9 @@
     </button>
     <button class="tab" type="button" role="tab" data-tab="entries" aria-selected="false" aria-controls="view-entries">
       <span class="tab-ico" aria-hidden="true">🎟️</span><span class="tab-label">응모/당첨</span>
+    </button>
+    <button class="tab" type="button" role="tab" data-tab="money" aria-selected="false" aria-controls="view-money">
+      <span class="tab-ico" aria-hidden="true">💰</span><span class="tab-label">수익화</span>
     </button>
   </nav>
 

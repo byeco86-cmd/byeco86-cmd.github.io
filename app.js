@@ -11,7 +11,9 @@
     motion: "office.motion",
     memo: "office.directives",
     read: "office.notifRead",
-    couponDone: "office.couponDone"
+    couponDone: "office.couponDone",
+    money: "office.moneyCheck",
+    decide: "office.decisions"
   };
 
   var $ = function (sel, root) { return (root || document).querySelector(sel); };
@@ -55,7 +57,10 @@
     motion: true,
     theme: "light",
     directives: [],
-    couponDone: {}
+    couponDone: {},
+    moneyCheck: {},
+    decisions: {},
+    role: "p1"
   };
 
   var agents = [];
@@ -318,6 +323,10 @@
     if (!Array.isArray(state.directives)) state.directives = [];
     state.couponDone = loadJSON(KEY.couponDone, {});
     if (!state.couponDone || typeof state.couponDone !== "object") state.couponDone = {};
+    state.moneyCheck = loadJSON(KEY.money, {});
+    if (!state.moneyCheck || typeof state.moneyCheck !== "object") state.moneyCheck = {};
+    state.decisions = loadJSON(KEY.decide, {});
+    if (!state.decisions || typeof state.decisions !== "object") state.decisions = {};
 
     applyTheme(state.theme, true);
     applyMapStyle(state.mapStyle, true);
@@ -334,7 +343,7 @@
 
   function initialTab() {
     var hash = (location.hash || "").replace("#", "");
-    var allowed = ["map", "meeting", "dash", "cal", "credits", "entries"];
+    var allowed = ["map", "meeting", "dash", "cal", "credits", "entries", "money"];
     return allowed.indexOf(hash) >= 0 ? hash : "map";
   }
 
@@ -360,6 +369,9 @@
     renderCredits();
     renderPacket();
     renderEntries();
+    renderRoles();
+    renderGates();
+    renderMoney();
     var count = data.stats && data.stats.entries ? data.stats.entries.total : "–";
     var todayEl = $("#todayCount");
     if (todayEl) todayEl.textContent = count;
@@ -384,6 +396,7 @@
         '</div>' +
         '<div class="floor-agents" data-floor-agents="' + esc(f.id) + '"></div>' +
         '<span class="floor-line">' + esc(f.line || "") + '</span>' +
+        floorHud(f) +
         '<div class="floor-profile" aria-live="polite"></div>' +
         '<div class="floor-doors" aria-hidden="true"><i class="door l"></i><i class="door r"></i>' +
         '<b class="door-label">▲ ' + esc(f.label) + '</b></div>' +
@@ -471,7 +484,7 @@
     if (!box) return;
     box.innerHTML = data.team.map(function (t) {
       var warm = t.status !== "가동 중";
-      return '<div class="team-card">' +
+      return '<div class="team-card" role="button" tabindex="0" data-profile="' + esc(t.id) + '" aria-label="' + esc(t.name + " 상세 프로필") + '">' +
         '<div class="team-avatar" aria-hidden="true">' + spriteSvg(t.id) + '</div>' +
         '<div class="team-main">' +
         '<div class="team-top"><span class="team-name">' + esc(t.name) + '</span>' +
@@ -531,9 +544,14 @@
     if (!box) return;
     var p = data.credits && data.credits.handoffPacket;
     if (!p) { box.innerHTML = ""; return; }
-    box.innerHTML = '<ol class="packet-list">' + p.items.map(function (it) {
-      return '<li>' + esc(it) + '</li>';
-    }).join("") + '</ol><p class="eff-note">' + esc(p.note || "") + '</p>';
+    var guide = p.guide || [];
+    box.innerHTML = '<div class="packet-flow" aria-hidden="true"><span>넘기는 피클</span><i></i><b>📦 7항목</b><i></i><span>받는 피클</span></div>' +
+      '<ol class="packet-list">' + p.items.map(function (it, i) {
+        var g = guide[i] || {};
+        return '<li><div class="pk-main"><span class="pk-item">' + esc(it) + '</span>' +
+          (g.who ? '<span class="pk-who">' + esc(g.who) + '</span>' : '') + '</div>' +
+          (g.example ? '<span class="pk-ex">예) ' + esc(g.example) + '</span>' : '') + '</li>';
+      }).join("") + '</ol><p class="eff-note">' + esc(p.note || "") + '</p>';
   }
 
   var WHO = { p0: "클로드 부장", p1: "1호 총괄실장", p2: "2호 크리 부실장", p3: "3호 대리", p4: "챗지피티 과장", captain: "대장님" };
@@ -1002,10 +1020,323 @@
   }
 
   /* ------------------------------------------------------------
+     역할 디테일 · 진행률 · 상세 프로필
+     ------------------------------------------------------------ */
+  var ROLE_AVA = { captain: "👑" };
+
+  function roleOf(id) {
+    var list = (data.roleDetails && data.roleDetails.members) || [];
+    return list.filter(function (m) { return m.id === id; })[0];
+  }
+
+  function avaHtml(id) {
+    return PALETTE[id] ? spriteSvg(id) : '<span class="emoji-ava">' + (ROLE_AVA[id] || "🙂") + '</span>';
+  }
+
+  function progressOf(m) {
+    var g = (m && m.goals) || [];
+    var done = g.filter(function (x) { return x.done; }).length;
+    return { done: done, total: g.length, pct: g.length ? Math.round(done / g.length * 100) : 0 };
+  }
+
+  /* 수익화 트랙에서 이 구성원이 맡은 일 */
+  var WHO_KEYS = {
+    captain: ["대장님"], p1: ["1호"], p2: ["2호 크리", "2호"], p3: ["3호"], p0: ["클로드 부장", "클로드"], p4: ["챗지피티 과장", "챗지피티"]
+  };
+  function tracksFor(id) {
+    var keys = WHO_KEYS[id] || [];
+    var out = [];
+    ((data.monetization && data.monetization.tracks) || []).forEach(function (t) {
+      (t.roles || []).forEach(function (r) {
+        if (keys.indexOf(r.who) >= 0) out.push({ track: t, task: r.task });
+      });
+    });
+    return out;
+  }
+
+  function ringHtml(pct, big) {
+    return '<span class="pring' + (big ? " big" : "") + '" style="--p:' + pct + '"><b>' + pct + '<small>%</small></b></span>';
+  }
+
+  function roleBodyHtml(id) {
+    var m = roleOf(id);
+    if (!m) return "";
+    var t = teamById(id);
+    var pr = progressOf(m);
+    var f = floorById(m.floor);
+    var tracks = tracksFor(id);
+    return '<div class="rp-head">' +
+      '<span class="rp-ava" aria-hidden="true">' + avaHtml(id) + '</span>' +
+      '<div class="rp-main"><div class="rp-name">' + esc(t ? t.name : m.name) + ' <small>' + esc(m.role) + '</small></div>' +
+      '<div class="rp-meta">' + esc((f ? f.label + " " + f.name : "") + (t ? " · " + t.handle : "")) + '</div>' +
+      '<div class="rp-mission">' + esc(m.mission) + '</div></div>' +
+      ringHtml(pr.pct, true) + '</div>' +
+      '<div class="rp-bar"><i style="width:' + pr.pct + '%"></i></div>' +
+      '<p class="rp-bar-label">오늘 목표 ' + pr.done + ' / ' + pr.total + ' 완료</p>' +
+      '<p class="rp-sub">🎯 오늘 목표</p>' +
+      '<ul class="goal-list">' + m.goals.map(function (g) {
+        return '<li class="' + (g.done ? "is-done" : "") + '"><span class="gl-box" aria-hidden="true">' + (g.done ? "✓" : "") + '</span>' + esc(g.text) + '</li>';
+      }).join("") + '</ul>' +
+      '<p class="rp-sub">🕘 일일 루틴</p>' +
+      '<ol class="mini-tl">' + m.routine.map(function (r) {
+        return '<li><span class="mt-time">' + esc(r.time) + '</span><span class="mt-task">' + esc(r.task) + '</span></li>';
+      }).join("") + '</ol>' +
+      '<div class="rp-roles">' +
+      '<div class="rp-role"><span>🚦 게이트</span><p>' + esc(m.gate) + '</p></div>' +
+      '<div class="rp-role"><span>⚡ 릴레이</span><p>' + esc(m.relay) + '</p></div>' +
+      '</div>' +
+      (t && t.duties ? '<div class="team-duties rp-duties">' + t.duties.map(function (d) { return '<span>' + esc(d) + '</span>'; }).join("") + '</div>' : '') +
+      (tracks.length ? '<p class="rp-sub">💰 수익화 담당</p><div class="rp-tracks">' + tracks.map(function (x) {
+        return '<button type="button" class="rp-track tone-' + esc(x.track.tone) + '" data-track="' + esc(x.track.id) + '">' +
+          '<b>' + esc(x.track.no) + ' ' + esc(x.track.short) + '</b><span>' + esc(x.task) + '</span></button>';
+      }).join("") + '</div>' : '');
+  }
+
+  function renderRoles() {
+    var picker = $("#rolePicker");
+    var panel = $("#rolePanel");
+    if (!picker || !panel || !data.roleDetails) return;
+    var members = data.roleDetails.members;
+    if (!roleOf(state.role)) state.role = members[0].id;
+    picker.innerHTML = members.map(function (m) {
+      var on = m.id === state.role;
+      var pr = progressOf(m);
+      return '<button type="button" class="rp-chip' + (on ? " is-on" : "") + '" role="tab" aria-selected="' + on + '" data-role="' + esc(m.id) + '">' +
+        '<span class="rc-ava" aria-hidden="true">' + avaHtml(m.id) + '</span>' +
+        '<span class="rc-name">' + esc(m.name) + '</span>' +
+        '<span class="rc-pct">' + pr.pct + '%</span></button>';
+    }).join("");
+    panel.innerHTML = roleBodyHtml(state.role);
+    panel.classList.remove("is-in");
+    void panel.offsetWidth;
+    panel.classList.add("is-in");
+  }
+
+  function openProfile(id) {
+    var m = roleOf(id);
+    if (!m) return;
+    var t = teamById(id);
+    haptic(8);
+    openSheet((t ? t.name : m.name) + " · 상세 프로필", '<div class="role-panel in-sheet">' + roleBodyHtml(id) + '</div>');
+  }
+
+  /* 3단 게이트 */
+  function renderGates() {
+    var box = $("#gateFlow");
+    var g = data.gates;
+    if (!box || !g) return;
+    box.innerHTML = g.items.map(function (it, i) {
+      return '<div class="gate g' + esc(it.no) + '">' +
+        '<div class="gate-top"><span class="gate-no">' + esc(it.icon) + '</span>' +
+        '<div><div class="gate-name">게이트 ' + esc(it.no) + ' · ' + esc(it.name) + '</div>' +
+        '<div class="gate-owners">' + it.owners.map(esc).join(" · ") + '</div></div></div>' +
+        '<ul class="gate-crit">' + it.criteria.map(function (c) { return '<li>' + esc(c) + '</li>'; }).join("") + '</ul>' +
+        '<div class="gate-out">산출물 · ' + esc(it.output) + '</div>' +
+        '</div>' + (i < g.items.length - 1 ? '<div class="gate-arrow" aria-hidden="true">통과 ▼</div>' : '');
+    }).join("");
+    var note = $("#gateNote");
+    if (note) note.textContent = g.note || "";
+  }
+
+  /* 층별 모니터 HUD */
+  function floorHud(f) {
+    var s = data.stats || {};
+    var pend = pendingDecisions().length;
+    var tiles = {
+      "4": ['<span class="hud-tile">📣 08:00 브리핑 <b>✓</b></span>',
+        '<span class="hud-tile warn">👑 결정 대기 <b>' + pend + '</b></span>',
+        '<button type="button" class="hud-tile hud-btn" data-profile="captain">👑 대표석 ›</button>'],
+      "3": ['<span class="hud-tile">🔍 게이트 ② 검증</span>',
+        '<span class="hud-tile">🧭 체험단 <b>' + ((s.deals && s.deals.total) || 0) + '</b>건 점수화</span>'],
+      "2": ['<span class="hud-tile code"><i></i><i></i><i></i></span>',
+        '<span class="hud-tile">🔗 GitHub 동기화 <b>✓</b></span>'],
+      "1": ['<span class="hud-tile">🎟️ 응모 <b>' + ((s.entries && s.entries.total) || 0) + '</b>건</span>',
+        '<span class="hud-tile">🎫 0원 쿠폰 <b>' + ((s.coupons && s.coupons.zero) || 0) + '</b>종</span>']
+    }[f.id] || [];
+    return '<div class="floor-hud">' + tiles.join("") + '</div>';
+  }
+
+  /* ------------------------------------------------------------
+     수익화 5대 트랙
+     ------------------------------------------------------------ */
+  function won(n) {
+    if (!n) return "0원";
+    if (n >= 10000) return (n / 10000).toLocaleString() + "만원";
+    return n.toLocaleString() + "원";
+  }
+  function rangeText(r) {
+    if (!r) return "—";
+    if (r.min === r.max) return won(r.max);
+    return won(r.min) + " ~ " + won(r.max);
+  }
+  function checkDone(item) {
+    var o = state.moneyCheck || {};
+    return Object.prototype.hasOwnProperty.call(o, item.id) ? !!o[item.id] : !!item.done;
+  }
+  function allDecisions() {
+    var out = [];
+    ((data.monetization && data.monetization.tracks) || []).forEach(function (t) {
+      (t.decisions || []).forEach(function (d) { out.push({ d: d, track: t }); });
+    });
+    return out;
+  }
+  function pendingDecisions() {
+    if (!data.monetization) return [];
+    return allDecisions().filter(function (x) { return !state.decisions[x.d.id]; });
+  }
+  var STAGES = ["리서치", "검증", "실행"];
+
+  function trackHtml(t, open) {
+    var items = t.checklist || [];
+    var done = items.filter(checkDone).length;
+    var pct = items.length ? Math.round(done / items.length * 100) : 0;
+    var si = STAGES.indexOf(t.stage);
+    var pend = (t.decisions || []).filter(function (d) { return !state.decisions[d.id]; }).length;
+    return '<details class="track tone-' + esc(t.tone) + '" id="track-' + esc(t.id) + '"' + (open ? " open" : "") + '>' +
+      '<summary>' +
+      '<div class="tr-head"><span class="tr-ico" aria-hidden="true">' + esc(t.icon) + '</span>' +
+      '<div class="tr-title"><span class="tr-no">트랙 ' + esc(t.no) + '</span><b>' + esc(t.name) + '</b></div>' +
+      '<span class="tr-status s-' + esc(t.status === "가동 중" ? "run" : t.status === "신규" ? "new" : t.status === "승인 대기" ? "wait" : "prep") + '">' + esc(t.status) + '</span></div>' +
+      '<p class="tr-sum">' + esc(t.summary) + '</p>' +
+      '<div class="tr-metrics">' +
+      '<div><span>예상 월 수익</span><b>' + esc(rangeText(t.monthly)) + '</b></div>' +
+      '<div><span>초기 자본</span><b>' + esc(rangeText(t.capital)) + '</b></div>' +
+      '<div><span>실적</span><b>' + esc(won(t.actual || 0)) + '</b></div>' +
+      '</div>' +
+      '<div class="tr-stage">' + STAGES.map(function (st, i) {
+        return '<span class="' + (i < si ? "done" : i === si ? "now" : "") + '">' + esc(st) + '</span>';
+      }).join('<i aria-hidden="true"></i>') + '</div>' +
+      '<div class="tr-foot"><span class="tr-prog"><i style="width:' + pct + '%"></i></span>' +
+      '<span class="tr-prog-t">주간 체크 ' + done + '/' + items.length + '</span>' +
+      (pend ? '<span class="tr-pend">👑 결정 ' + pend + '</span>' : '') +
+      '<span class="tr-more" aria-hidden="true"></span></div>' +
+      '</summary>' +
+      '<div class="tr-body">' +
+      '<p class="tr-basis">📐 수익 근거 · ' + esc(t.monthly.basis) + '<br>💵 자본 근거 · ' + esc(t.capital.basis) + '</p>' +
+      (t.pipeline ? '<p class="tr-sub">🔁 실행 파이프라인</p><ol class="tr-pipe">' + t.pipeline.map(function (p) {
+        return '<li><span class="tp-no">' + esc(p.no) + '</span><div><b><span class="tp-who">' + esc(p.who) + '</span>' + esc(p.task) + '</b><small>→ ' + esc(p.out) + '</small></div></li>';
+      }).join("") + '</ol>' : '') +
+      '<p class="tr-sub">✅ 주간 실행 체크리스트</p>' +
+      '<ul class="tr-check">' + items.map(function (c) {
+        var d = checkDone(c);
+        return '<li><button type="button" class="tc-btn' + (d ? " is-done" : "") + '" data-check="' + esc(c.id) + '" aria-pressed="' + d + '">' +
+          '<span class="tc-box" aria-hidden="true">' + (d ? "✓" : "") + '</span><span>' + esc(c.text) + '</span></button></li>';
+      }).join("") + '</ul>' +
+      '<div class="tr-cols">' +
+      '<div class="tr-risk"><p class="tr-sub">⚠️ 리스크</p><ul>' + t.risks.map(function (r) { return '<li>' + esc(r) + '</li>'; }).join("") + '</ul></div>' +
+      '<div class="tr-block"><p class="tr-sub">⛔ 차단 요인</p><ul>' + t.blockers.map(function (r) { return '<li>' + esc(r) + '</li>'; }).join("") + '</ul></div>' +
+      '</div>' +
+      '<p class="tr-sub">👥 역할 매핑</p><div class="tr-roles">' + t.roles.map(function (r) {
+        return '<div><b>' + esc(r.who) + '</b><span>' + esc(r.task) + '</span></div>';
+      }).join("") + '</div>' +
+      ((t.decisions || []).length ? '<p class="tr-sub">👑 대장님 결정 대기</p><div class="decide-list">' + t.decisions.map(decisionRow.bind(null, t)).join("") + '</div>' : '') +
+      '</div></details>';
+  }
+
+  function decisionRow(t, d) {
+    var v = state.decisions[d.id];
+    return '<div class="decide-item' + (v ? " is-set" : "") + '">' +
+      '<div class="di-main"><span class="di-track">' + esc(t.no + " " + t.short) + '</span><p>' + esc(d.text) + '</p></div>' +
+      '<div class="di-btns">' +
+      '<button type="button" class="di-btn ok' + (v === "승인" ? " is-on" : "") + '" data-decide="' + esc(d.id) + '" data-val="승인">승인</button>' +
+      '<button type="button" class="di-btn hold' + (v === "보류" ? " is-on" : "") + '" data-decide="' + esc(d.id) + '" data-val="보류">보류</button>' +
+      '</div></div>';
+  }
+
+  function renderMoney(keepOpen) {
+    var m = data.monetization;
+    var list = $("#trackList");
+    if (!m || !list) return;
+    var tracks = m.tracks;
+    var sum = function (k, f) { return tracks.reduce(function (a, t) { return a + ((t[k] && t[k][f]) || 0); }, 0); };
+    var checks = [], done = 0;
+    tracks.forEach(function (t) { (t.checklist || []).forEach(function (c) { checks.push(c); if (checkDone(c)) done += 1; }); });
+    var pend = pendingDecisions().length;
+    var running = tracks.filter(function (t) { return t.status === "가동 중"; }).length;
+    var summary = $("#moneySummary");
+    if (summary) {
+      summary.innerHTML =
+        '<div class="ms-main"><span>5대 트랙 예상 월 수익 (추정)</span><b>' + esc(won(sum("monthly", "min")) + " ~ " + won(sum("monthly", "max"))) + '</b>' +
+        '<small>실적 ' + esc(won(tracks.reduce(function (a, t) { return a + (t.actual || 0); }, 0))) + ' · 검증 전 범위</small></div>' +
+        '<div class="ms-item"><span>초기 자본</span><b>' + esc(won(sum("capital", "min")) + "~" + won(sum("capital", "max"))) + '</b></div>' +
+        '<div class="ms-item"><span>가동 트랙</span><b>' + running + ' / ' + tracks.length + '</b></div>' +
+        '<div class="ms-item"><span>주간 체크</span><b>' + done + ' / ' + checks.length + '</b></div>' +
+        '<div class="ms-item warn"><span>결정 대기</span><b>' + pend + '건</b></div>';
+    }
+    var note = $("#moneyNote");
+    if (note) note.textContent = m.note || "";
+    var chips = $("#trackChips");
+    if (chips) {
+      chips.innerHTML = tracks.map(function (t) {
+        return '<button type="button" class="tchip tone-' + esc(t.tone) + '" data-track="' + esc(t.id) + '">' + esc(t.no) + ' ' + esc(t.short) + '</button>';
+      }).join("");
+    }
+    var openIds = keepOpen || [tracks[0].id];
+    list.innerHTML = tracks.map(function (t) { return trackHtml(t, openIds.indexOf(t.id) >= 0); }).join("");
+    var dl = $("#decisionList");
+    if (dl) dl.innerHTML = allDecisions().map(function (x) { return decisionRow(x.track, x.d); }).join("");
+    var dp = $("#decidePill");
+    if (dp) dp.textContent = pend ? "대기 " + pend + "건" : "모두 처리";
+    var rm = $("#roleMap");
+    if (rm && data.roleDetails) {
+      var rows = data.roleDetails.members.map(function (mm) {
+        var tr = tracksFor(mm.id);
+        return { id: mm.id, name: mm.name + " " + mm.role, ava: avaHtml(mm.id), items: tr.map(function (x) { return { no: x.track.no, tone: x.track.tone, task: x.task }; }) };
+      });
+      ["피클", "뮤즈"].forEach(function (nm) {
+        var items = [];
+        tracks.forEach(function (t) { (t.roles || []).forEach(function (r) { if (r.who === nm) items.push({ no: t.no, tone: t.tone, task: r.task }); }); });
+        if (items.length) rows.push({ id: "", name: nm + " · 담당 지정 대기", ava: '<span class="emoji-ava">' + (nm === "피클" ? "🥒" : "🎨") + '</span>', items: items });
+      });
+      rm.innerHTML = rows.map(function (r) {
+        return '<div class="rm-row"' + (r.id ? ' role="button" tabindex="0" data-profile="' + esc(r.id) + '"' : '') + '>' +
+          '<span class="rm-ava" aria-hidden="true">' + r.ava + '</span>' +
+          '<div class="rm-main"><b>' + esc(r.name) + '</b><div class="rm-items">' + (r.items.length ? r.items.map(function (x) {
+            return '<span class="tone-' + esc(x.tone) + '"><em>' + esc(x.no) + '</em>' + esc(x.task) + '</span>';
+          }).join("") : '<span class="none">수익화 트랙 담당 없음</span>') + '</div></div></div>';
+      }).join("");
+    }
+    $$(".floor-hud .warn b").forEach(function (b) { b.textContent = pend; });
+  }
+
+  function openTrackIds() {
+    return $$("#trackList details[open]").map(function (d) { return d.id.replace("track-", ""); });
+  }
+
+  function toggleCheck(id) {
+    var item = null;
+    data.monetization.tracks.forEach(function (t) { (t.checklist || []).forEach(function (c) { if (c.id === id) item = c; }); });
+    if (!item) return;
+    var next = !checkDone(item);
+    state.moneyCheck[id] = next;
+    saveJSON(KEY.money, state.moneyCheck);
+    haptic(8);
+    renderMoney(openTrackIds());
+    toast(next ? "✅ 체크했어요" : "체크를 해제했어요");
+  }
+
+  function setDecision(id, val) {
+    if (state.decisions[id] === val) delete state.decisions[id];
+    else state.decisions[id] = val;
+    saveJSON(KEY.decide, state.decisions);
+    haptic(10);
+    renderMoney(openTrackIds());
+    toast(state.decisions[id] ? "👑 " + val + "으로 기록했어요" : "결정을 대기로 되돌렸어요");
+  }
+
+  function gotoTrack(id) {
+    if (state.tab !== "money") { closeSheet(); setTab("money"); }
+    var el = $("#track-" + id);
+    if (!el) return;
+    el.open = true;
+    window.setTimeout(function () { el.scrollIntoView({ behavior: "smooth", block: "start" }); }, 60);
+  }
+
+  /* ------------------------------------------------------------
      탭
      ------------------------------------------------------------ */
   function setTab(name, silent) {
-    var allowed = ["map", "meeting", "dash", "cal", "credits", "entries"];
+    var allowed = ["map", "meeting", "dash", "cal", "credits", "entries", "money"];
     if (allowed.indexOf(name) < 0) name = "map";
     state.tab = name;
     $$(".tab").forEach(function (btn) {
@@ -1405,12 +1736,15 @@
     var box = floorEl ? floorEl.querySelector(".floor-profile") : null;
     var t = teamById(a.id);
     if (!box || !t) return;
+    var rd = roleOf(a.id);
+    var pr = progressOf(rd);
     box.innerHTML = '<span class="fp-ava" aria-hidden="true">' + spriteSvg(a.id) + '</span>' +
       '<div class="fp-body"><div class="fp-top"><span class="fp-name">' + esc(t.name) + '</span>' +
       '<span class="fp-role">' + esc(t.role) + '</span>' +
       '<span class="fp-state"><span class="live-dot" aria-hidden="true"></span>' + esc(t.status) + '</span></div>' +
-      '<div class="fp-note">' + esc(t.note) + '</div>' +
-      '<div class="fp-duties">' + (t.duties || []).map(function (d) { return '<span>' + esc(d) + '</span>'; }).join("") + '</div></div>';
+      '<div class="fp-note">' + (rd ? '진행률 ' + pr.pct + '% · 오늘 목표 ' + pr.done + '/' + pr.total + ' · ' : '') + esc(t.note) + '</div>' +
+      '<div class="fp-duties">' + (t.duties || []).map(function (d) { return '<span>' + esc(d) + '</span>'; }).join("") + '</div></div>' +
+      '<button type="button" class="fp-more" data-profile="' + esc(a.id) + '">상세 ›</button>';
     box.classList.add("is-on");
     window.clearTimeout(profileTimer);
     profileTimer = window.setTimeout(function () {
@@ -1615,6 +1949,8 @@
       exportedAt: new Date().toISOString(),
       office: data.captain ? data.captain.office : "대장님 AI 오피스",
       directives: state.directives,
+      decisions: state.decisions,
+      moneyChecklist: state.moneyCheck,
       stats: data.stats,
       entries: data.entries,
       deals: data.deals,
@@ -1674,6 +2010,8 @@
         if (el.classList.contains("is-focus")) {
           var ag = ev.target.closest(".agent");
           if (ag) { pickAgent(ag.getAttribute("data-agent")); return; }
+          var prof = ev.target.closest("[data-profile]");
+          if (prof) { openProfile(prof.getAttribute("data-profile")); return; }
           if (ev.target.closest(".floor-profile")) return;
         }
         focusFloor(el.getAttribute("data-floor"));
@@ -1702,8 +2040,24 @@
     }
 
     document.addEventListener("click", function (ev) {
-      var goto = ev.target.closest ? ev.target.closest("[data-goto]") : null;
+      if (!ev.target.closest) return;
+      var goto = ev.target.closest("[data-goto]");
       if (goto) setTab(goto.getAttribute("data-goto"));
+      var chk = ev.target.closest("[data-check]");
+      if (chk) { ev.preventDefault(); toggleCheck(chk.getAttribute("data-check")); return; }
+      var dec = ev.target.closest("[data-decide]");
+      if (dec) { ev.preventDefault(); setDecision(dec.getAttribute("data-decide"), dec.getAttribute("data-val")); return; }
+      var tr = ev.target.closest("[data-track]");
+      if (tr) { gotoTrack(tr.getAttribute("data-track")); return; }
+      var role = ev.target.closest("[data-role]");
+      if (role) { state.role = role.getAttribute("data-role"); haptic(6); renderRoles(); return; }
+      var prof = ev.target.closest("[data-profile]");
+      if (prof && !ev.target.closest("#floorStack")) openProfile(prof.getAttribute("data-profile"));
+    });
+    document.addEventListener("keydown", function (ev) {
+      if (ev.key !== "Enter" && ev.key !== " ") return;
+      var prof = ev.target.closest ? ev.target.closest('[role="button"][data-profile]') : null;
+      if (prof && !ev.target.closest("#floorStack")) { ev.preventDefault(); openProfile(prof.getAttribute("data-profile")); }
     });
 
     $("#logList").addEventListener("click", function (ev) {
