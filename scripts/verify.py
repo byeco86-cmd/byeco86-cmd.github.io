@@ -97,6 +97,14 @@ def main():
             is_mobile=True,
             has_touch=True,
         )
+        # 외부 폰트 CDN(jsdelivr)이 막힌 환경(샌드박스·오프라인)에서도 콘솔 에러 없이 검증되도록,
+        # 받아올 수 있으면 그대로 쓰고 실패하면 빈 CSS로 대체합니다.
+        def _cdn(route):
+            try:
+                route.fulfill(response=route.fetch(timeout=8000))
+            except Exception:
+                route.fulfill(status=200, content_type="text/css", body="/* font cdn offline */")
+        page.route("https://cdn.jsdelivr.net/**", _cdn)
         page.on("console", lambda m: errors.append(f"console.{m.type}: {m.text}")
                 if m.type == "error" else warnings.append(f"{m.type}: {m.text}") if m.type == "warning" else None)
         page.on("pageerror", lambda e: errors.append(f"pageerror: {e}"))

@@ -61,38 +61,29 @@
     </div>
   </header>
 
-  <nav class="tabs" id="tabs" role="tablist" aria-label="오피스 메뉴">
-    <button class="tab is-active" type="button" role="tab" data-tab="map" aria-selected="true" aria-controls="view-map">
-      <span class="tab-ico" aria-hidden="true">🗺️</span><span class="tab-label">맵</span>
-    </button>
-    <button class="tab" type="button" role="tab" data-tab="meeting" aria-selected="false" aria-controls="view-meeting">
-      <span class="tab-ico" aria-hidden="true">💬</span><span class="tab-label">회의실</span>
-    </button>
-    <button class="tab" type="button" role="tab" data-tab="dash" aria-selected="false" aria-controls="view-dash">
-      <span class="tab-ico" aria-hidden="true">📊</span><span class="tab-label">대시보드</span>
-    </button>
-    <button class="tab" type="button" role="tab" data-tab="cal" aria-selected="false" aria-controls="view-cal">
-      <span class="tab-ico" aria-hidden="true">📅</span><span class="tab-label">캘린더</span>
-    </button>
-    <button class="tab" type="button" role="tab" data-tab="credits" aria-selected="false" aria-controls="view-credits">
-      <span class="tab-ico" aria-hidden="true">⚡</span><span class="tab-label">AI한도</span>
-    </button>
-    <button class="tab" type="button" role="tab" data-tab="entries" aria-selected="false" aria-controls="view-entries">
-      <span class="tab-ico" aria-hidden="true">🎟️</span><span class="tab-label">응모/당첨</span>
-    </button>
-  </nav>
-
   <main id="views">
 
     <!-- ================= 맵 ================= -->
     <section class="view is-active" id="view-map" data-view="map" role="tabpanel" aria-labelledby="tab-map">
-      <div class="sec-head">
-        <h2>4층 오피스</h2>
-        <p>층을 눌러 올라가 보세요. 층마다 맡은 일과 봇이 달라요.</p>
+      <div class="map-hero">
+        <div class="mh-row">
+          <div class="mh-title">
+            <span class="eyebrow"><span class="live-dot" aria-hidden="true"></span>LIVE · 대장님 본부</span>
+            <h2>4층 오피스</h2>
+          </div>
+          <span class="chip chip-clock" id="clockChip">🕘 --:--</span>
+        </div>
+        <p class="mh-desc">층을 누르면 엘리베이터로 이동 · 캐릭터를 누르면 지금 하는 일을 알려 줘요.</p>
+        <div class="status-chips">
+          <span class="chip chip-green"><span class="live-dot" aria-hidden="true"></span>4개 층 가동</span>
+          <span class="chip" id="onCount">👥 5명 ON</span>
+          <span class="chip chip-floor" id="floorChip">🏢 전체 4개 층</span>
+        </div>
+        <p class="map-roster" id="mapRoster">1호 총괄실장 · 2호 크리 부실장 · 챗지피티 과장 · 클로드 부장 · 3호 대리</p>
       </div>
 
       <div class="map-controls">
-        <div class="seg" role="group" aria-label="오피스 배경">
+        <div class="seg seg-style" role="group" aria-label="오피스 배경">
           <button class="seg-btn is-on" type="button" data-style="basic" aria-pressed="true">🏢 기본</button>
           <button class="seg-btn" type="button" data-style="clay" aria-pressed="false">🧸 클레이</button>
         </div>
@@ -101,20 +92,18 @@
         </button>
       </div>
 
-      <div class="status-chips">
-        <span class="chip chip-green"><span class="live-dot" aria-hidden="true"></span>4개 층 가동</span>
-        <span class="chip" id="onCount">👥 5명 ON</span>
-        <span class="chip" id="floorChip">🏢 전체 4개 층</span>
-        <span class="chip" id="clockChip">🕘 --:--</span>
-      </div>
-      <p class="map-roster" id="mapRoster">1호 총괄실장 · 2호 크리 부실장 · 챗지피티 과장 · 클로드 부장 · 3호 대리</p>
-
-      <div class="seg floor-switch" role="group" aria-label="층 선택">
-        <button class="seg-btn floor-btn is-on" type="button" data-floor="all" aria-pressed="true">전체</button>
-        <button class="seg-btn floor-btn" type="button" data-floor="4" aria-pressed="false">4F</button>
-        <button class="seg-btn floor-btn" type="button" data-floor="3" aria-pressed="false">3F</button>
-        <button class="seg-btn floor-btn" type="button" data-floor="2" aria-pressed="false">2F</button>
-        <button class="seg-btn floor-btn" type="button" data-floor="1" aria-pressed="false">1F</button>
+      <div class="elevator-panel">
+        <div class="ep-display" aria-hidden="true">
+          <span class="ep-arrow" id="epArrow">●</span>
+          <span class="ep-floor" id="epFloor">ALL</span>
+        </div>
+        <div class="seg floor-switch" role="group" aria-label="층 선택">
+          <button class="seg-btn floor-btn is-on" type="button" data-floor="all" aria-pressed="true">전체</button>
+          <button class="seg-btn floor-btn" type="button" data-floor="4" aria-pressed="false">4F</button>
+          <button class="seg-btn floor-btn" type="button" data-floor="3" aria-pressed="false">3F</button>
+          <button class="seg-btn floor-btn" type="button" data-floor="2" aria-pressed="false">2F</button>
+          <button class="seg-btn floor-btn" type="button" data-floor="1" aria-pressed="false">1F</button>
+        </div>
       </div>
 
       <div class="stage-wrap">
@@ -126,16 +115,17 @@
           <div class="bld-body">
             <div class="bld-shaft" aria-hidden="true">
               <span class="shaft-rail"></span>
+              <span class="shaft-stops"><i data-stop="4"></i><i data-stop="3"></i><i data-stop="2"></i><i data-stop="1"></i></span>
               <span class="shaft-car" id="shaftCar">ALL</span>
             </div>
             <div class="bld-floors" id="floorStack"></div>
           </div>
           <div class="bld-ground" aria-hidden="true"><span>정문 · 방문 수령 데스크</span></div>
         </div>
-        <p class="stage-caption">층을 누르면 그 층의 봇과 업무로 전환됩니다 · 엘리베이터로도 이동</p>
+        <p class="stage-caption">층을 누르면 엘리베이터가 그 층으로 이동해요 · 확대된 층에서 캐릭터를 눌러 보세요</p>
       </div>
 
-      <h3 class="sec-title">지금 이 층에서는</h3>
+      <div class="sec-title-row"><h3 class="sec-title">지금 이 층에서는</h3><span class="muted-sm" id="floorCardsHint">층을 눌러 자세히</span></div>
       <div class="floor-cards" id="floorCards"></div>
 
       <p class="foot-note">4개 층 · 봇 <span id="botCount">5</span>명 · 오늘 처리 <strong id="todayCount">–</strong>건 · 데이터는 이 기기에 저장됩니다</p>
@@ -249,6 +239,7 @@
           <h3>매일 루틴</h3>
           <span class="muted-sm" id="todayLabel">오늘</span>
         </div>
+        <div class="next-routine" id="nextRoutine" hidden></div>
         <div class="timeline" id="timeline"></div>
       </div>
 
@@ -347,15 +338,37 @@
 
   </main>
 
+  <nav class="tabs" id="tabs" role="tablist" aria-label="오피스 메뉴">
+    <button class="tab is-active" type="button" role="tab" data-tab="map" aria-selected="true" aria-controls="view-map">
+      <span class="tab-ico" aria-hidden="true">🗺️</span><span class="tab-label">맵</span>
+    </button>
+    <button class="tab" type="button" role="tab" data-tab="meeting" aria-selected="false" aria-controls="view-meeting">
+      <span class="tab-ico" aria-hidden="true">💬</span><span class="tab-label">회의실</span>
+    </button>
+    <button class="tab" type="button" role="tab" data-tab="dash" aria-selected="false" aria-controls="view-dash">
+      <span class="tab-ico" aria-hidden="true">📊</span><span class="tab-label">대시보드</span>
+    </button>
+    <button class="tab" type="button" role="tab" data-tab="cal" aria-selected="false" aria-controls="view-cal">
+      <span class="tab-ico" aria-hidden="true">📅</span><span class="tab-label">캘린더</span>
+    </button>
+    <button class="tab" type="button" role="tab" data-tab="credits" aria-selected="false" aria-controls="view-credits">
+      <span class="tab-ico" aria-hidden="true">⚡</span><span class="tab-label">AI한도</span>
+    </button>
+    <button class="tab" type="button" role="tab" data-tab="entries" aria-selected="false" aria-controls="view-entries">
+      <span class="tab-ico" aria-hidden="true">🎟️</span><span class="tab-label">응모/당첨</span>
+    </button>
+  </nav>
+
   <footer class="app-foot">
-    <span>대장님 AI 오피스 v2</span>
+    <span>대장님 AI 오피스 v3</span>
     <span class="dot-sep" aria-hidden="true">·</span>
     <span>1호 총괄실장 · 2호 부실장 · 클로드 부장 · 챗지피티 과장 · 3호 대리</span>
   </footer>
 </div>
 
 <div class="sheet-backdrop" id="sheetBackdrop" hidden>
-  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <span class="sheet-grip" aria-hidden="true"></span>
     <div class="sheet-head">
       <h2 id="sheetTitle">알림</h2>
       <button class="icon-btn sm" id="sheetClose" type="button" aria-label="닫기">✕</button>

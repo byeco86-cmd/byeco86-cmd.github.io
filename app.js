@@ -63,6 +63,18 @@
   var clockTimer = null;
   var toastTimer = null;
   var lastFocus = null;
+  var rideTimer = null;
+  var profileTimer = null;
+  var dialogTimer = null;
+
+  /* 가벼운 진동 피드백 (지원 기기 · 사용자 터치 안에서만) */
+  function haptic(ms) {
+    try { if (navigator.vibrate && navigator.userActivation && navigator.userActivation.isActive) navigator.vibrate(ms || 8); } catch (e) { /* ignore */ }
+  }
+
+  function teamById(id) {
+    return (data.team || []).filter(function (t) { return t.id === id; })[0];
+  }
 
   /* ------------------------------------------------------------
      컬러 팔레트 · 스프라이트
@@ -79,10 +91,10 @@
     var p = PALETTE[id] || PALETTE.p2;
     var face = "";
     /* eyes + glints */
-    face += '<circle cx="22" cy="38" r="2.6" fill="#2B2118"/>' +
-      '<circle cx="34" cy="38" r="2.6" fill="#2B2118"/>' +
-      '<circle cx="22.8" cy="37.2" r="0.85" fill="#fff"/>' +
-      '<circle cx="34.8" cy="37.2" r="0.85" fill="#fff"/>';
+    face += '<g class="eye"><circle cx="22" cy="38" r="2.6" fill="#2B2118"/>' +
+      '<circle cx="22.8" cy="37.2" r="0.85" fill="#fff"/></g>' +
+      '<g class="eye"><circle cx="34" cy="38" r="2.6" fill="#2B2118"/>' +
+      '<circle cx="34.8" cy="37.2" r="0.85" fill="#fff"/></g>';
     /* cheeks */
     face += '<circle cx="15.5" cy="45" r="3" fill="#E58B7C" opacity=".5"/>' +
       '<circle cx="40.5" cy="45" r="3" fill="#E58B7C" opacity=".5"/>';
@@ -342,6 +354,7 @@
     renderDealsAndCoupons();
     renderFamily();
     renderCalendar();
+    renderNextRoutine();
     renderAwards();
     renderBirthdays();
     renderCredits();
@@ -371,6 +384,9 @@
         '</div>' +
         '<div class="floor-agents" data-floor-agents="' + esc(f.id) + '"></div>' +
         '<span class="floor-line">' + esc(f.line || "") + '</span>' +
+        '<div class="floor-profile" aria-live="polite"></div>' +
+        '<div class="floor-doors" aria-hidden="true"><i class="door l"></i><i class="door r"></i>' +
+        '<b class="door-label">▲ ' + esc(f.label) + '</b></div>' +
         '</div>';
     }).join("");
   }
@@ -380,10 +396,20 @@
     return t.slice(0, 3).join(" · ") + (t.length > 3 ? " 외 " + (t.length - 3) : "");
   }
 
+  function miniAva(id) {
+    return '<span>' + spriteSvg(id) + '</span>';
+  }
+
+  function floorAgents(f) {
+    return (f.agents && f.agents.length ? f.agents : data.team.filter(function (t) { return t.floor === f.id; }).map(function (t) { return t.id; }));
+  }
+
   function renderFloorCards() {
     var box = $("#floorCards");
     if (!box || !data.floors) return;
+    var hint = $("#floorCardsHint");
     if (state.floor === "all") {
+      if (hint) hint.textContent = "층을 눌러 자세히";
       box.innerHTML = data.floors.map(function (f) {
         return '<button class="floor-card tone-' + esc(f.tone) + '" type="button" data-floor="' + esc(f.id) + '">' +
           '<span class="fc-no">' + esc(f.label) + '</span>' +
@@ -392,12 +418,27 @@
           '<span class="fc-who">' + esc(f.members) + '</span>' +
           '<span class="fc-tasks">' + esc(floorCardBrief(f)) + '</span>' +
           '</span>' +
-          '<span class="fc-enter">보기 →</span>' +
+          '<span class="fc-avas" aria-hidden="true">' + floorAgents(f).map(miniAva).join("") + '</span>' +
+          '<span class="fc-enter" aria-hidden="true">›</span>' +
           '</button>';
       }).join("");
     } else {
       var f = floorById(state.floor);
       if (!f) return;
+      if (hint) hint.textContent = f.label + " · " + (f.short || f.name);
+      var ids = data.floors.map(function (x) { return x.id; });
+      var idx = ids.indexOf(f.id);
+      var up = idx > 0 ? data.floors[idx - 1] : null;
+      var down = idx < ids.length - 1 ? data.floors[idx + 1] : null;
+      var members = floorAgents(f).map(function (id) {
+        var t = teamById(id);
+        if (!t) return "";
+        return '<button class="fc-member" type="button" data-say="' + esc(id) + '">' +
+          '<span class="fm-ava" aria-hidden="true">' + spriteSvg(id) + '</span>' +
+          '<span class="fm-main"><span class="fm-name">' + esc(t.name) + '<small>' + esc(t.role) + '</small></span>' +
+          '<span class="fm-note">' + esc(t.note) + '</span></span>' +
+          '<span class="fm-say">말 걸기 ›</span></button>';
+      }).join("");
       box.innerHTML = '<div class="floor-card is-detail tone-' + esc(f.tone) + '">' +
         '<div class="fc-head">' +
         '<span class="fc-no">' + esc(f.label) + '</span>' +
@@ -405,12 +446,19 @@
         '<span class="fc-name">' + esc(f.name) + '</span>' +
         '<span class="fc-who">' + esc(f.members) + '</span>' +
         '</span>' +
-        '<button class="btn-ghost" type="button" data-floor="all">전체 보기</button>' +
+        '<span class="fc-avas" aria-hidden="true">' + floorAgents(f).map(miniAva).join("") + '</span>' +
         '</div>' +
         '<p class="fc-line">' + esc(f.line || "") + '</p>' +
+        '<p class="fc-sub">이 층의 업무 ' + (f.tasks || []).length + '</p>' +
         '<ul class="fc-list">' + (f.tasks || []).map(function (t) {
           return '<li>' + esc(t) + '</li>';
         }).join("") + '</ul>' +
+        (members ? '<p class="fc-sub">이 층 멤버</p><div class="fc-members">' + members + '</div>' : '') +
+        '<div class="fc-nav">' +
+        '<button type="button"' + (up ? ' data-floor="' + esc(up.id) + '"' : ' disabled') + '>▲ ' + (up ? esc(up.label) : "옥상") + '</button>' +
+        '<button class="fc-all" type="button" data-floor="all">전체 보기</button>' +
+        '<button type="button"' + (down ? ' data-floor="' + esc(down.id) + '"' : ' disabled') + '>▼ ' + (down ? esc(down.label) : "로비") + '</button>' +
+        '</div>' +
         '</div>';
     }
     box.classList.remove("is-in");
@@ -429,6 +477,7 @@
         '<div class="team-top"><span class="team-name">' + esc(t.name) + '</span>' +
         '<span class="team-role">' + esc(t.role) + '</span>' +
         '<span class="team-handle">' + esc(t.handle) + '</span></div>' +
+        (floorById(t.floor) ? '<span class="team-floor">' + esc(floorById(t.floor).label + " · " + (floorById(t.floor).short || floorById(t.floor).name)) + '</span>' : '') +
         '<p class="team-note">' + esc(t.note) + '</p>' +
         '<div class="team-duties">' + t.duties.map(function (d) {
           return "<span>" + esc(d) + "</span>";
@@ -443,7 +492,9 @@
     var box = $("#chainStrip");
     if (!box || !data.chain) return;
     box.innerHTML = data.chain.map(function (c, i) {
+      var ava = PALETTE[c.id] ? spriteSvg(c.id) : "👑";
       var html = '<div class="chain-node ' + esc(c.tone || "") + '">' +
+        '<span class="cn-ava" aria-hidden="true">' + ava + '</span>' +
         '<span class="cn-name">' + esc(c.name) + '</span>' +
         '<small>' + esc(c.role) + '</small></div>';
       if (i < data.chain.length - 1) html += '<span class="chain-arrow" aria-hidden="true">›</span>';
@@ -499,7 +550,9 @@
         '<span class="log-tag">' + esc(r.tag) + '</span></div>' +
         '<p class="log-text">' + esc(r.text) + '</p>' +
         '</div></div>';
-    }).join("");
+    }).join("") + (data.reports.length > 5
+      ? '<button class="btn-ghost block log-more" type="button" data-logmore aria-expanded="false">이전 보고 ' + (data.reports.length - 5) + '건 더 보기</button>'
+      : "");
   }
 
   function renderMemos() {
@@ -655,7 +708,8 @@
       return '<div class="slot-group">' + head + groups[slot].map(function (r) {
         var m = minutesOf(r.time);
         var isNow = Math.abs(nowMin - m) <= 20;
-        return '<div class="tl-item' + (isNow ? " now" : "") + '">' +
+        var isPast = !isNow && m < nowMin;
+        return '<div class="tl-item' + (isNow ? " now" : isPast ? " past" : "") + '">' +
           '<span class="tl-time">' + esc(r.time) + '</span>' +
           '<span class="tl-rail"><span class="tl-dot"></span></span>' +
           '<div class="tl-body"><div class="tl-title">' + esc(r.title) + '</div>' +
@@ -664,6 +718,24 @@
           '</div>';
       }).join("") + '</div>';
     }).join("");
+  }
+
+  function renderNextRoutine() {
+    var box = $("#nextRoutine");
+    if (!box || !data.routine || !data.routine.length) return;
+    var now = new Date();
+    var nowMin = now.getHours() * 60 + now.getMinutes();
+    var list = data.routine.slice().sort(function (a, b) { return minutesOf(a.time) - minutesOf(b.time); });
+    var next = list.filter(function (r) { return minutesOf(r.time) >= nowMin - 5; })[0];
+    var tomorrow = false;
+    if (!next) { next = list[0]; tomorrow = true; }
+    var left = minutesOf(next.time) - nowMin + (tomorrow ? 1440 : 0);
+    var leftText = left <= 0 ? "지금" : left < 60 ? left + "분 후" : Math.floor(left / 60) + "시간 " + (left % 60 ? (left % 60) + "분 " : "") + "후";
+    box.innerHTML = '<span class="nr-ico" aria-hidden="true">⏰</span>' +
+      '<div class="nr-main"><div class="nr-k">' + (tomorrow ? "내일 첫 루틴" : "다음 루틴") + ' · ' + esc(next.time) + '</div>' +
+      '<div class="nr-title">' + esc(next.title) + '</div></div>' +
+      '<span class="nr-left">' + esc(leftText) + '</span>';
+    box.hidden = false;
   }
 
   function renderAwards() {
@@ -1039,9 +1111,28 @@
     agents.forEach(function (a) {
       window.clearTimeout(a.timer);
       window.clearTimeout(a.waiting);
-      a.el.classList.remove("walk");
-      a.el.classList.remove("talk");
+      window.clearTimeout(a.speakT1);
+      window.clearTimeout(a.speakT2);
+      a.el.classList.remove("walk", "talk", "typing");
     });
+    window.clearTimeout(dialogTimer);
+  }
+
+  /* 말풍선: 점 세 개(입력 중) → 문구 → 사라짐 */
+  function speak(a, text, dur, delay) {
+    var bubble = a.el.querySelector(".bubble");
+    if (!bubble) return;
+    window.clearTimeout(a.speakT0);
+    window.clearTimeout(a.speakT1);
+    window.clearTimeout(a.speakT2);
+    var go = function () {
+      bubble.textContent = text || lineFor(a);
+      a.el.classList.add("talk", "typing");
+      a.speakT1 = window.setTimeout(function () { a.el.classList.remove("typing"); }, 420);
+      a.speakT2 = window.setTimeout(function () { a.el.classList.remove("talk", "typing"); }, dur || 2800);
+    };
+    if (delay) a.speakT0 = window.setTimeout(go, delay);
+    else go();
   }
 
   function pickSpot(a) {
@@ -1091,12 +1182,34 @@
     window.clearTimeout(a.timer);
     a.timer = window.setTimeout(function () {
       a.el.classList.remove("walk");
-      if (bubble && Math.random() < 0.35) {
-        a.el.classList.add("talk");
-        window.setTimeout(function () { a.el.classList.remove("talk"); }, 2200);
+      if (bubble && Math.random() < 0.35 && !a.el.classList.contains("talk")) {
+        speak(a, bubble.textContent || lineFor(a), 2400);
       }
       a.waiting = window.setTimeout(function () { moveAgent(a); }, 900 + Math.random() * 2600);
     }, dur * 1000 + 90);
+  }
+
+  function faceToward(a, b) {
+    a.el.classList.toggle("face-left", b.x < a.x);
+    b.el.classList.toggle("face-left", a.x < b.x);
+  }
+
+  /* 같은 층 두 명이 주고받는 대화 (3F 2호 ↔ 챗지피티 과장) */
+  function tryDialog(pool) {
+    var byFloor = {};
+    pool.forEach(function (a) { (byFloor[a.floor] = byFloor[a.floor] || []).push(a); });
+    var pairs = Object.keys(byFloor).filter(function (k) { return byFloor[k].length >= 2; });
+    if (!pairs.length) return false;
+    var group = byFloor[pick(pairs)].slice().sort(function () { return Math.random() - 0.5; });
+    var a = group[0], b = group[1];
+    if (a.el.classList.contains("walk") || b.el.classList.contains("walk")) return false;
+    faceToward(a, b);
+    speak(a, lineFor(a), 2400);
+    window.clearTimeout(dialogTimer);
+    dialogTimer = window.setTimeout(function () {
+      if (state.tab === "map" && visible(b)) speak(b, lineFor(b), 2600);
+    }, 1500);
+    return true;
   }
 
   function scheduleTalk() {
@@ -1104,38 +1217,59 @@
     talkTimer = window.setTimeout(function () {
       if (state.motion && state.tab === "map" && !document.hidden) {
         var pool = agents.filter(visible);
-        agents.forEach(function (x) { x.el.classList.remove("talk"); });
-        var a = pick(pool);
-        if (a) {
-          var bubble = a.el.querySelector(".bubble");
-          bubble.textContent = lineFor(a);
-          a.el.classList.add("talk");
-          window.setTimeout(function () { a.el.classList.remove("talk"); }, 2800);
+        if (!(Math.random() < 0.3 && tryDialog(pool))) {
+          var idle = pool.filter(function (x) { return !x.el.classList.contains("talk"); });
+          var a = pick(idle.length ? idle : pool);
+          if (a) speak(a, lineFor(a), 2800);
         }
       }
       scheduleTalk();
-    }, 3600 + Math.random() * 3600);
+    }, 3400 + Math.random() * 3400);
   }
 
-  function pokeFloorAgents() {
+  function pokeFloorAgents(delay) {
+    var shown = agents.filter(visible);
+    var talker = state.floor === "all" ? pick(shown) : null;
     agents.forEach(function (a) {
       var on = visible(a);
       a.el.classList.toggle("is-hidden", !on);
-      a.el.classList.remove("walk");
+      a.el.classList.remove("walk", "is-picked");
       if (!on) {
-        a.el.classList.remove("talk");
+        window.clearTimeout(a.speakT0);
+        a.el.classList.remove("talk", "typing");
         a.el.style.transitionDuration = "";
         return;
       }
-      var b = a.el.querySelector(".bubble");
-      if (b) b.textContent = lineFor(a);
-      a.el.classList.add("talk");
-      (function (el) {
-        window.setTimeout(function () { el.classList.remove("talk"); }, 2800);
-      })(a.el);
       setAgentPos(a, pickSpot(a), 1.0);
+      if (state.floor !== "all" || a === talker) {
+        speak(a, lineFor(a), 3000, delay || 0);
+        hopAgent(a, delay || 0);
+      }
     });
   }
+
+  function hopAgent(a, delay) {
+    window.setTimeout(function () {
+      a.el.classList.remove("hop");
+      void a.el.offsetWidth;
+      a.el.classList.add("hop");
+      window.setTimeout(function () { a.el.classList.remove("hop"); }, 600);
+    }, delay || 0);
+  }
+
+  /* 층 높이(flex-grow)와 같은 비율로 엘리베이터 카 위치 계산 */
+  var FLOOR_IDS = ["4", "3", "2", "1"];
+  function carTop(id) {
+    if (id === "all") return "calc(50% - 15px)";
+    var grows = FLOOR_IDS.map(function (x) { return x === id ? 3.2 : 0.62; });
+    var total = grows.reduce(function (s, g) { return s + g; }, 0);
+    var i = FLOOR_IDS.indexOf(id);
+    var pre = grows.slice(0, i).reduce(function (s, g) { return s + g; }, 0);
+    var frac = (pre + grows[i] / 2) / total;
+    return "calc(" + (frac * 100).toFixed(2) + "% - 15px)";
+  }
+
+  function floorLabel(id) { return id === "all" ? "ALL" : id + "F"; }
 
   function applyFloorState() {
     $$(".floor").forEach(function (el) {
@@ -1144,38 +1278,162 @@
       el.classList.toggle("is-focus", focused);
       el.classList.toggle("is-dim", state.floor !== "all" && !focused);
       el.setAttribute("aria-current", focused ? "true" : "false");
+      if (!focused) {
+        var prof = el.querySelector(".floor-profile");
+        if (prof) prof.classList.remove("is-on");
+      }
     });
     $$(".floor-btn").forEach(function (btn) {
       var on = btn.getAttribute("data-floor") === state.floor;
       btn.classList.toggle("is-on", on);
       btn.setAttribute("aria-pressed", on ? "true" : "false");
     });
+    var stage = $("#officeStage");
+    if (stage) stage.setAttribute("data-focus", state.floor);
     var car = $("#shaftCar");
     if (car) {
-      car.textContent = state.floor === "all" ? "ALL" : state.floor + "F";
-      car.style.top = state.floor === "all" ? "38%" :
-        ({ "4": "2%", "3": "27%", "2": "52%", "1": "77%" })[state.floor];
+      car.textContent = floorLabel(state.floor);
+      car.style.top = carTop(state.floor);
     }
     var chip = $("#floorChip");
     if (chip) {
       var f = state.floor === "all" ? null : floorById(state.floor);
-      chip.textContent = f ? "🏢 " + f.label : "🏢 전체 4개 층";
+      chip.textContent = f ? "🏢 " + f.label + " " + (f.short || f.name) : "🏢 전체 4개 층";
     }
+  }
+
+  /* 엘리베이터 표시창 — 지나가는 층을 차례로 보여 주고 도착하면 딩 */
+  function rideDisplay(from, to) {
+    var panel = $(".elevator-panel");
+    var floorEl = $("#epFloor");
+    var arrow = $("#epArrow");
+    var car = $("#shaftCar");
+    if (!panel || !floorEl) return;
+    var rank = { "1": 1, "2": 2, "3": 3, "4": 4, all: 2.5 };
+    var up = rank[to] > rank[from];
+    window.clearTimeout(rideTimer);
+    panel.classList.remove("is-arrived");
+    panel.classList.add("is-riding");
+    if (car) car.classList.add("is-riding");
+    if (arrow) arrow.textContent = up ? "▲" : "▼";
+    var steps = [];
+    if (from !== "all" && to !== "all") {
+      var a = parseInt(from, 10), b = parseInt(to, 10);
+      for (var n = a; n !== b; n += (b > a ? 1 : -1)) steps.push(String(n));
+    }
+    steps.push(to);
+    var i = 0;
+    var tick = function () {
+      floorEl.textContent = floorLabel(steps[i]);
+      i += 1;
+      if (i < steps.length) {
+        rideTimer = window.setTimeout(tick, Math.max(160, 760 / steps.length));
+      } else {
+        rideTimer = window.setTimeout(function () {
+          panel.classList.remove("is-riding");
+          if (car) car.classList.remove("is-riding");
+          if (arrow) arrow.textContent = "●";
+          void panel.offsetWidth;
+          panel.classList.add("is-arrived");
+        }, 260);
+      }
+    };
+    tick();
   }
 
   function focusFloor(id, silent) {
     if (!id) return;
+    var prev = state.floor;
     state.floor = (id !== "all" && id === state.floor) ? "all" : id;
+    if (state.floor === prev && !silent) return;
     applyFloorState();
     renderFloorCards();
+    rideDisplay(prev, state.floor);
+    var chip = $("#floorChip");
+    if (chip) {
+      chip.classList.remove("is-pulse");
+      void chip.offsetWidth;
+      chip.classList.add("is-pulse");
+    }
+    var doorDelay = 0;
+    if (state.floor !== "all") {
+      var target = $('.floor[data-floor="' + state.floor + '"]');
+      if (target) {
+        target.classList.remove("door-cycle");
+        void target.offsetWidth;
+        target.classList.add("door-cycle");
+        window.setTimeout(function () { target.classList.remove("door-cycle"); }, 1100);
+        doorDelay = 380;
+      }
+    }
     if (state.motion) {
       stopMotion();
       startMotion();
     }
-    pokeFloorAgents();
+    pokeFloorAgents(doorDelay);
     if (!silent) {
+      haptic(10);
       var f = state.floor === "all" ? null : floorById(state.floor);
-      toast(f ? "🛗 " + f.label + " " + f.name + "으로 이동했어요" : "🏢 4개 층 전체 보기");
+      toast(f ? "🛗 " + f.label + " " + f.name + " 도착" : "🏢 4개 층 전체 보기");
+    }
+  }
+
+  /* 확대된 층에서 캐릭터를 누르면: 폴짝 + 말풍선 + 프로필 카드 */
+  function freezeAgent(a) {
+    window.clearTimeout(a.timer);
+    window.clearTimeout(a.waiting);
+    var parent = a.el.parentNode;
+    if (!parent) return;
+    var pw = parent.clientWidth || 1;
+    var ph = parent.clientHeight || 1;
+    var cs = window.getComputedStyle(a.el);
+    var x = parseFloat(cs.left) / pw * 100;
+    var y = parseFloat(cs.top) / ph * 100;
+    if (!isNaN(x) && !isNaN(y)) {
+      a.el.style.transitionDuration = "0s";
+      a.x = x; a.y = y;
+      a.el.style.left = x + "%";
+      a.el.style.top = y + "%";
+      void a.el.offsetWidth;
+      a.el.style.transitionDuration = "";
+    }
+    a.el.classList.remove("walk");
+  }
+
+  function showProfile(a) {
+    var floorEl = a.el.closest(".floor");
+    var box = floorEl ? floorEl.querySelector(".floor-profile") : null;
+    var t = teamById(a.id);
+    if (!box || !t) return;
+    box.innerHTML = '<span class="fp-ava" aria-hidden="true">' + spriteSvg(a.id) + '</span>' +
+      '<div class="fp-body"><div class="fp-top"><span class="fp-name">' + esc(t.name) + '</span>' +
+      '<span class="fp-role">' + esc(t.role) + '</span>' +
+      '<span class="fp-state"><span class="live-dot" aria-hidden="true"></span>' + esc(t.status) + '</span></div>' +
+      '<div class="fp-note">' + esc(t.note) + '</div>' +
+      '<div class="fp-duties">' + (t.duties || []).map(function (d) { return '<span>' + esc(d) + '</span>'; }).join("") + '</div></div>';
+    box.classList.add("is-on");
+    window.clearTimeout(profileTimer);
+    profileTimer = window.setTimeout(function () {
+      box.classList.remove("is-on");
+      a.el.classList.remove("is-picked");
+    }, 4200);
+  }
+
+  function pickAgent(id) {
+    var a = agents.filter(function (x) { return x.id === id; })[0];
+    if (!a) return;
+    if (state.floor !== a.floor) {
+      focusFloor(a.floor, true);
+    }
+    haptic(12);
+    agents.forEach(function (x) { if (x !== a) x.el.classList.remove("is-picked"); });
+    freezeAgent(a);
+    a.el.classList.add("is-picked");
+    hopAgent(a, 0);
+    speak(a, lineFor(a), 3200, 120);
+    showProfile(a);
+    if (state.motion) {
+      a.waiting = window.setTimeout(function () { moveAgent(a); }, 4400);
     }
   }
 
@@ -1233,6 +1491,7 @@
   function updateClock() {
     var el = $("#clockChip");
     if (el) el.textContent = "🕘 " + fmtClock(new Date());
+    if (data) renderNextRoutine();
   }
 
   function readIds() {
@@ -1247,6 +1506,8 @@
     var unread = data.alerts.filter(function (a) { return read.indexOf(a.id) < 0; }).length;
     badge.textContent = unread;
     badge.hidden = unread === 0;
+    var bell = $("#btnBell");
+    if (bell) bell.classList.toggle("has-new", unread > 0);
   }
 
   function markAlertsRead() {
@@ -1274,6 +1535,8 @@
     if (!back || back.hidden) return;
     back.hidden = true;
     document.body.style.overflow = "";
+    var sheet = $("#sheet");
+    if (sheet) { sheet.style.transform = ""; sheet.classList.remove("is-settling", "is-dragging"); }
     if (lastFocus && lastFocus.focus) lastFocus.focus();
   }
 
@@ -1377,6 +1640,7 @@
   function bind() {
     $$(".tab").forEach(function (btn) {
       btn.addEventListener("click", function () {
+        if (btn.getAttribute("data-tab") !== state.tab) haptic(6);
         setTab(btn.getAttribute("data-tab"));
       });
     });
@@ -1406,7 +1670,13 @@
     if (floorStack) {
       floorStack.addEventListener("click", function (ev) {
         var el = ev.target.closest ? ev.target.closest(".floor") : null;
-        if (el) focusFloor(el.getAttribute("data-floor"));
+        if (!el) return;
+        if (el.classList.contains("is-focus")) {
+          var ag = ev.target.closest(".agent");
+          if (ag) { pickAgent(ag.getAttribute("data-agent")); return; }
+          if (ev.target.closest(".floor-profile")) return;
+        }
+        focusFloor(el.getAttribute("data-floor"));
       });
       floorStack.addEventListener("keydown", function (ev) {
         if (ev.key !== "Enter" && ev.key !== " ") return;
@@ -1419,6 +1689,13 @@
     var floorCards = $("#floorCards");
     if (floorCards) {
       floorCards.addEventListener("click", function (ev) {
+        var say = ev.target.closest ? ev.target.closest("[data-say]") : null;
+        if (say) {
+          pickAgent(say.getAttribute("data-say"));
+          var stage = $("#officeStage");
+          if (stage && stage.scrollIntoView) stage.scrollIntoView({ behavior: "smooth", block: "center" });
+          return;
+        }
         var el = ev.target.closest ? ev.target.closest("[data-floor]") : null;
         if (el) focusFloor(el.getAttribute("data-floor"));
       });
@@ -1429,6 +1706,15 @@
       if (goto) setTab(goto.getAttribute("data-goto"));
     });
 
+    $("#logList").addEventListener("click", function (ev) {
+      var btn = ev.target.closest ? ev.target.closest("[data-logmore]") : null;
+      if (!btn) return;
+      var list = $("#logList");
+      var open = !list.classList.contains("is-expanded");
+      list.classList.toggle("is-expanded", open);
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+      btn.textContent = open ? "접기" : "이전 보고 " + (data.reports.length - 5) + "건 더 보기";
+    });
     $("#btnMemoSave").addEventListener("click", addMemo);
     $("#memoInput").addEventListener("keydown", function (ev) {
       if (ev.key === "Enter" && (ev.metaKey || ev.ctrlKey)) addMemo();
@@ -1457,6 +1743,14 @@
       if (ev.key === "Escape") closeSheet();
     });
 
+    var topbar = $(".topbar");
+    var onScroll = function () {
+      if (topbar) topbar.classList.toggle("is-scrolled", window.scrollY > 6);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    bindSheetDrag();
+
     window.addEventListener("resize", function () {
       if (state.motion && state.tab === "map") freezeAgentAll();
     });
@@ -1466,6 +1760,45 @@
       } else if (state.motion && state.tab === "map") {
         startMotion();
       }
+    });
+  }
+
+  /* 시트를 아래로 끌어내려 닫기 */
+  function bindSheetDrag() {
+    var sheet = $("#sheet");
+    if (!sheet || !window.PointerEvent) return;
+    var startY = 0, dy = 0, dragging = false;
+    var handles = [$(".sheet-grip"), $(".sheet-head")];
+    handles.forEach(function (h) {
+      if (!h) return;
+      h.addEventListener("pointerdown", function (ev) {
+        if (ev.target.closest && ev.target.closest("button")) return;
+        dragging = true;
+        startY = ev.clientY;
+        dy = 0;
+        sheet.classList.add("is-dragging");
+        sheet.classList.remove("is-settling");
+        try { h.setPointerCapture(ev.pointerId); } catch (e) { /* ignore */ }
+      });
+      h.addEventListener("pointermove", function (ev) {
+        if (!dragging) return;
+        dy = Math.max(0, ev.clientY - startY);
+        sheet.style.transform = "translateY(" + dy + "px)";
+      });
+      var end = function () {
+        if (!dragging) return;
+        dragging = false;
+        sheet.classList.remove("is-dragging");
+        sheet.classList.add("is-settling");
+        if (dy > 90) {
+          sheet.style.transform = "translateY(100%)";
+          window.setTimeout(closeSheet, 200);
+        } else {
+          sheet.style.transform = "";
+        }
+      };
+      h.addEventListener("pointerup", end);
+      h.addEventListener("pointercancel", end);
     });
   }
 
