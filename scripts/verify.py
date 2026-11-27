@@ -49,8 +49,11 @@ def main():
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     for line in REQUIRED_LINES:
         check(f"source_line:{line}", line in appjs, "app.js LINES")
-    legacy = ["부대장", "참모", "기획실장", "합류대기"]
-    stale = [w for w in legacy if any(w in s for s in (appjs, indexhtml, readme))]
+    legacy = ["부대장", "참모", "기획실장", "합류대기",
+              "대장", "1호", "2호", "3호", "클로드", "챗지피티", "부실장", "총괄실장"]
+    # README의 v5 개편 표는 옛 직급을 '이전 이름'으로 인용하므로 검사에서 제외합니다.
+    readme_ui = re.sub(r"<!-- legacy-titles:start -->.*?<!-- legacy-titles:end -->", "", readme, flags=re.S)
+    stale = [w for w in legacy if any(w in s for s in (appjs, indexhtml, readme_ui))]
     check("no_legacy_titles", not stale, stale)
 
     # ---- data.json 정적 점검 (요일·통계·검증 필드) ----
@@ -59,9 +62,21 @@ def main():
     raw_data = (ROOT / "data.json").read_text(encoding="utf-8")
     stale_data = [w for w in legacy if w in raw_data]
     check("no_legacy_titles_data", not stale_data, stale_data)
-    check("roster_new", data["roster"] == "1호 총괄실장 · 2호 크리 부실장 · 챗지피티 과장 · 클로드 부장 · 3호 대리", data["roster"])
-    check("chain_new_order", [c["id"] for c in data["chain"]] == ["captain", "p1", "p2", "p0", "p4", "p3"], [c["id"] for c in data["chain"]])
-    check("chain_new_roles", [c["role"] for c in data["chain"]] == ["대표", "총괄실장", "부실장", "부장", "과장", "대리"], [c["role"] for c in data["chain"]])
+    check("roster_v5", data["roster"] == "피사장 · 클부장 · 지과장 · 피대리 · 키사원", data["roster"])
+    check("captain_v5", data["captain"] == {"name": "회장님", "badge": "회장님 전용", "office": "바이코 AI 오피스"}, data["captain"])
+    check("chain_v5_order", [c["id"] for c in data["chain"]] == ["captain", "p1", "p0", "p4", "p2", "p3"], [c["id"] for c in data["chain"]])
+    check("chain_v5_names", [c["name"] for c in data["chain"]] == ["회장님", "피사장", "클부장", "지과장", "피대리", "키사원"], [c["name"] for c in data["chain"]])
+    check("chain_v5_roles", [c["role"] for c in data["chain"]] == ["회장", "사장", "부장", "과장", "대리", "사원"], [c["role"] for c in data["chain"]])
+    check("team_v5_order", [t["id"] for t in data["team"]] == ["p1", "p0", "p4", "p2", "p3"], [t["id"] for t in data["team"]])
+    check("role_members_v5_order", [m["id"] for m in data["roleDetails"]["members"]] == ["captain", "p1", "p0", "p4", "p2", "p3"],
+          [m["id"] for m in data["roleDetails"]["members"]])
+    v5_names = ["회장님", "피사장", "클부장", "지과장", "피대리", "키사원"]
+    check("gate_owners_v5", all(any(n in o for n in v5_names) for it in data["gates"]["items"] for o in it["owners"]),
+          [o for it in data["gates"]["items"] for o in it["owners"]])
+    check("track_who_v5", all(any(n in r["who"] for n in v5_names) for t in data["monetization"]["tracks"] for r in t["roles"]),
+          [r["who"] for t in data["monetization"]["tracks"] for r in t["roles"]][:8])
+    check("bld_sign_v5", "바이코 AI 오피스" in indexhtml, "건물 간판·타이틀")
+    check("title_v5", "<title>바이코 AI 오피스</title>" in indexhtml, "")
     dow_ko = ["월", "화", "수", "목", "금", "토", "일"]
     for a in data.get("awards", []):
         m, dd = [int(x) for x in a["date"].split("/")]
@@ -149,8 +164,8 @@ def main():
         tags = page.eval_on_selector_all(
             ".agent .agent-tag", "els => els.map(e => e.textContent.trim())")
         results.append(("agent_tags", tags))
-        check("p0_tag", "클로드 부장" in tags, tags)
-        check("p4_tag", "챗지피티 과장" in tags, tags)
+        check("p0_tag", "클부장" in tags, tags)
+        check("p4_tag", "지과장" in tags, tags)
 
         p0_box = page.eval_on_selector(
             '.agent[data-agent="p0"] svg.sprite',
@@ -202,9 +217,9 @@ def main():
         results.append(("on_count", on_count))
         results.append(("map_roster", roster))
         check("on_count_5", "5명 ON" in on_count, on_count)
-        check("roster_claude", "클로드 부장" in roster, roster)
-        check("roster_gpt", "챗지피티 과장" in roster, roster)
-        check("roster_order", roster.replace(" ", "") == "1호총괄실장·2호크리부실장·챗지피티과장·클로드부장·3호대리", roster)
+        check("roster_president", "피사장" in roster, roster)
+        check("roster_lead", "클부장" in roster, roster)
+        check("roster_order", roster.replace(" ", "") == "피사장·클부장·지과장·피대리·키사원", roster)
         check("no_4myeong", "4명 ON" not in page.inner_text("#view-map"), "")
         results.append(("map_footnote", page.inner_text("#view-map .foot-note")))
 
@@ -233,7 +248,7 @@ def main():
         cards_all = page.eval_on_selector_all(
             "#floorCards .floor-card .fc-name", "els => els.map(e => e.textContent.trim())")
         results.append(("floor_cards_all", cards_all))
-        check("floor_cards_all", len(cards_all) == 4 and "대표·총괄 지휘실" in cards_all, cards_all)
+        check("floor_cards_all", len(cards_all) == 4 and "회장·사장 지휘실" in cards_all, cards_all)
 
         # ---- 클로드 부장·챗지피티 과장 말풍선이 실제로 뜨는지 (최대 100초 관찰) ----
         seen = {"p0": "", "p4": ""}
@@ -320,7 +335,7 @@ def main():
         check("floor4_bubble", focus_4["talk"] in ["📣 08:00 통합 브리핑", "🗂️ 04:00 전체 상황공유", "🧭 최종 의사결정 대기", "⚡ 크레딧 릴레이 총괄"], focus_4["talk"])
         cards_4 = page.inner_text("#floorCards")
         results.append(("floor_cards_4", cards_4[:220]))
-        check("floor_card_4", all(k in cards_4 for k in ["대표·총괄 지휘실", "대장님 대표", "08:00 통합 브리핑", "크레딧 릴레이 총괄"]), cards_4[:140])
+        check("floor_card_4", all(k in cards_4 for k in ["회장·사장 지휘실", "회장님 · 피사장", "08:00 통합 브리핑", "크레딧 릴레이 총괄"]), cards_4[:140])
         page.screenshot(path=str(SHOTS / "03-floor-4.png"))
 
         # ---- 층 전환: 3F ----
@@ -341,7 +356,7 @@ def main():
         check("floor3_bubble", focus_3["talk"] in ["🔍 교차 검증 완료", "💬 전략 조언 3건", "📰 아침 뉴스 브리핑", "🩺 의료기기 브리핑"], focus_3["talk"])
         cards_3 = page.inner_text("#floorCards")
         results.append(("floor_cards_3", cards_3[:220]))
-        check("floor_card_3", all(k in cards_3 for k in ["전략·검수·기획실", "2호 크리 부실장", "챗지피티 과장", "교차 검증·전략 조언"]), cards_3[:140])
+        check("floor_card_3", all(k in cards_3 for k in ["전략·검수·기획실", "지과장", "피대리", "교차 검증·전략 조언"]), cards_3[:140])
         page.screenshot(path=str(SHOTS / "03-floor-3.png"))
 
         # ---- 층 전환: 1F ----
@@ -356,7 +371,7 @@ def main():
         check("floor_visible_1", vis_1 == {"p1": False, "p2": False, "p4": False, "p0": False, "p3": True}, vis_1)
         cards_1 = page.inner_text("#floorCards")
         results.append(("floor_cards_1", cards_1[:220]))
-        check("floor_card_1", all(k in cards_1 for k in ["현장 실행·응모 라운지", "3호 대리", "무료 경품·퀴즈 응모 124건+", "0원 쿠폰 줍줍"]), cards_1[:140])
+        check("floor_card_1", all(k in cards_1 for k in ["현장 실행·응모 라운지", "키사원", "무료 경품·퀴즈 응모 124건+", "0원 쿠폰 줍줍"]), cards_1[:140])
         page.screenshot(path=str(SHOTS / "03-floor-1.png"))
 
         # ---- 층 카드에서 2F, 다시 전체 ----
@@ -368,7 +383,7 @@ def main():
         check("floor_click_2", "is-focus" in (page.get_attribute('.floor[data-floor="2"]', "class") or ""), page.get_attribute('.floor[data-floor="2"]', "class"))
         check("floor_chip_2", "2F" in page.inner_text("#floorChip"), page.inner_text("#floorChip"))
         cards_2 = page.inner_text("#floorCards")
-        check("floor_card_2", all(k in cards_2 for k in ["핵심 실무·개발실", "클로드 부장", "GitHub 동기화"]), cards_2[:140])
+        check("floor_card_2", all(k in cards_2 for k in ["핵심 실무·개발실", "클부장", "GitHub 동기화"]), cards_2[:140])
         page.click('.floor-btn[data-floor="all"]')
         page.wait_for_timeout(750)
         all_state = page.evaluate("""() => {
@@ -413,9 +428,10 @@ def main():
         results.append(("chain_names", chain_names))
         results.append(("chain_roles", chain_roles))
         results.append(("team_names", team_names))
-        check("chain_6", chain_names == ["대장님", "1호", "2호 크리", "클로드", "챗지피티", "3호"], chain_names)
-        check("chain_roles", chain_roles == ["대표", "총괄실장", "부실장", "부장", "과장", "대리"], chain_roles)
-        check("team_5", len(team_names) == 5 and "클로드 부장" in team_names and "챗지피티 과장" in team_names, team_names)
+        check("chain_6", chain_names == ["회장님", "피사장", "클부장", "지과장", "피대리", "키사원"], chain_names)
+        check("chain_roles", chain_roles == ["회장", "사장", "부장", "과장", "대리", "사원"], chain_roles)
+        check("team_5", len(team_names) == 5 and "클부장" in team_names and "지과장" in team_names, team_names)
+        check("team_order", team_names == ["피사장", "클부장", "지과장", "피대리", "키사원"], team_names)
         results.append(("team_scroll_w", page.evaluate("document.documentElement.scrollWidth")))
         check("meeting_no_hscroll", page.evaluate("document.documentElement.scrollWidth") <= 390, "")
         page.screenshot(path=str(SHOTS / "05-meeting.png"))
@@ -509,10 +525,12 @@ def main():
             "#creditList .cc-note", "els => els.map(e => e.textContent.trim())")
         results.append(("credit_names", credit_names))
         results.append(("credit_notes", credit_notes))
-        check("credit_5", len(credit_names) == 5 and "클로드 부장" in credit_names and "챗지피티 과장" in credit_names, credit_names)
-        p0_note = credit_notes[0] if credit_notes else ""
+        check("credit_5", len(credit_names) == 5 and "클부장" in credit_names and "지과장" in credit_names, credit_names)
+        check("credit_order", credit_names == ["피사장", "클부장", "지과장", "피대리", "키사원"], credit_names)
+        idx0 = credit_names.index("클부장") if "클부장" in credit_names else -1
+        p0_note = credit_notes[idx0] if idx0 >= 0 and idx0 < len(credit_notes) else ""
         check("credit_p0_note", "Claude Pro" in p0_note and "GitHub" in p0_note, p0_note)
-        idx4 = credit_names.index("챗지피티 과장") if "챗지피티 과장" in credit_names else -1
+        idx4 = credit_names.index("지과장") if "지과장" in credit_names else -1
         p4_note = credit_notes[idx4] if idx4 >= 0 and idx4 < len(credit_notes) else ""
         p4_state = page.eval_on_selector_all("#creditList .cc-state", "els => els.map(e => e.textContent.trim())")
         results.append(("credit_states", p4_state))

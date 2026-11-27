@@ -1,5 +1,5 @@
 /* ============================================================
-   대장님 AI 오피스 · app.js
+   바이코 AI 오피스 · app.js
    빌드 없는 순수 HTML/CSS/JS · 데이터는 seed.js / data.json
    ============================================================ */
 (function () {
@@ -86,8 +86,8 @@
      ------------------------------------------------------------ */
   /* ------------------------------------------------------------
      캐릭터 — 정장 입은 귀여운 동물 5명 (고퀄 SVG)
-     1호 시바견·네이비 / 2호 크리 토끼·블루 / 클로드 부장 곰·에스프레소+골드타이
-     챗지피티 과장 여우·에메랄드+모노클 / 3호 대리 다람쥐·민트
+     피사장 시바견·네이비 / 피대리 토끼·블루 / 클부장 곰·에스프레소+골드타이
+     지과장 여우·에메랄드+모노클 / 키사원 다람쥐·민트
      ------------------------------------------------------------ */
   var PALETTE = {
     p1: {
@@ -666,7 +666,7 @@
       }).join("") + '</ol><p class="eff-note">' + esc(p.note || "") + '</p>';
   }
 
-  var WHO = { p0: "클로드 부장", p1: "1호 총괄실장", p2: "2호 크리 부실장", p3: "3호 대리", p4: "챗지피티 과장", captain: "대장님" };
+  var WHO = { p0: "클부장", p1: "피사장", p2: "피대리", p3: "키사원", p4: "지과장", captain: "회장님" };
 
   function renderLogs() {
     var box = $("#logList");
@@ -805,7 +805,7 @@
         '<span class="mr-val">' + dday(next.solar) + '</span></div>');
       rows.push('<div class="mini-row"><span class="mr-dot"></span>' +
         '<div class="mr-main"><div class="mr-title">생일 알람</div>' +
-        '<div class="mr-sub">' + esc(next.alarm) + ' 08:30 · 1호 등록</div></div>' +
+        '<div class="mr-sub">' + esc(next.alarm) + ' 08:30 · 피사장 등록</div></div>' +
         '<span class="mr-val">' + dday(next.alarm) + '</span></div>');
     }
     rows.push('<div class="mini-row"><span class="mr-dot green"></span>' +
@@ -1153,8 +1153,8 @@
 
   /* 수익화 트랙에서 이 구성원이 맡은 일 */
   var WHO_KEYS = {
-    captain: ["대장님"], p1: ["1호", "피클(1·2·3호)"], p2: ["2호 크리", "2호", "피클(1·2·3호)"], p3: ["3호", "피클(1·2·3호)"],
-    p0: ["클로드 부장", "클로드", "클로드 부장 & 피클(1·2·3호)"], p4: ["챗지피티 과장", "챗지피티"]
+    captain: ["회장님"], p1: ["피사장", "피클(피사장·피대리·키사원)"], p2: ["피대리", "피클(피사장·피대리·키사원)"], p3: ["키사원", "피클(피사장·피대리·키사원)"],
+    p0: ["클부장", "클부장 & 피클(피사장·피대리·키사원)"], p4: ["지과장"]
   };
   function tracksFor(id) {
     var keys = WHO_KEYS[id] || [];
@@ -1258,7 +1258,7 @@
     var tiles = {
       "4": ['<span class="hud-tile">📣 08:00 브리핑 <b>✓</b></span>',
         '<span class="hud-tile warn">👑 결정 대기 <b>' + pend + '</b></span>',
-        '<button type="button" class="hud-tile hud-btn" data-profile="captain">👑 대표석 ›</button>'],
+        '<button type="button" class="hud-tile hud-btn" data-profile="captain">👑 회장석 ›</button>'],
       "3": ['<span class="hud-tile">🔍 게이트 ② 검증</span>',
         '<span class="hud-tile">🧭 체험단 <b>' + ((s.deals && s.deals.total) || 0) + '</b>건 점수화</span>'],
       "2": ['<span class="hud-tile code"><i></i><i></i><i></i></span>',
@@ -1350,7 +1350,7 @@
       '<p class="tr-sub">👥 역할 매핑</p><div class="tr-roles">' + t.roles.map(function (r) {
         return '<div><b>' + esc(r.who) + '</b><span>' + esc(r.task) + '</span></div>';
       }).join("") + '</div>' +
-      ((t.decisions || []).length ? '<p class="tr-sub">👑 대장님 결정 대기</p><div class="decide-list">' + t.decisions.map(decisionRow.bind(null, t)).join("") + '</div>' : '') +
+      ((t.decisions || []).length ? '<p class="tr-sub">👑 회장님 결정 대기</p><div class="decide-list">' + t.decisions.map(decisionRow.bind(null, t)).join("") + '</div>' : '') +
       '</div></details>';
   }
 
@@ -1402,7 +1402,7 @@
     if (rm && data.roleDetails) {
       var rows = data.roleDetails.members.map(function (mm) {
         var tr = tracksFor(mm.id);
-        return { id: mm.id, name: mm.name + " " + mm.role, ava: avaHtml(mm.id), items: tr.map(function (x) { return { no: x.track.no, tone: x.track.tone, task: x.task }; }) };
+        return { id: mm.id, name: mm.name, ava: avaHtml(mm.id), items: tr.map(function (x) { return { no: x.track.no, tone: x.track.tone, task: x.task }; }) };
       });
       rm.innerHTML = rows.map(function (r) {
         return '<div class="rm-row"' + (r.id ? ' role="button" tabindex="0" data-profile="' + esc(r.id) + '"' : '') + '>' +
@@ -1641,7 +1641,7 @@
     b.el.classList.toggle("face-left", a.x < b.x);
   }
 
-  /* 같은 층 두 명이 주고받는 대화 (3F 2호 ↔ 챗지피티 과장) */
+  /* 같은 층 두 명이 주고받는 대화 (3F 피대리 ↔ 지과장) */
   function tryDialog(pool) {
     var byFloor = {};
     pool.forEach(function (a) { (byFloor[a.floor] = byFloor[a.floor] || []).push(a); });
@@ -2063,7 +2063,7 @@
   function exportJson() {
     var payload = {
       exportedAt: new Date().toISOString(),
-      office: data.captain ? data.captain.office : "대장님 AI 오피스",
+      office: data.captain ? data.captain.office : "바이코 AI 오피스",
       directives: state.directives,
       decisions: state.decisions,
       moneyChecklist: state.moneyCheck,
