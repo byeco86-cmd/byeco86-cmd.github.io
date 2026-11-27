@@ -956,59 +956,46 @@ html[data-theme="dark"] .fp-duties span { background: rgba(227, 167, 100, .14); 
 .agent.p0 { z-index: 6; }
 .agent.captain { z-index: 12; }
 
-/* ---------------- 회장님 호랑이 — +5% · 황금 아우라 ---------------- */
-/* 크기는 상태별로 5%만 확대 (transform은 breathe/bob 애니메이션이 쓰므로 width/height로 처리) */
-.agent.captain { width: 48.3px; height: 61.95px; margin-left: -24.15px; margin-top: -61.95px; }
-.floor .agent.captain { width: 42px; height: 53.55px; margin-left: -21px; margin-top: -53.55px; }
-.floor.is-focus .agent.captain { width: 69.3px; height: 89.25px; margin-left: -34.65px; margin-top: -89.25px; }
+/* ---------------- 회장님 호랑이 — +15% · 몸 테두리 황금 아우라 ---------------- */
+/* 크기: 기본(46px) 대비 15% 확대 — 직전 +5%에서 10% 더 (전체 보기 42→46.2px / 층 확대 69.3→76.2px)
+   transform은 breathe/bob 애니메이션이 쓰므로 width/height/margin으로 처리 */
+.agent.captain {
+  --cap-rim: 1px;
+  --cap-glow: 1;
+  width: 52.9px; height: 67.85px; margin-left: -26.45px; margin-top: -67.85px;
+}
+.floor .agent.captain { width: 46.2px; height: 58.9px; margin-left: -23.1px; margin-top: -58.9px; }
+.floor.is-focus .agent.captain {
+  --cap-rim: 1.5px;
+  --cap-glow: 1.45;
+  width: 76.2px; height: 98.1px; margin-left: -38.1px; margin-top: -98.1px;
+}
 
-/* 외곽 황금·앰버 광채 */
-.agent.captain svg.sprite {
+/* 원형 링·후광 없음: 황금빛은 호랑이 몸(SVG 실루엣) 윤곽에만 붙습니다.
+   안쪽 1~1.5px 선명한 금빛 테두리 + 바깥으로 부드럽게 퍼지며 맥동하는 앰버 글로우. */
+.agent.captain svg.sprite .sb {
   filter:
-    drop-shadow(0 0 2.5px rgba(255, 219, 128, .95))
-    drop-shadow(0 0 7px rgba(255, 168, 40, .8))
-    drop-shadow(0 3px 3px rgba(0, 0, 0, .35));
+    drop-shadow(0 0 var(--cap-rim) rgba(255, 236, 168, .95))
+    drop-shadow(0 0 calc(1.6px * var(--cap-glow)) rgba(255, 214, 92, 1))
+    drop-shadow(0 0 calc(4px * var(--cap-glow)) rgba(255, 170, 40, .85))
+    drop-shadow(0 0 calc(9px * var(--cap-glow)) rgba(255, 146, 22, .55));
+  animation: captainBodyAura 3.2s ease-in-out infinite;
 }
-/* 뒤에서 맥동하는 금빛 후광 */
-.agent.captain::before {
-  content: "";
-  position: absolute;
-  left: 50%; top: 55%;
-  width: 158%; height: 152%;
-  transform: translate(-50%, -50%) scale(.94);
-  border-radius: 50%;
-  background: radial-gradient(closest-side,
-    rgba(255, 216, 108, .42),
-    rgba(248, 178, 46, .22) 46%,
-    rgba(248, 178, 46, 0) 72%);
-  filter: blur(1.5px);
-  pointer-events: none;
-  z-index: -1;
-  animation: captainAura 3.2s ease-in-out infinite;
-}
-/* 캐릭터 테두리를 감싸는 맥동 링 */
-.agent.captain::after {
-  content: "";
-  position: absolute;
-  left: 50%; top: 54%;
-  width: 112%; height: 102%;
-  transform: translate(-50%, -50%) scale(.97);
-  border-radius: 50%;
-  border: 1.8px solid rgba(255, 208, 96, .95);
-  box-shadow:
-    0 0 9px rgba(255, 176, 38, .85),
-    inset 0 0 8px rgba(255, 190, 60, .5);
-  pointer-events: none;
-  z-index: -1;
-  animation: captainHalo 3.2s ease-in-out infinite;
-}
-@keyframes captainAura {
-  0%, 100% { opacity: .55; transform: translate(-50%, -50%) scale(.94); }
-  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.06); }
-}
-@keyframes captainHalo {
-  0%, 100% { opacity: .55; transform: translate(-50%, -50%) scale(.96); }
-  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.06); }
+@keyframes captainBodyAura {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 var(--cap-rim) rgba(255, 236, 168, .95))
+      drop-shadow(0 0 calc(1.4px * var(--cap-glow)) rgba(255, 214, 92, 1))
+      drop-shadow(0 0 calc(3.2px * var(--cap-glow)) rgba(255, 170, 40, .7))
+      drop-shadow(0 0 calc(7px * var(--cap-glow)) rgba(255, 146, 22, .4));
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 var(--cap-rim) rgba(255, 236, 168, .95))
+      drop-shadow(0 0 calc(1.8px * var(--cap-glow)) rgba(255, 214, 92, 1))
+      drop-shadow(0 0 calc(4.8px * var(--cap-glow)) rgba(255, 170, 40, .95))
+      drop-shadow(0 0 calc(10px * var(--cap-glow)) rgba(255, 146, 22, .68));
+  }
 }
 
 .agent.talk, .agent.is-picked { z-index: 9; }
@@ -1077,8 +1064,7 @@ svg.sprite .eye { transform-box: fill-box; transform-origin: center; animation: 
 }
 .floor .agent-tag { max-width: 100px; overflow: hidden; text-overflow: ellipsis; font-size: 8px; padding: 1px 5px; }
 .floor.is-focus .agent-tag { font-size: 9.5px; padding: 1.5px 7px; }
-.agent.p4 .agent-tag { background: rgba(16, 163, 127, .14); color: #0b4c3c; border-color: rgba(16, 163, 127, .32); }
-.agent.p0 .agent-tag { background: rgba(198, 138, 90, .18); color: #6b3d1c; border-color: rgba(198, 138, 90, .38); }
+/* 이름표는 6명 모두 흰 바탕·어두운 글씨로 통일 (지과장·클부장만 색이 달랐던 것 제거) */
 .agent.is-picked .agent-tag { background: #eef3fa; color: #22314a; border-color: #c9d5e6; }
 
 .bubble {
@@ -2796,8 +2782,6 @@ html[data-theme="dark"] .hud-tile b { color: #ffd9a0; }
 html[data-theme="dark"] .hud-tile.warn b { color: #ffc06a; }
 html[data-theme="dark"] .hud-btn { background: #3a2e23; border-color: #5a4632; color: #f7e9d3; }
 html[data-theme="dark"] .agent-tag { background: rgba(24, 19, 14, .92); color: #f6eddf; border-color: rgba(255, 220, 170, .16); }
-html[data-theme="dark"] .agent.p4 .agent-tag { background: rgba(16, 163, 127, .22); color: #b7f0dd; border-color: rgba(16, 163, 127, .4); }
-html[data-theme="dark"] .agent.p0 .agent-tag { background: rgba(198, 138, 90, .24); color: #f4d6ba; border-color: rgba(198, 138, 90, .42); }
 html[data-theme="dark"] .toast { background: rgba(30, 24, 18, .96); color: #f7ecdd; border-color: #3f3226; }
 html[data-theme="dark"] .ms-main { background: linear-gradient(150deg, #26201a, #1b1611); border-color: #3b2f24; color: #f6eddf; }
 html[data-theme="dark"] .ms-main b { color: #ffd9a0; }

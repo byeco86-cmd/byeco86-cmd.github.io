@@ -182,8 +182,11 @@
     var kind = EAR[id] || "rabbit";
     var s = [];
 
-    /* 바닥 그림자 */
-    s.push('<ellipse cx="28" cy="68.6" rx="13" ry="2.8" fill="rgba(24,30,38,.20)"/>' + tailSvg(kind, a));
+    /* 바닥 그림자 — 몸(.sb) 밖에 두어 회장님 황금 아우라가 그림자까지 감싸지 않게 합니다 */
+    s.push('<ellipse class="ground-shadow" cx="28" cy="68.6" rx="13" ry="2.8" fill="rgba(24,30,38,.20)"/>');
+
+    /* 몸 실루엣 묶음 — 이 그룹의 윤곽을 따라 황금 아우라가 붙습니다 */
+    s.push('<g class="sb">' + tailSvg(kind, a));
 
     /* 다리 · 구두 */
     s.push('<rect x="21.5" y="52.2" width="6.2" height="11" rx="3" fill="' + a.trouser + '"/>' +
@@ -341,7 +344,7 @@
     }
 
     return '<svg class="sprite" viewBox="0 0 56 72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
-      s.join("") + '</svg>';
+      s.join("") + '</g></svg>';
   }
 
   /* ------------------------------------------------------------

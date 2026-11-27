@@ -195,6 +195,14 @@ def main():
         check("captain_tag", "회장님" in tags, tags)
         check("p0_tag", "클부장" in tags, tags)
         check("p4_tag", "지과장" in tags, tags)
+        tag_style = page.eval_on_selector_all(
+            ".agent .agent-tag",
+            "els => els.map(e => { const c = getComputedStyle(e); return {id: e.closest('.agent').getAttribute('data-agent'), bg: c.backgroundColor, fg: c.color}; })")
+        results.append(("agent_tag_styles", tag_style))
+        check("agent_tag_uniform", len({(t["bg"], t["fg"]) for t in tag_style}) == 1,
+              [(t["id"], t["bg"], t["fg"]) for t in tag_style])
+        check("agent_tag_white", all(t["bg"].startswith("rgba(255, 255, 255") for t in tag_style),
+              [t["bg"] for t in tag_style])
 
         p0_box = page.eval_on_selector(
             '.agent[data-agent="p0"] svg.sprite',
@@ -221,31 +229,40 @@ def main():
                           ("M28 15.6v4", "굵은 이마 줄무늬")]:
             check("captain_mark:" + mark, mark in cap_svg, why)
 
-        # 회장님 +5% · 황금 아우라 (계산된 스타일로 확인)
+        # 회장님 +15% · 몸 테두리 황금 아우라 (계산된 스타일로 확인)
         cap_style = page.evaluate("""() => {
           const a = document.querySelector('.agent[data-agent="captain"]');
           const ref = document.querySelector('.agent[data-agent="p1"]');
           const sprite = getComputedStyle(a.querySelector('svg.sprite'));
+          const bodyEl = a.querySelector('svg.sprite .sb');
+          const body = getComputedStyle(bodyEl);
           const before = getComputedStyle(a, '::before');
           const after = getComputedStyle(a, '::after');
           return {
             w: a.getBoundingClientRect().width, refW: ref.getBoundingClientRect().width,
             h: a.getBoundingClientRect().height, refH: ref.getBoundingClientRect().height,
-            filter: sprite.filter, beforeBg: before.backgroundImage, beforeAnim: before.animationName,
-            afterBorder: after.borderTopColor, afterAnim: after.animationName,
-            shakey: before.backgroundImage.indexOf('rgba(255, 216, 108, 0.42)') >= 0
+            filter: body.filter, spriteFilter: sprite.filter,
+            shadows: (body.filter.match(/drop-shadow/g) || []).length,
+            bodyNodes: bodyEl ? bodyEl.children.length : 0,
+            shadowInBody: !!a.querySelector('svg.sprite .sb ellipse.ground-shadow'),
+            beforeBg: before.backgroundImage, afterContent: after.content, afterBorderW: after.borderTopWidth,
+            bodyAnim: body.animationName
           };
         }""")
         results.append(("captain_style", cap_style))
-        check("captain_scale_105", abs(cap_style["w"] / cap_style["refW"] - 1.05) < 0.012
-              and abs(cap_style["h"] / cap_style["refH"] - 1.05) < 0.012,
+        check("captain_scale_115", abs(cap_style["w"] / cap_style["refW"] - 1.155) < 0.012
+              and abs(cap_style["h"] / cap_style["refH"] - 1.155) < 0.012,
               (round(cap_style["w"] / cap_style["refW"], 4), round(cap_style["h"] / cap_style["refH"], 4)))
-        check("captain_aura_glow", "drop-shadow" in cap_style["filter"] and "255, 168, 40" in cap_style["filter"],
-              cap_style["filter"])
-        check("captain_aura_halo", cap_style["shakey"] and cap_style["beforeAnim"] == "captainAura"
-              and cap_style["afterAnim"] == "captainHalo",
-              (cap_style["beforeAnim"], cap_style["afterAnim"], cap_style["shakey"]))
-        check("captain_aura_ring", "255, 208, 96" in cap_style["afterBorder"], cap_style["afterBorder"])
+        check("captain_aura_body_glow", cap_style["shadows"] >= 4 and "255, 214, 92" in cap_style["filter"]
+              and "255, 170, 40" in cap_style["filter"], cap_style["filter"])
+        check("captain_aura_rim", "255, 236, 168" in cap_style["filter"], cap_style["filter"])
+        check("captain_aura_pulse", cap_style["bodyAnim"] == "captainBodyAura", cap_style["bodyAnim"])
+        check("captain_aura_no_ring", cap_style["beforeBg"] == "none" and cap_style["afterContent"] == "none"
+              and cap_style["afterBorderW"] == "0px",
+              (cap_style["beforeBg"], cap_style["afterContent"], cap_style["afterBorderW"]))
+        check("captain_aura_body_only", not cap_style["shadowInBody"] and cap_style["bodyNodes"] > 10,
+              (cap_style["shadowInBody"], cap_style["bodyNodes"]))
+        check("captain_ground_shadow_keep", "drop-shadow" in cap_style["spriteFilter"], cap_style["spriteFilter"])
 
         # 다른 캐릭터는 기존 순한 얼굴 그대로 (회장님만 변경)
         p2_svg = page.eval_on_selector('.agent[data-agent="p2"] svg.sprite', "el => el.outerHTML") or ""
@@ -384,17 +401,29 @@ def main():
 
         # ---- 층 전환: 4F ----
         page.click('.floor-btn[data-floor="4"]')
-        page.wait_for_timeout(750)
+        # sceneZoom(1.1s)와 width 전환이 끝난 뒤에 재야 회장님 확대 배율이 정확합니다.
+        try:
+            page.wait_for_function(
+                "() => Math.abs(document.querySelector('.agent[data-agent=\"p1\"]').getBoundingClientRect().width - 66) < 0.6"
+                " && Math.abs(document.querySelector('.agent[data-agent=\"captain\"]').getBoundingClientRect().width - 76.2) < 0.6",
+                timeout=8000)
+        except Exception:
+            pass
+        page.wait_for_timeout(200)
         focus_4 = page.evaluate("""() => {
           const f4 = document.querySelector('.floor[data-floor="4"]');
           const f3 = document.querySelector('.floor[data-floor="3"]');
           const p1 = document.querySelector('.agent[data-agent="p1"]');
+          const cap = document.querySelector('.agent[data-agent="captain"]');
+          const capB = document.querySelector('.agent[data-agent="captain"] svg.sprite .sb');
           const vis = {};
           document.querySelectorAll('.agent').forEach(a => { vis[a.getAttribute('data-agent')] = !a.classList.contains('is-hidden'); });
           return {
             f4: f4.className, f3: f3.className,
             h4: Math.round(f4.getBoundingClientRect().height),
             h3: Math.round(f3.getBoundingClientRect().height),
+            capW: cap.getBoundingClientRect().width, p1W: p1.getBoundingClientRect().width,
+            capAura: getComputedStyle(capB).filter,
             vis: vis,
             talk: p1.classList.contains('talk') ? p1.querySelector('.bubble').textContent.trim() : ''
           };
@@ -402,6 +431,11 @@ def main():
         results.append(("focus_4", focus_4))
         check("floor_focus_4", "is-focus" in focus_4["f4"] and "is-dim" in focus_4["f3"] and focus_4["h4"] > focus_4["h3"] * 2, focus_4)
         check("floor_chip_4", "4F" in page.inner_text("#floorChip"), page.inner_text("#floorChip"))
+        check("captain_focus_scale_115", abs(focus_4["capW"] / focus_4["p1W"] - 1.155) < 0.012
+              and abs(focus_4["capW"] - 76.2) < 1.5,
+              (round(focus_4["capW"], 2), round(focus_4["p1W"], 2)))
+        check("captain_focus_aura", "drop-shadow" in focus_4["capAura"] and "255, 170, 40" in focus_4["capAura"],
+              focus_4["capAura"])
         check("elevator_4", page.inner_text("#shaftCar") == "4F", page.get_attribute("#shaftCar", "style"))
         check("floor_visible_4", focus_4["vis"] == {"captain": True, "p1": True, "p2": False, "p4": False, "p0": False, "p3": False}, focus_4["vis"])
         check("floor4_bubble", focus_4["talk"] in ["📣 08:00 통합 브리핑", "🗂️ 04:00 전체 상황공유", "🧭 최종 의사결정 대기", "⚡ 크레딧 릴레이 총괄"], focus_4["talk"])
