@@ -954,6 +954,7 @@ html[data-theme="dark"] .fp-duties span { background: rgba(227, 167, 100, .14); 
 .agent.p4 { z-index: 4; }
 .agent.p1 { z-index: 5; }
 .agent.p0 { z-index: 6; }
+.agent.captain { z-index: 12; }
 .agent.talk, .agent.is-picked { z-index: 9; }
 
 .agent .sprite-wrap {
@@ -961,6 +962,7 @@ html[data-theme="dark"] .fp-duties span { background: rgba(227, 167, 100, .14); 
   transform-origin: 50% 95%;
   animation: breathe 3.2s ease-in-out infinite;
 }
+.agent.captain .sprite-wrap { animation-delay: -1.2s; }
 .agent.p1 .sprite-wrap { animation-delay: -.8s; }
 .agent.p2 .sprite-wrap { animation-delay: -1.6s; }
 .agent.p3 .sprite-wrap { animation-delay: -2.2s; }

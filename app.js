@@ -85,11 +85,16 @@
      컬러 팔레트 · 스프라이트
      ------------------------------------------------------------ */
   /* ------------------------------------------------------------
-     캐릭터 — 정장 입은 귀여운 동물 5명 (고퀄 SVG)
-     피사장 시바견·네이비 / 피대리 토끼·블루 / 클부장 곰·에스프레소+골드타이
-     지과장 여우·에메랄드+모노클 / 키사원 다람쥐·민트
+     캐릭터 — 정장 입은 귀여운 동물 6명 (고퀄 SVG)
+     회장님 호랑이·블랙 3피스+골드타이·금메달 / 피사장 시바견·네이비 / 피사원 토끼·블루 / 클부장 곰·에스프레소+골드타이
+     지과장 여우·에메랄드+모노클 / 제미대리 다람쥐·민트
      ------------------------------------------------------------ */
   var PALETTE = {
+    captain: {
+      fur: "#E8933F", furDark: "#B5652A", furLight: "#FFF6EA", stripe: "#2E2620",
+      suit: "#1C1B20", suitLight: "#2B2A31", trouser: "#14131A",
+      shirt: "#FBFCFE", tie: "#D4A94A", tieStyle: "necktie"
+    },
     p1: {
       fur: "#EFBB77", furDark: "#C0863F", furLight: "#FFF3E0",
       suit: "#26344E", suitLight: "#33456A", trouser: "#222C3C",
@@ -116,10 +121,19 @@
       shirt: "#FBFCFE", tie: "#2C8C74", tieStyle: "necktie"
     }
   };
-  var EAR = { p1: "shiba", p2: "rabbit", p0: "bear", p4: "fox", p3: "squirrel" };
+  var EAR = { captain: "tiger", p1: "shiba", p2: "rabbit", p0: "bear", p4: "fox", p3: "squirrel" };
 
   /* 머리 뒤로 나온 귀 */
   function earsSvg(kind, a) {
+    if (kind === "tiger") {
+      /* 둥근 귀 + 귀 안쪽 줄무늬 */
+      return '<circle cx="19.6" cy="19.2" r="4.6" fill="' + a.fur + '"/>' +
+        '<circle cx="19.6" cy="19.4" r="2.3" fill="' + a.furLight + '"/>' +
+        '<path d="M19.6 15.2v2.2" stroke="' + a.stripe + '" stroke-width="1" stroke-linecap="round" opacity=".55"/>' +
+        '<circle cx="36.4" cy="19.2" r="4.6" fill="' + a.fur + '"/>' +
+        '<circle cx="36.4" cy="19.4" r="2.3" fill="' + a.furLight + '"/>' +
+        '<path d="M36.4 15.2v2.2" stroke="' + a.stripe + '" stroke-width="1" stroke-linecap="round" opacity=".55"/>';
+    }
     if (kind === "shiba") {
       return '<path d="M19.9 21.2L15.3 9.2l9.6 4.9z" fill="' + a.fur + '"/>' +
         '<path d="M20.5 18.9l-2.6-6.4 4.8 2.7z" fill="' + a.furLight + '"/>' +
@@ -212,6 +226,16 @@
     s.push(earsSvg(kind, a) +
       '<ellipse cx="28" cy="28.2" rx="14.2" ry="13.4" fill="' + a.fur + '" stroke="rgba(38,44,54,.10)" stroke-width=".8"/>' +
       '<ellipse cx="22.4" cy="21.4" rx="5.6" ry="3.8" fill="#fff" opacity=".16"/>');
+    if (kind === "tiger") {
+      /* 이마·볼 줄무늬 */
+      var st = a.stripe;
+      s.push('<path d="M27.2 15.9v3.4M30.6 15.7v3.2M24.2 17.2l1.9 2.4M33.7 17l-1.9 2.4" stroke="' + st +
+        '" stroke-width="1.5" stroke-linecap="round" opacity=".9"/>' +
+        '<path d="M14.9 26.4l3.5 1.5M14.9 31.2l3.4-1.4M41.1 26.4l-3.5 1.5M41.1 31.2l-3.4-1.4" stroke="' + st +
+        '" stroke-width="1.5" stroke-linecap="round" opacity=".85"/>' +
+        '<path d="M22.6 40.4h10.8v2.6c0 1.4-1.6 2.1-2.6 1.2-1.6 1.4-4 1.4-5.6 0-1 .9-2.6.2-2.6-1.2z" fill="' +
+        a.furLight + '" opacity=".95"/>');
+    }
 
     /* 얼굴 — 주둥이 */
     s.push('<ellipse cx="28" cy="32.9" rx="8.8" ry="6.4" fill="' + a.furLight + '"/>');
@@ -225,6 +249,12 @@
     }
     if (kind === "squirrel") {
       s.push('<ellipse cx="28" cy="30.4" rx="3.6" ry="2.6" fill="' + a.furLight + '" opacity=".9"/>');
+    }
+    if (kind === "tiger") {
+      s.push('<ellipse cx="18.7" cy="32.4" rx="3.3" ry="3.5" fill="' + a.furLight + '" opacity=".95"/>' +
+        '<ellipse cx="37.3" cy="32.4" rx="3.3" ry="3.5" fill="' + a.furLight + '" opacity=".95"/>' +
+        '<path d="M15.6 33.6h4M36.4 33.6h4M16.2 36.2h3M37 36.2h3" stroke="' + a.stripe +
+        '" stroke-width=".55" stroke-linecap="round" opacity=".45"/>');
     }
 
     /* 눈 (깜빡임) */
@@ -247,7 +277,17 @@
     }
 
     /* 액세서리 */
-    if (id === "p0") {
+    if (id === "captain") {
+      /* 금메달 회장 배지 + 리본 · 금 넥타이 바 · 금 견장 */
+      s.push('<path d="M17.1 41.4h3.6l-1.1 3.3h-3.5z" fill="#8C1B1B" opacity=".9"/>' +
+        '<path d="M17.6 46.3l1.9-1.5 1.9 1.5-1.9 2.1z" fill="#8C1B1B" opacity=".85"/>' +
+        '<circle cx="19.3" cy="45.2" r="2.5" fill="#F2C64E" stroke="#B8862F" stroke-width=".6"/>' +
+        '<circle cx="19.3" cy="45.2" r="1.5" fill="#FFF0BF"/>' +
+        '<path d="M25.7 47.9h4.6" stroke="#F2C64E" stroke-width=".9" stroke-linecap="round"/>' +
+        '<circle cx="28" cy="47.9" r=".75" fill="#FFF0BF"/>' +
+        '<rect x="16.9" y="38.4" width="3.4" height="1.5" rx=".75" fill="#F2C64E" stroke="#B8862F" stroke-width=".4"/>' +
+        '<rect x="35.7" y="38.4" width="3.4" height="1.5" rx=".75" fill="#F2C64E" stroke="#B8862F" stroke-width=".4"/>');
+    } else if (id === "p0") {
       /* 왕관 + 골드 스타 배지 */
       s.push('<path d="M19.4 14.2l1.3-7.3 4.3 3.5 3-4.9 3 4.9 4.3-3.5 1.3 7.3z" fill="#F2C64E" stroke="#C08F1E" stroke-width=".8" stroke-linejoin="round"/>' +
         '<rect x="19" y="13.4" width="18" height="3.1" rx="1.55" fill="#E3B33A" stroke="#C08F1E" stroke-width=".8"/>' +
@@ -601,7 +641,7 @@
         '<div class="team-main">' +
         '<div class="team-top"><span class="team-name">' + esc(t.name) + '</span>' +
         '<span class="team-role">' + esc(t.role) + '</span>' +
-        '<span class="team-handle">' + esc(t.handle) + '</span></div>' +
+        (t.handle ? '<span class="team-handle">' + esc(t.handle) + '</span>' : '') + '</div>' +
         (floorById(t.floor) ? '<span class="team-floor">' + esc(floorById(t.floor).label + " · " + (floorById(t.floor).short || floorById(t.floor).name)) + '</span>' : '') +
         '<p class="team-note">' + esc(t.note) + '</p>' +
         '<div class="team-duties">' + t.duties.map(function (d) {
@@ -666,7 +706,7 @@
       }).join("") + '</ol><p class="eff-note">' + esc(p.note || "") + '</p>';
   }
 
-  var WHO = { p0: "클부장", p1: "피사장", p2: "피대리", p3: "키사원", p4: "지과장", captain: "회장님" };
+  var WHO = { p0: "클부장", p1: "피사장", p2: "피사원", p3: "제미대리", p4: "지과장", captain: "회장님" };
 
   function renderLogs() {
     var box = $("#logList");
@@ -1153,8 +1193,8 @@
 
   /* 수익화 트랙에서 이 구성원이 맡은 일 */
   var WHO_KEYS = {
-    captain: ["회장님"], p1: ["피사장", "피클(피사장·피대리·키사원)"], p2: ["피대리", "피클(피사장·피대리·키사원)"], p3: ["키사원", "피클(피사장·피대리·키사원)"],
-    p0: ["클부장", "클부장 & 피클(피사장·피대리·키사원)"], p4: ["지과장"]
+    captain: ["회장님"], p1: ["피사장", "피클(피사장·제미대리·피사원)"], p2: ["피사원", "피클(피사장·제미대리·피사원)"], p3: ["제미대리", "피클(피사장·제미대리·피사원)"],
+    p0: ["클부장", "클부장 & 피클(피사장·제미대리·피사원)"], p4: ["지과장"]
   };
   function tracksFor(id) {
     var keys = WHO_KEYS[id] || [];
@@ -1181,7 +1221,8 @@
     return '<div class="rp-head">' +
       '<span class="rp-ava" aria-hidden="true">' + avaHtml(id) + '</span>' +
       '<div class="rp-main"><div class="rp-name">' + esc(t ? t.name : m.name) + ' <small>' + esc(m.role) + '</small></div>' +
-      '<div class="rp-meta">' + esc((f ? f.label + " " + f.name : "") + (t ? " · " + t.handle : "")) + '</div>' +
+      '<div class="rp-meta">' + esc([(f ? f.label + " " + f.name : ""), (t && t.handle) || "", (t && t.platform) || ""]
+        .filter(function (x) { return !!x; }).join(" · ")) + '</div>' +
       '<div class="rp-mission">' + esc(m.mission) + '</div></div>' +
       ringHtml(pr.pct, true) + '</div>' +
       '<div class="rp-bar"><i style="width:' + pr.pct + '%"></i></div>' +
@@ -1488,8 +1529,9 @@
     "2": [[38, 78], [50, 74], [60, 80], [45, 84]],
     "1": [[44, 78], [56, 74], [66, 80], [50, 84]]
   };
-  var HOME = { p1: [46, 74], p2: [24, 76], p4: [64, 74], p0: [45, 78], p3: [44, 78] };
+  var HOME = { captain: [66, 72], p1: [46, 74], p2: [44, 78], p4: [64, 74], p0: [45, 78], p3: [24, 76] };
   var LINES = {
+    captain: ["👑 최종 의사결정 대기", "📣 08:00 브리핑 확인", "🏛️ 4층 지휘실 상주", "⚡ 릴레이 보고 수신"],
     p0: ["🛠️ 웹앱 4층 개편", "🔗 GitHub 동기화", "⚙️ 자동화 개발 중", "📋 고난도 실무 처리"],
     p1: ["📣 08:00 통합 브리핑", "🧭 최종 의사결정 대기", "⚡ 크레딧 릴레이 총괄", "🗂️ 04:00 상황공유"],
     p2: ["🔎 리서치 정리 중", "🎟️ 체험단 조사", "🧺 가족 일정 확인", "☕ 잠깐 충전 중"],
@@ -1497,7 +1539,10 @@
     p4: ["🔍 교차 검증 완료", "💡 아이디어 제안", "💬 전략 조언", "📰 아침 뉴스 브리핑"]
   };
   var FLOOR_LINES = {
-    "4": { p1: ["📣 08:00 통합 브리핑", "🗂️ 04:00 전체 상황공유", "🧭 최종 의사결정 대기", "⚡ 크레딧 릴레이 총괄"] },
+    "4": {
+      captain: ["👑 최종 의사결정 대기", "📣 08:00 브리핑 확인", "🏛️ 지휘실 상주", "⚡ 릴레이 보고 수신"],
+      p1: ["📣 08:00 통합 브리핑", "🗂️ 04:00 전체 상황공유", "🧭 최종 의사결정 대기", "⚡ 크레딧 릴레이 총괄"]
+    },
     "3": {
       p2: ["🔎 리서치 정리 중", "🧺 가족 일정 확인", "🗓️ 일정표 업데이트", "🎟️ 체험단 조사"],
       p4: ["🔍 교차 검증 완료", "💬 전략 조언 3건", "📰 아침 뉴스 브리핑", "🩺 의료기기 브리핑"]
@@ -1641,7 +1686,7 @@
     b.el.classList.toggle("face-left", a.x < b.x);
   }
 
-  /* 같은 층 두 명이 주고받는 대화 (3F 피대리 ↔ 지과장) */
+  /* 같은 층 두 명이 주고받는 대화 (3F 제미대리 ↔ 지과장) */
   function tryDialog(pool) {
     var byFloor = {};
     pool.forEach(function (a) { (byFloor[a.floor] = byFloor[a.floor] || []).push(a); });
