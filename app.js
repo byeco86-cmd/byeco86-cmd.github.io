@@ -65,6 +65,7 @@
      컬러 팔레트 · 스프라이트
      ------------------------------------------------------------ */
   var PALETTE = {
+    p0: { body: "#E09272", dark: "#B4603F", ink: "#4A2318" },
     p1: { body: "#E7B36B", dark: "#BE8A42", ink: "#4A3218" },
     p2: { body: "#95BAD9", dark: "#5F8BB0", ink: "#24384A" },
     p3: { body: "#A9C88C", dark: "#7C9E5C", ink: "#33421F" }
@@ -82,7 +83,9 @@
     face += '<circle cx="15.5" cy="45" r="3" fill="#E58B7C" opacity=".5"/>' +
       '<circle cx="40.5" cy="45" r="3" fill="#E58B7C" opacity=".5"/>';
     /* mouth */
-    if (id === "p1") {
+    if (id === "p0") {
+      face += '<path d="M22.5 43.5q5.5 5.5 11 .5" fill="none" stroke="#2B2118" stroke-width="1.8" stroke-linecap="round"/>';
+    } else if (id === "p1") {
       face += '<path d="M23 47q5 4 10 0" fill="none" stroke="#2B2118" stroke-width="1.7" stroke-linecap="round"/>';
     } else if (id === "p2") {
       face += '<path d="M23 44v6h6v-6M23 47h6" fill="none" stroke="#2B2118" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>';
@@ -91,7 +94,15 @@
     }
     /* accessories */
     var extra = "";
-    if (id === "p1") {
+    if (id === "p0") {
+      /* 왕관 + 별 배지 — 부대장 클로드 */
+      extra += '<path d="M16.5 21.5l2.2-9.4 5.1 5.2 4.2-8 4.2 8 5.1-5.2 2.2 9.4z" fill="#F2C64E" stroke="#C08F1E" stroke-width="1.1" stroke-linejoin="round"/>' +
+        '<rect x="16.2" y="21.4" width="23.6" height="3.1" rx="1.55" fill="#E3B33A" stroke="#C08F1E" stroke-width="1"/>' +
+        '<circle cx="18.7" cy="12.8" r="1" fill="#B98413"/>' +
+        '<circle cx="28" cy="10" r="1" fill="#B98413"/>' +
+        '<circle cx="37.3" cy="12.8" r="1" fill="#B98413"/>' +
+        '<path d="M28 50.6l1.9 3.8 4.2.6-3 2.9.7 4.2-3.8-2-3.8 2 .7-4.2-3-2.9 4.2-.6z" fill="#FBE08C" stroke="#C9A02C" stroke-width=".9" stroke-linejoin="round"/>';
+    } else if (id === "p1") {
       extra += '<g fill="none" stroke="#6B4A2A" stroke-width="1.5">' +
         '<circle cx="22" cy="38" r="6.2"/>' +
         '<circle cx="34" cy="38" r="6.2"/>' +
@@ -214,6 +225,8 @@
   function renderAll() {
     renderMapRooms();
     renderTeam();
+    renderChain();
+    renderRoster();
     renderPipeline();
     renderLogs();
     renderMemos();
@@ -266,6 +279,29 @@
     }).join("");
   }
 
+  function renderChain() {
+    var box = $("#chainStrip");
+    if (!box || !data.chain) return;
+    box.innerHTML = data.chain.map(function (c, i) {
+      var html = '<div class="chain-node ' + esc(c.tone || "") + '">' +
+        '<span class="cn-name">' + esc(c.name) + '</span>' +
+        '<small>' + esc(c.role) + '</small></div>';
+      if (i < data.chain.length - 1) html += '<span class="chain-arrow" aria-hidden="true">›</span>';
+      return html;
+    }).join("");
+  }
+
+  function renderRoster() {
+    var on = $("#onCount");
+    if (on) on.textContent = "👥 " + data.team.length + "명 ON";
+    var roster = $("#mapRoster");
+    if (roster) {
+      roster.textContent = data.roster || data.team.map(function (t) { return t.name + " " + t.role; }).join(" · ");
+    }
+    var bots = $("#botCount");
+    if (bots) bots.textContent = data.team.length;
+  }
+
   function renderPipeline() {
     var box = $("#pipe");
     if (!box) return;
@@ -279,7 +315,7 @@
     }).join("");
   }
 
-  var WHO = { p1: "1호", p2: "2호 크리", p3: "3호", captain: "대장님" };
+  var WHO = { p0: "부대장 클로드", p1: "1호", p2: "2호 크리", p3: "3호", captain: "대장님" };
 
   function renderLogs() {
     var box = $("#logList");
@@ -612,29 +648,31 @@
      캐릭터 · 이동
      ------------------------------------------------------------ */
   var SPOTS = {
-    grand: [[13, 33], [20, 26], [26, 42], [15, 48], [28, 32]],
-    command: [[46, 40], [55, 29], [61, 44], [71, 34], [50, 54], [69, 51], [76, 42]],
+    grand: [[13, 33], [20, 26], [26, 42], [15, 48], [28, 32], [32, 44]],
+    command: [[46, 40], [55, 29], [61, 44], [71, 34], [50, 54], [69, 51], [76, 42], [64, 53]],
     lounge: [[58, 72], [66, 80], [75, 69], [83, 78]],
-    corridor: [[40, 56], [44, 63], [37, 41], [43, 47]]
+    corridor: [[40, 56], [44, 63], [37, 41], [43, 47], [33, 55]]
   };
   var ROUTE = {
+    p0: ["grand", "command", "lounge", "corridor"],
     p1: ["grand", "command", "corridor", "grand"],
     p2: ["command", "lounge", "corridor", "command"],
     p3: ["command", "grand", "corridor"]
   };
   var LINES = {
+    p0: ["📋 총괄 검토", "⚡ 브리핑 조율", "🔗 GitHub 동기화", "📋 총괄 검토 완료", "⚡ 4명 체제 정렬"],
     p1: ["💬 브리핑 준비 완료", "💬 3호 게이트 확인 중", "⚡ 지시 정리 중", "🎯 12/1 발표 9건"],
     p2: ["🎯 페토세라 0/16!", "💬 0원 쿠폰 6종", "⚡ 응모 10건 완료", "🎯 미달 26건 추렸어요", "☕ 잠깐 충전 중"],
     p3: ["💬 검증 게이트 세팅", "⚡ 실행 승인 대기", "🎯 중복 0건 확인"]
   };
-  var POS = { p1: [16, 36], p2: [55, 47], p3: [71, 31] };
+  var POS = { p0: [36, 52], p1: [16, 36], p2: [55, 47], p3: [71, 31] };
 
   function buildAgents() {
     var box = $("#agents");
     var stage = $("#officeStage");
     if (!box || !stage) return;
     box.innerHTML = "";
-    agents = data.team.slice(0, 3).map(function (t) {
+    agents = data.team.map(function (t) {
       var el = document.createElement("div");
       el.className = "agent " + t.id;
       el.setAttribute("data-agent", t.id);

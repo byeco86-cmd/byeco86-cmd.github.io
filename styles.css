@@ -1473,3 +1473,47 @@ html[data-theme="dark"] .relay-node.is-now {
     transition-duration: .01ms !important;
   }
 }
+
+/* ---------------- 지휘 체계 ---------------- */
+.chain-card { padding-bottom: 13px; }
+.chain-strip {
+  display: flex;
+  align-items: stretch;
+  gap: 3px;
+  overflow-x: auto;
+  padding: 2px 1px;
+  scrollbar-width: none;
+}
+.chain-strip::-webkit-scrollbar { display: none; }
+.chain-node {
+  flex: 1 0 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 7px 5px 6px;
+  border-radius: 11px;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--line);
+  text-align: center;
+}
+.chain-node .cn-name {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: -0.1px;
+  white-space: nowrap;
+}
+.chain-node small { font-size: 8.5px; font-weight: 700; color: var(--muted); }
+.chain-node.captain { background: var(--accent-soft); border-color: var(--accent-line); border-top-color: var(--accent); }
+.chain-node.coral { border-top-color: #E09272; }
+.chain-node.clay { border-top-color: #E7B36B; }
+.chain-node.blue { border-top-color: #95BAD9; }
+.chain-node.sage { border-top-color: #A9C88C; }
+.chain-arrow { flex: 0 0 auto; align-self: center; font-size: 12px; font-weight: 800; color: var(--accent); }
+
+/* 부대장 클로드는 맵에서 가장 앞에 */
+.agent.p0 { z-index: 6; }
+.agent.p0 .agent-tag { font-size: 7.6px; padding: 1px 4px; letter-spacing: -0.2px; }
