@@ -1041,7 +1041,8 @@
 
   /* 수익화 트랙에서 이 구성원이 맡은 일 */
   var WHO_KEYS = {
-    captain: ["대장님"], p1: ["1호"], p2: ["2호 크리", "2호"], p3: ["3호"], p0: ["클로드 부장", "클로드"], p4: ["챗지피티 과장", "챗지피티"]
+    captain: ["대장님"], p1: ["1호", "피클(1·2·3호)"], p2: ["2호 크리", "2호", "피클(1·2·3호)"], p3: ["3호", "피클(1·2·3호)"],
+    p0: ["클로드 부장", "클로드", "클로드 부장 & 피클(1·2·3호)"], p4: ["챗지피티 과장", "챗지피티"]
   };
   function tracksFor(id) {
     var keys = WHO_KEYS[id] || [];
@@ -1282,11 +1283,6 @@
       var rows = data.roleDetails.members.map(function (mm) {
         var tr = tracksFor(mm.id);
         return { id: mm.id, name: mm.name + " " + mm.role, ava: avaHtml(mm.id), items: tr.map(function (x) { return { no: x.track.no, tone: x.track.tone, task: x.task }; }) };
-      });
-      ["피클", "뮤즈"].forEach(function (nm) {
-        var items = [];
-        tracks.forEach(function (t) { (t.roles || []).forEach(function (r) { if (r.who === nm) items.push({ no: t.no, tone: t.tone, task: r.task }); }); });
-        if (items.length) rows.push({ id: "", name: nm + " · 담당 지정 대기", ava: '<span class="emoji-ava">' + (nm === "피클" ? "🥒" : "🎨") + '</span>', items: items });
       });
       rm.innerHTML = rows.map(function (r) {
         return '<div class="rm-row"' + (r.id ? ' role="button" tabindex="0" data-profile="' + esc(r.id) + '"' : '') + '>' +
