@@ -117,6 +117,7 @@ def main():
     check("credits_order_v8", [a["id"] for a in data["credits"]["agents"]] == ["p1", "p0", "p5", "p4", "p3", "p6", "p2"],
           [a["id"] for a in data["credits"]["agents"]])
     check("bld_sign_v5", "바이코 AI 오피스" in indexhtml, "건물 간판·타이틀")
+    check("foot_v8", "바이코 AI 오피스 v8" in indexhtml and "그록 차장 · 지과장" in indexhtml, "푸터 8명")
     check("title_v5", "<title>바이코 AI 오피스</title>" in indexhtml, "")
     dow_ko = ["월", "화", "수", "목", "금", "토", "일"]
     for a in data.get("awards", []):
