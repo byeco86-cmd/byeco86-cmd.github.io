@@ -85,9 +85,9 @@
      컬러 팔레트 · 스프라이트
      ------------------------------------------------------------ */
   /* ------------------------------------------------------------
-     캐릭터 — 정장 입은 귀여운 동물 6명 (고퀄 SVG)
+     캐릭터 — 정장 입은 귀여운 동물 8명 (고퀄 SVG)
      회장님 호랑이·블랙 3피스+골드타이·금메달 / 피사장 시바견·네이비 / 피사원 토끼·블루 / 클부장 곰·에스프레소+골드타이
-     지과장 여우·에메랄드+모노클 / 제미대리 다람쥐·민트
+     지과장 여우·에메랄드+모노클 / 제미대리 다람쥐·민트 / 그록 차장 검은 늑대·딥슬레이트+아이스블루 / 피주임 펭귄·턱시도
      ------------------------------------------------------------ */
   var PALETTE = {
     captain: {
@@ -119,9 +119,19 @@
       fur: "#BE8A5F", furDark: "#946440", furLight: "#F6E6D2",
       suit: "#4FBB9D", suitLight: "#6BD0B4", trouser: "#2E7A66",
       shirt: "#FBFCFE", tie: "#2C8C74", tieStyle: "necktie"
+    },
+    p5: {
+      fur: "#4C525C", furDark: "#333840", furLight: "#E7EBF1", stripe: "#22262C",
+      suit: "#1B2330", suitLight: "#29323F", trouser: "#141A23",
+      shirt: "#F4F7FB", tie: "#38BDF8", tieStyle: "necktie"
+    },
+    p6: {
+      fur: "#2B313A", furDark: "#1B2028", furLight: "#F7FAFC", beak: "#F5A623",
+      suit: "#22364F", suitLight: "#2E4866", trouser: "#182838",
+      shirt: "#FFFFFF", tie: "#F2A03D", tieStyle: "necktie"
     }
   };
-  var EAR = { captain: "tiger", p1: "shiba", p2: "rabbit", p0: "bear", p4: "fox", p3: "squirrel" };
+  var EAR = { captain: "tiger", p1: "shiba", p2: "rabbit", p0: "bear", p4: "fox", p3: "squirrel", p5: "wolf", p6: "penguin" };
 
   /* 머리 뒤로 나온 귀 */
   function earsSvg(kind, a) {
@@ -161,6 +171,20 @@
         '<path d="M41.4 9.6l-4.6 2.6 1.9.9z" fill="' + a.furDark + '"/>' +
         '<path d="M35.8 19c1.4-3.4 2.4-5.6 2.9-7.3-1.9 1-3.6 1.9-5 2.6z" fill="' + a.furLight + '"/>';
     }
+    if (kind === "wolf") {
+      /* 늑대 — 길게 솟은 뾰족 귀, 안쪽은 밝은 털 */
+      return '<path d="M20.1 22 14.4 7.4l10.9 6.1z" fill="' + a.fur + '"/>' +
+        '<path d="M19.9 19.3l-3-7.4 5.5 3.1z" fill="' + a.furLight + '" opacity=".6"/>' +
+        '<path d="M35.9 22 41.6 7.4l-10.9 6.1z" fill="' + a.fur + '"/>' +
+        '<path d="M36.1 19.3l3-7.4-5.5 3.1z" fill="' + a.furLight + '" opacity=".6"/>' +
+        '<path d="M19.6 21.4c1.2-2 2.6-3.2 4.1-3.9M36.4 21.4c-1.2-2-2.6-3.2-4.1-3.9" stroke="' + a.furDark +
+        '" stroke-width="1" stroke-linecap="round" fill="none" opacity=".75"/>';
+    }
+    if (kind === "penguin") {
+      /* 펭귄 — 귀 대신 짧은 머리 깃 */
+      return '<path d="M28 15.6c.9-1.7 1.6-2.9 2.5-3.7-.3 1.5-.2 2.7.2 3.7z" fill="' + a.fur + '"/>' +
+        '<path d="M25 15.8c-.6-1.4-1-2.4-1.7-3.1.6 1.2.8 2.2.8 3.1z" fill="' + a.furDark + '" opacity=".85"/>';
+    }
     /* squirrel */
     return '<path d="M19.4 20.6L16.2 11.2l6.6 3.7z" fill="' + a.fur + '"/>' +
       '<path d="M19.9 18.3l-1.5-4.4 3 1.7z" fill="' + a.furLight + '"/>' +
@@ -170,6 +194,17 @@
 
   /* 몸 뒤로 보이는 꼬리 */
   function tailSvg(kind, a) {
+    if (kind === "wolf") {
+      /* 늑대 — 왼쪽으로 늘어진 복슬 꼬리 */
+      return '<path d="M17.4 57.2c-4.6.4-7.4 3.4-7 7.4.4 3.8 4 6.2 7.4 5" fill="none" stroke="' + a.furDark +
+        '" stroke-width="8.2" stroke-linecap="round"/>' +
+        '<path d="M17.6 57.4c-4.2.5-6.6 3.2-6.2 6.8.4 3.4 3.5 5.4 6.4 4.4" fill="none" stroke="' + a.fur +
+        '" stroke-width="5" stroke-linecap="round"/>';
+    }
+    if (kind === "penguin") {
+      /* 펭귄 — 짧은 꽁지 */
+      return '<path d="M38.4 56.6c3.6 1.2 5.6 3.4 5.4 6.2-2.6-.6-4.8-2.2-6.2-4.4z" fill="' + a.furDark + '"/>';
+    }
     if (kind === "squirrel") {
       return '<path d="M39.8 61.4c4.6-.2 7.6-3 7.8-7 .2-3.6-2.2-6.4-5-6.2-2.2.2-3.4 2.4-2.6 4.2.6 1.4 2.4 1.6 3.3.5" fill="none" stroke="' + a.furDark + '" stroke-width="7.4" stroke-linecap="round"/>' +
         '<path d="M39.8 61.4c4.6-.2 7.6-3 7.8-7 .2-3.6-2.2-6.4-5-6.2-2.2.2-3.4 2.4-2.6 4.2.6 1.4 2.4 1.6 3.3.5" fill="none" stroke="' + a.fur + '" stroke-width="4.4" stroke-linecap="round"/>';
@@ -213,6 +248,12 @@
       '<circle cx="31.6" cy="52.4" r=".85" fill="#fff" opacity=".38"/>' +
       '<circle cx="31.6" cy="55.6" r=".85" fill="#fff" opacity=".38"/>');
 
+    /* 펭귄 — 턱시도 흰 배 */
+    if (kind === "penguin") {
+      s.push('<path d="M22.7 44.2c1.3 7.6 2.5 12.4 5.3 12.4s4-4.8 5.3-12.4c-3.5-1.7-7.1-1.7-10.6 0z" fill="' + a.shirt + '"/>' +
+        '<path d="M23.4 45.2c1 6.2 2 10.2 4.6 10.2" fill="none" stroke="#D8E2EE" stroke-width=".5" opacity=".8"/>');
+    }
+
     /* 넥타이 */
     if (a.tieStyle === "bow") {
       s.push('<path d="M23.6 40.4c1.9-1 3.3-.2 4.1 1.2.8-1.4 2.2-2.2 4.1-1.2 1.1 2 .3 4-1.7 4.6-1.1.3-1.9 0-2.4-.8-.5.8-1.3 1.1-2.4.8-2-.6-2.8-2.6-1.7-4.6z" fill="' + a.tie + '"/>' +
@@ -249,7 +290,18 @@
     }
 
     /* 얼굴 — 주둥이 */
-    s.push('<ellipse cx="28" cy="32.9" rx="8.8" ry="6.4" fill="' + a.furLight + '"/>');
+    if (kind === "penguin") {
+      /* 펭귄 — 앞면은 힌색, 부리는 주황 */
+      s.push('<ellipse cx="28" cy="30.4" rx="10.3" ry="9.4" fill="' + a.furLight + '" opacity=".97"/>' +
+        '<path d="M18.9 26.6c1.4-4.2 5-6.6 9.1-6.6s7.7 2.4 9.1 6.6z" fill="' + a.furLight + '" opacity=".6"/>');
+    } else if (kind === "wolf") {
+      /* 늑대 — 길게 뻗은 회색 주둥이 */
+      s.push('<ellipse cx="28" cy="33.4" rx="8.4" ry="6.9" fill="' + a.furLight + '"/>' +
+        '<path d="M22.4 33.1c1.4 3.2 3.5 4.9 5.6 4.9s4.2-1.7 5.6-4.9" stroke="' + a.furDark +
+        '" stroke-width=".5" fill="none" opacity=".35"/>');
+    } else {
+      s.push('<ellipse cx="28" cy="32.9" rx="8.8" ry="6.4" fill="' + a.furLight + '"/>');
+    }
     if (kind === "shiba") {
       s.push('<ellipse cx="17.6" cy="31.4" rx="3.1" ry="4.2" fill="' + a.furLight + '"/>' +
         '<ellipse cx="38.4" cy="31.4" rx="3.1" ry="4.2" fill="' + a.furLight + '"/>');
@@ -268,7 +320,7 @@
         '" stroke-width=".55" stroke-linecap="round" opacity=".45"/>');
     }
 
-    /* 눈 (깜빡임) — 호랑이는 치켜뜬 눈매 · 짙은 눈썹 */
+    /* 눈 (깜빡임) — 호랑이는 치켜뜬 눈매 · 짙은 눈썹 · 늑대는 차가운 푸른 눈 */
     if (kind === "tiger") {
       s.push('<path d="M18.4 19.3 25 22.3 24.6 23.1 18.2 21.6z" fill="#231A12"/>' +
         '<path d="M37.6 19.3 31 22.3 31.4 23.1 37.8 21.6z" fill="#231A12"/>' +
@@ -281,22 +333,38 @@
         '<circle cx="34.8" cy="25.9" r=".55" fill="#fff"/>' +
         '</g>' +
         '<path d="M19.8 24.4c1.8-1.1 4.2-1 5.7.4M36.2 24.4c-1.8-1.1-4.2-1-5.7.4" stroke="' + a.furDark + '" stroke-width="1" stroke-linecap="round" fill="none" opacity=".7"/>');
+    } else if (kind === "wolf") {
+      s.push('<g class="eye"><ellipse cx="22.6" cy="26.2" rx="2.7" ry="2.9" fill="#1D242E"/><circle cx="23.5" cy="25.3" r=".95" fill="#CFEBFF"/></g>' +
+        '<g class="eye"><ellipse cx="33.4" cy="26.2" rx="2.7" ry="2.9" fill="#1D242E"/><circle cx="34.3" cy="25.3" r=".95" fill="#CFEBFF"/></g>' +
+        '<path d="M19.8 21.4c1.5-.8 3.2-.7 4.6.1M32 21.4c1.4-.8 3.1-.9 4.6-.1" stroke="' + a.furDark +
+        '" stroke-width="1" stroke-linecap="round" fill="none" opacity=".8"/>');
     } else {
       s.push('<g class="eye"><ellipse cx="22.5" cy="26.2" rx="2.85" ry="3.1" fill="#2B2118"/><circle cx="23.5" cy="25.2" r="1" fill="#fff"/></g>' +
         '<g class="eye"><ellipse cx="33.5" cy="26.2" rx="2.85" ry="3.1" fill="#2B2118"/><circle cx="34.5" cy="25.2" r="1" fill="#fff"/></g>' +
         '<path d="M19.4 21.5c1.5-.9 3.1-.9 4.5-.2M32.1 21.3c1.4-.7 3-.7 4.5.2" stroke="' + a.furDark + '" stroke-width=".85" stroke-linecap="round" fill="none" opacity=".5"/>');
     }
 
-    /* 코 · 입 · 볼 — 호랑이는 굳은 입매 + 송곳니 */
-    s.push('<path d="M26.7 30c.4-1.2 2.2-1.2 2.6 0 .4 1-.6 1.9-1.3 1.9s-1.7-.9-1.3-1.9z" fill="#3A2A22"/>' +
-      '<path d="M28 31.9v1.4" stroke="#3A2A22" stroke-width=".85" stroke-linecap="round"/>' +
-      (kind === "tiger"
-        ? '<path d="M26.2 33.7h3.6" stroke="#3A2A22" stroke-width="1.15" stroke-linecap="round"/>' +
-          '<path d="M26.2 33.6l-.7.9M29.8 33.6l.7.9" stroke="#3A2A22" stroke-width=".8" stroke-linecap="round"/>' +
-          '<path d="M26.6 33.8l.45 1.3.45-1.2zM29.4 33.8l-.45 1.3-.45-1.2z" fill="#FFFDF7" stroke="#3A2A22" stroke-width=".26" stroke-linejoin="round"/>'
-        : '<path d="M28 33.3c-.9 1.2-2.4 1.1-3-.4M28 33.3c.9 1.2 2.4 1.1 3-.4" stroke="#3A2A22" stroke-width=".85" stroke-linecap="round" fill="none"/>' +
-          '<ellipse cx="17.6" cy="31.8" rx="2.6" ry="1.6" fill="#E9817A" opacity=".38"/>' +
-          '<ellipse cx="38.4" cy="31.8" rx="2.6" ry="1.6" fill="#E9817A" opacity=".38"/>'));
+    /* 코 · 입 · 볼 — 호랑이는 굳은 입매 + 송곳니 · 펭귄은 부리 · 늑대는 큰 검은 코 */
+    if (kind === "penguin") {
+      s.push('<path d="M25.5 30.4h5L28 34.7z" fill="' + (a.beak || "#F5A623") + '" stroke="#D98A12" stroke-width=".4" stroke-linejoin="round"/>' +
+        '<path d="M26.2 31.3h3.6" stroke="#FFE0A8" stroke-width=".5" stroke-linecap="round" opacity=".85"/>');
+    } else if (kind === "wolf") {
+      s.push('<path d="M25.2 30.2c.5-1.7 5.1-1.7 5.6 0 .5 1.5-.9 2.8-2.8 2.8s-3.3-1.3-2.8-2.8z" fill="#1E242C"/>' +
+        '<path d="M28 33v1.5" stroke="#1E242C" stroke-width=".9" stroke-linecap="round"/>' +
+        '<path d="M26.4 34.9c.5.9 1.1 1.4 1.6 1.4s1.1-.5 1.6-1.4" stroke="#3A2A22" stroke-width=".85" stroke-linecap="round" fill="none"/>' +
+        '<ellipse cx="17.8" cy="32.2" rx="2.4" ry="1.5" fill="#E9817A" opacity=".22"/>' +
+        '<ellipse cx="38.2" cy="32.2" rx="2.4" ry="1.5" fill="#E9817A" opacity=".22"/>');
+    } else {
+      s.push('<path d="M26.7 30c.4-1.2 2.2-1.2 2.6 0 .4 1-.6 1.9-1.3 1.9s-1.7-.9-1.3-1.9z" fill="#3A2A22"/>' +
+        '<path d="M28 31.9v1.4" stroke="#3A2A22" stroke-width=".85" stroke-linecap="round"/>' +
+        (kind === "tiger"
+          ? '<path d="M26.2 33.7h3.6" stroke="#3A2A22" stroke-width="1.15" stroke-linecap="round"/>' +
+            '<path d="M26.2 33.6l-.7.9M29.8 33.6l.7.9" stroke="#3A2A22" stroke-width=".8" stroke-linecap="round"/>' +
+            '<path d="M26.6 33.8l.45 1.3.45-1.2zM29.4 33.8l-.45 1.3-.45-1.2z" fill="#FFFDF7" stroke="#3A2A22" stroke-width=".26" stroke-linejoin="round"/>'
+          : '<path d="M28 33.3c-.9 1.2-2.4 1.1-3-.4M28 33.3c.9 1.2 2.4 1.1 3-.4" stroke="#3A2A22" stroke-width=".85" stroke-linecap="round" fill="none"/>' +
+            '<ellipse cx="17.6" cy="31.8" rx="2.6" ry="1.6" fill="#E9817A" opacity=".38"/>' +
+            '<ellipse cx="38.4" cy="31.8" rx="2.6" ry="1.6" fill="#E9817A" opacity=".38"/>'));
+    }
     if (kind === "squirrel") {
       s.push('<rect x="26.4" y="34.6" width="1.5" height="2.4" rx=".5" fill="#FFFDF8" stroke="#C9B49B" stroke-width=".3"/>' +
         '<rect x="28.1" y="34.6" width="1.5" height="2.4" rx=".5" fill="#FFFDF8" stroke="#C9B49B" stroke-width=".3"/>');
@@ -341,6 +409,21 @@
       /* 도토리 배지 */
       s.push('<path d="M18.2 42.2c0-1.4 1.2-2.4 2.5-2.4s2.5 1 2.5 2.4z" fill="#8A5A32"/>' +
         '<path d="M18.6 42.4h4.2c.4 1.6-.6 3.2-2.1 3.2s-2.5-1.6-2.1-3.2z" fill="#C98D4F"/>');
+    } else if (id === "p5") {
+      /* 코드 리뷰 안경 · 터미널 </> 배지 */
+      s.push('<g fill="none" stroke="#DCE6F2" stroke-width=".9" opacity=".92">' +
+        '<rect x="18.4" y="23.2" width="8" height="5.8" rx="1.7"/>' +
+        '<rect x="29.6" y="23.2" width="8" height="5.8" rx="1.7"/>' +
+        '<path d="M26.4 25.6h3.2"/></g>' +
+        '<rect x="30.9" y="46.2" width="6.4" height="5.8" rx="1.3" fill="#0E1A2A" stroke="#38BDF8" stroke-width=".55"/>' +
+        '<path d="M32.9 47.8l-1.5 1.7 1.5 1.7M35.3 47.8l1.5 1.7-1.5 1.7" stroke="#38BDF8" stroke-width=".55" fill="none" stroke-linecap="round" stroke-linejoin="round"/>');
+    } else if (id === "p6") {
+      /* 신입 사원증 배지 · 펭귄 주황 발 */
+      s.push('<ellipse cx="23.2" cy="66" rx="4.8" ry="2.5" fill="' + (a.beak || "#F5A623") + '"/>' +
+        '<ellipse cx="32.8" cy="66" rx="4.8" ry="2.5" fill="' + (a.beak || "#F5A623") + '"/>' +
+        '<path d="M32.8 44.6h5.2v4.4h-5.2z" fill="#F4F7FB" stroke="#C6D2E0" stroke-width=".4"/>' +
+        '<path d="M33.6 45.8h3.4M33.6 47.1h3.4" stroke="#8FA3BC" stroke-width=".5" stroke-linecap="round"/>' +
+        '<circle cx="34.6" cy="48.3" r=".62" fill="#7FD1F0"/>');
     }
 
     return '<svg class="sprite" viewBox="0 0 56 72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
@@ -982,13 +1065,14 @@
 
     var chain = $("#relayChain");
     if (chain) {
-      var order = ["p1", "p2", "p3"];
+      var order = ["p1", "p3", "p2", "p6"];
       chain.innerHTML = order.map(function (id, i) {
         var t = data.team.filter(function (x) { return x.id === id; })[0];
         var now = id === "p2";
+        var label = now ? "이 오피스 담당" : (id === "p6" ? "연동 대기" : "가동 중");
         var html = '<div class="relay-node' + (now ? " is-now" : "") + '">' +
           '<span>' + esc(t.name) + '</span>' +
-          '<small>' + (now ? "이 오피스 담당" : i === 2 ? "합류 대기" : "가동 중") + '</small></div>';
+          '<small>' + label + '</small></div>';
         if (i < order.length - 1) html += '<span class="relay-arrow" aria-hidden="true">→</span>';
         return html;
       }).join("");
@@ -1329,10 +1413,10 @@
       "4": ['<span class="hud-tile">📣 08:00 브리핑 <b>✓</b></span>',
         '<span class="hud-tile warn">👑 결정 대기 <b>' + pend + '</b></span>',
         '<button type="button" class="hud-tile hud-btn" data-profile="captain">👑 회장석 ›</button>'],
-      "3": ['<span class="hud-tile">🔍 게이트 ② 검증</span>',
-        '<span class="hud-tile">🧭 체험단 <b>' + ((s.deals && s.deals.total) || 0) + '</b>건 점수화</span>'],
-      "2": ['<span class="hud-tile code"><i></i><i></i><i></i></span>',
+      "3": ['<span class="hud-tile code"><i></i><i></i><i></i></span>',
         '<span class="hud-tile">🔗 GitHub 동기화 <b>✓</b></span>'],
+      "2": ['<span class="hud-tile">🔍 게이트 ② 검증</span>',
+        '<span class="hud-tile">🧭 체험단 <b>' + ((s.deals && s.deals.total) || 0) + '</b>건 점수화</span>'],
       "1": ['<span class="hud-tile">🎟️ 응모 <b>' + ((s.entries && s.entries.total) || 0) + '</b>건</span>',
         '<span class="hud-tile">🎫 0원 쿠폰 <b>' + ((s.coupons && s.coupons.zero) || 0) + '</b>종</span>']
     }[f.id] || [];
@@ -1558,26 +1642,34 @@
     "2": [[38, 78], [50, 74], [60, 80], [45, 84]],
     "1": [[44, 78], [56, 74], [66, 80], [50, 84]]
   };
-  var HOME = { captain: [66, 72], p1: [46, 74], p2: [44, 78], p4: [64, 74], p0: [45, 78], p3: [24, 76] };
+  var HOME = { captain: [66, 72], p1: [46, 74], p2: [44, 78], p4: [38, 78], p0: [45, 78], p3: [54, 74], p5: [59, 76], p6: [61, 79] };
   var LINES = {
-    captain: ["👑 최종 의사결정 대기", "📣 08:00 브리핑 확인", "🏛️ 4층 지휘실 상주", "⚡ 릴레이 보고 수신"],
-    p0: ["🛠️ 웹앱 4층 개편", "🔗 GitHub 동기화", "⚙️ 자동화 개발 중", "📋 고난도 실무 처리"],
+    captain: ["👑 최종 의사결정 대기", "📣 08:00 브리핑 확인", "🏛️ 4F 기획실 상주", "⚡ 릴레이 보고 수신"],
+    p0: ["🛠️ 웹앱 3F 개편", "🔗 GitHub 동기화", "⚙️ 자동화 개발 중", "📋 고난도 실무 처리"],
     p1: ["📣 08:00 통합 브리핑", "🧭 최종 의사결정 대기", "⚡ 크레딧 릴레이 총괄", "🗂️ 04:00 상황공유"],
-    p2: ["🔎 리서치 정리 중", "🎟️ 체험단 조사", "🧺 가족 일정 확인", "☕ 잠깐 충전 중"],
-    p3: ["🎯 응모 124건 진행", "☕ 0원 쿠폰 줍줍", "✅ 사전 검증 게이트", "📊 시장 조사 중"],
-    p4: ["🔍 교차 검증 완료", "💡 아이디어 제안", "💬 전략 조언", "📰 아침 뉴스 브리핑"]
+    p5: ["🛠️ 코드 리뷰 2건", "📈 X 실시간 트렌드", "🧪 데이터 정합성 확인", "🗂️ 클부장 백업 대기"],
+    p4: ["🔍 교차 검증 완료", "💡 아이디어 제안", "💬 전략 조언", "📰 아침 뉴스 브리핑"],
+    p3: ["🔎 리서치 정리 중", "🗓️ 일정표 업데이트", "🎟️ 체험단 조사", "🩺 의료기기 브리핑"],
+    p6: ["👋 연동 대기 중", "📋 응모 루틴 인수인계", "🎟️ 응모 보조 준비", "🕒 곧 합류합니다"],
+    p2: ["🎯 응모 124건 진행", "☕ 0원 쿠폰 줍줍", "✅ 사전 검증 게이트", "📊 시장 조사 중"]
   };
   var FLOOR_LINES = {
     "4": {
-      captain: ["👑 최종 의사결정 대기", "📣 08:00 브리핑 확인", "🏛️ 지휘실 상주", "⚡ 릴레이 보고 수신"],
+      captain: ["👑 최종 의사결정 대기", "📣 08:00 브리핑 확인", "🏛️ 기획실 상주", "⚡ 릴레이 보고 수신"],
       p1: ["📣 08:00 통합 브리핑", "🗂️ 04:00 전체 상황공유", "🧭 최종 의사결정 대기", "⚡ 크레딧 릴레이 총괄"]
     },
     "3": {
-      p2: ["🔎 리서치 정리 중", "🧺 가족 일정 확인", "🗓️ 일정표 업데이트", "🎟️ 체험단 조사"],
-      p4: ["🔍 교차 검증 완료", "💬 전략 조언 3건", "📰 아침 뉴스 브리핑", "🩺 의료기기 브리핑"]
+      p0: ["🛠️ 웹앱 3F 개편", "🔗 GitHub 동기화", "⚙️ 자동화 개발 중", "📋 고난도 실무 처리"],
+      p5: ["🛠️ 코드 리뷰 2건", "📈 X 실시간 트렌드", "🧪 데이터 정합성 확인", "🗂️ 클부장 백업 대기"]
     },
-    "2": { p0: ["🛠️ 웹앱 4층 개편", "🔗 GitHub 동기화", "⚙️ 자동화 개발 중", "📋 고난도 실무 처리"] },
-    "1": { p3: ["🎯 응모 124건 진행", "☕ 0원 쿠폰 줍줍", "✅ 사전 검증 게이트", "📊 시장 조사 중"] }
+    "2": {
+      p4: ["🔍 교차 검증 완료", "💬 전략 조언 3건", "📰 아침 뉴스 브리핑", "🩺 의료기기 브리핑"],
+      p3: ["🔎 리서치 정리 중", "🧺 가족 일정 확인", "🗓️ 일정표 업데이트", "🎟️ 체험단 조사"]
+    },
+    "1": {
+      p2: ["🎯 응모 124건 진행", "☕ 0원 쿠폰 줍줍", "✅ 사전 검증 게이트", "📊 시장 조사 중"],
+      p6: ["👋 연동 대기 중", "📋 응모 루틴 인수인계", "🎟️ 응모 보조 준비", "🕒 곧 합류합니다"]
+    }
   };
 
   function buildAgents() {
@@ -1715,7 +1807,7 @@
     b.el.classList.toggle("face-left", a.x < b.x);
   }
 
-  /* 같은 층 두 명이 주고받는 대화 (3F 제미대리 ↔ 지과장) */
+  /* 같은 층 두 명이 주고받는 대화 (3F 클부장 ↔ 그록 차장 · 2F 지과장 ↔ 제미대리 · 1F 피주임 ↔ 피사원) */
   function tryDialog(pool) {
     var byFloor = {};
     pool.forEach(function (a) { (byFloor[a.floor] = byFloor[a.floor] || []).push(a); });

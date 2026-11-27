@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""헤드리스 검증 — 390x844 모바일 화면, 정장 입은 동물 캐릭터 5명 렌더링,
-탭 전환, 테마/배경 전환, 수익화 8대 트랙, 콘솔 에러 0건, preview.png 갱신."""
+"""헤드리스 검증 — 390x844 모바일 화면, 정장 입은 동물 캐릭터 8명 렌더링,
+8명 지휘 체계·2F↔3F 교체·층 이름, 탭 전환, 테마/배경 전환, 수익화 8대 트랙, 콘솔 에러 0건, preview.png 갱신."""
 import http.server
 import json
 import pathlib
@@ -16,8 +16,9 @@ SHOTS = ROOT / ".verify"
 SHOTS.mkdir(exist_ok=True)
 
 REQUIRED_LINES = [
-    "🛠️ 웹앱 4층 개편", "📣 08:00 통합 브리핑", "🔗 GitHub 동기화",
+    "🛠️ 웹앱 3F 개편", "📣 08:00 통합 브리핑", "🔗 GitHub 동기화",
     "🔍 교차 검증 완료", "💡 아이디어 제안", "💬 전략 조언",
+    "🛠️ 코드 리뷰 2건", "📈 X 실시간 트렌드", "👋 연동 대기 중",
 ]
 
 
@@ -62,21 +63,24 @@ def main():
     raw_data = (ROOT / "data.json").read_text(encoding="utf-8")
     stale_data = [w for w in legacy if w in raw_data]
     check("no_legacy_titles_data", not stale_data, stale_data)
-    check("roster_v5", data["roster"] == "회장님 · 피사장 · 클부장 · 지과장 · 제미대리 · 피사원", data["roster"])
+    check("roster_v8", data["roster"] == "회장님 · 피사장 · 클부장 · 그록 차장 · 지과장 · 제미대리 · 피주임 · 피사원", data["roster"])
     check("captain_v5", data["captain"] == {"name": "회장님", "badge": "회장님 전용", "office": "바이코 AI 오피스"}, data["captain"])
-    check("chain_v5_order", [c["id"] for c in data["chain"]] == ["captain", "p1", "p0", "p4", "p3", "p2"], [c["id"] for c in data["chain"]])
-    check("chain_v5_names", [c["name"] for c in data["chain"]] == ["회장님", "피사장", "클부장", "지과장", "제미대리", "피사원"], [c["name"] for c in data["chain"]])
-    check("chain_v5_roles", [c["role"] for c in data["chain"]] == ["회장", "사장", "부장", "과장", "대리", "사원"], [c["role"] for c in data["chain"]])
-    check("team_v5_order", [t["id"] for t in data["team"]] == ["captain", "p1", "p0", "p4", "p3", "p2"], [t["id"] for t in data["team"]])
-    check("role_members_v5_order", [m["id"] for m in data["roleDetails"]["members"]] == ["captain", "p1", "p0", "p4", "p3", "p2"],
+    V8_IDS = ["captain", "p1", "p0", "p5", "p4", "p3", "p6", "p2"]
+    V8_NAMES = ["회장님", "피사장", "클부장", "그록 차장", "지과장", "제미대리", "피주임", "피사원"]
+    V8_ROLES = ["회장", "사장", "부장", "차장", "과장", "대리", "주임", "사원"]
+    check("chain_v8_order", [c["id"] for c in data["chain"]] == V8_IDS, [c["id"] for c in data["chain"]])
+    check("chain_v8_names", [c["name"] for c in data["chain"]] == V8_NAMES, [c["name"] for c in data["chain"]])
+    check("chain_v8_roles", [c["role"] for c in data["chain"]] == V8_ROLES, [c["role"] for c in data["chain"]])
+    check("team_v8_order", [t["id"] for t in data["team"]] == V8_IDS, [t["id"] for t in data["team"]])
+    check("role_members_v8_order", [m["id"] for m in data["roleDetails"]["members"]] == V8_IDS,
           [m["id"] for m in data["roleDetails"]["members"]])
-    v5_names = ["회장님", "피사장", "클부장", "지과장", "제미대리", "피사원"]
+    v5_names = V8_NAMES
     check("gate_owners_v5", all(any(n in o for n in v5_names) for it in data["gates"]["items"] for o in it["owners"]),
           [o for it in data["gates"]["items"] for o in it["owners"]])
     check("track_who_v5", all(any(n in r["who"] for n in v5_names) for t in data["monetization"]["tracks"] for r in t["roles"]),
           [r["who"] for t in data["monetization"]["tracks"] for r in t["roles"]][:8])
     ki = [t for t in data["team"] if t["id"] == "p3"][0]
-    check("gemini_daeri", ki["name"] == "제미대리" and ki["role"] == "대리" and ki["floor"] == "3", ki)
+    check("gemini_daeri", ki["name"] == "제미대리" and ki["role"] == "대리" and ki["floor"] == "2", ki)
     check("gemini_platform", ki.get("handle") == "Gemini" and "gemini.google.com" in ki.get("platform", ""), ki)
     check("gemini_duties", ki.get("duties") == ["리서치·수집", "사전·사후검수", "전략·일정 정리"], ki.get("duties"))
     ki_credit = [a for a in data["credits"]["agents"] if a["id"] == "p3"][0]
@@ -90,6 +94,28 @@ def main():
     check("captain_character", captain_team["floor"] == "4" and captain_team["role"] == "회장", captain_team)
     check("floor4_agents", [f["agents"] for f in data["floors"] if f["id"] == "4"][0] == ["captain", "p1"],
           [f["agents"] for f in data["floors"] if f["id"] == "4"])
+    # ---- 층 이름·배치 (8명 체제 · 2F↔3F 교체) ----
+    fl = {f["id"]: f for f in data["floors"]}
+    check("floor4_name", fl["4"]["name"] == "회장·사장 기획실" and fl["4"]["short"] == "기획실", fl["4"]["name"])
+    check("floor3_name", fl["3"]["name"] == "핵심 실무·개발실" and fl["3"]["short"] == "개발실", fl["3"]["name"])
+    check("floor2_name", fl["2"]["name"] == "전략 검수실" and fl["2"]["short"] == "검수실", fl["2"]["name"])
+    check("floor1_name", fl["1"]["name"] == "현장 실행·응모 라운지", fl["1"]["name"])
+    check("floor3_dev_agents", fl["3"]["agents"] == ["p0", "p5"] and fl["3"]["members"] == "클부장 · 그록 차장", fl["3"])
+    check("floor2_check_agents", fl["2"]["agents"] == ["p4", "p3"] and fl["2"]["members"] == "지과장 · 제미대리", fl["2"])
+    check("floor1_agents", fl["1"]["agents"] == ["p6", "p2"] and fl["1"]["members"] == "피주임 · 피사원", fl["1"])
+    check("floor_tones_swap", fl["3"]["tone"] == "blue" and fl["2"]["tone"] == "mint", (fl["3"]["tone"], fl["2"]["tone"]))
+    grok = [t for t in data["team"] if t["id"] == "p5"][0]
+    check("grok_team", grok["name"] == "그록 차장" and grok["role"] == "차장" and grok["floor"] == "3"
+          and grok["handle"] == "Grok", grok)
+    juim = [t for t in data["team"] if t["id"] == "p6"][0]
+    check("juim_team", juim["name"] == "피주임" and juim["role"] == "주임" and juim["floor"] == "1"
+          and juim["status"] == "연동 대기", juim)
+    check("grok_credit", any(a["id"] == "p5" and "Grok" in a["note"] for a in data["credits"]["agents"]),
+          [a["id"] for a in data["credits"]["agents"]])
+    check("juim_credit", any(a["id"] == "p6" and a["state"] == "연동 대기" for a in data["credits"]["agents"]),
+          [a["id"] for a in data["credits"]["agents"]])
+    check("credits_order_v8", [a["id"] for a in data["credits"]["agents"]] == ["p1", "p0", "p5", "p4", "p3", "p6", "p2"],
+          [a["id"] for a in data["credits"]["agents"]])
     check("bld_sign_v5", "바이코 AI 오피스" in indexhtml, "건물 간판·타이틀")
     check("title_v5", "<title>바이코 AI 오피스</title>" in indexhtml, "")
     dow_ko = ["월", "화", "수", "목", "금", "토", "일"]
@@ -183,11 +209,11 @@ def main():
         results.append(("body_scroll_w", page.evaluate("document.documentElement.scrollWidth")))
         results.append(("body_client_w", page.evaluate("document.documentElement.clientWidth")))
 
-        # ---- 5명 캐릭터 ----
+        # ---- 8명 캐릭터 ----
         agent_ids = page.eval_on_selector_all(
             ".agent", "els => els.map(e => e.getAttribute('data-agent'))")
         results.append(("agent_ids", agent_ids))
-        check("agents_6", len(agent_ids) == 6 and sorted(agent_ids) == ["captain", "p0", "p1", "p2", "p3", "p4"], agent_ids)
+        check("agents_8", len(agent_ids) == 8 and sorted(agent_ids) == ["captain", "p0", "p1", "p2", "p3", "p4", "p5", "p6"], agent_ids)
 
         tags = page.eval_on_selector_all(
             ".agent .agent-tag", "els => els.map(e => e.textContent.trim())")
@@ -195,6 +221,8 @@ def main():
         check("captain_tag", "회장님" in tags, tags)
         check("p0_tag", "클부장" in tags, tags)
         check("p4_tag", "지과장" in tags, tags)
+        check("p5_tag", "그록 차장" in tags, tags)
+        check("p6_tag", "피주임" in tags, tags)
         tag_style = page.eval_on_selector_all(
             ".agent .agent-tag",
             "els => els.map(e => { const c = getComputedStyle(e); return {id: e.closest('.agent').getAttribute('data-agent'), bg: c.backgroundColor, fg: c.color}; })")
@@ -270,9 +298,22 @@ def main():
 
         for aid, mark, why in [("p1", "#26344E", "네이비 정장"), ("p1", "#EFBB77", "시바 털"),
                                ("p2", "#2E6FA8", "블루 정장"), ("p2", "#D8E5F2", "토끼 털"),
-                               ("p3", "#4FBB9D", "민트 정장")]:
+                               ("p3", "#4FBB9D", "민트 정장"),
+                               ("p5", "#1B2330", "딥슬레이트 정장"), ("p5", "#4C525C", "검은 늑대 털"),
+                               ("p5", "#38BDF8", "아이스블루 넥타이"), ("p5", "#DCE6F2", "코드 리뷰 안경"),
+                               ("p5", "M32.9 47.8l-1.5 1.7", "터미널 </> 배지"),
+                               ("p6", "#22364F", "턱시도 네이비 정장"), ("p6", "#2B313A", "펭귄 검은 털"),
+                               ("p6", "#F7FAFC", "펭귄 흰 앞면"), ("p6", "#F5A623", "주황 부리·발"),
+                               ("p6", "#7FD1F0", "신입 사원증 배지")]:
             svg = page.eval_on_selector(f'.agent[data-agent="{aid}"] svg.sprite', "el => el.outerHTML") or ""
             check(f"{aid}_mark:{mark}", mark in svg, why)
+
+        for aid in ["p5", "p6"]:
+            box = page.eval_on_selector(
+                f'.agent[data-agent="{aid}"] svg.sprite',
+                "el => { const r = el.getBoundingClientRect(); return {w: Math.round(r.width), h: Math.round(r.height), x: Math.round(r.x), y: Math.round(r.y)}; }")
+            results.append((f"{aid}_sprite_box", box))
+            check(f"{aid}_sprite_visible", box["w"] > 20 and box["h"] > 20, box)
 
         p4_box = page.eval_on_selector(
             '.agent[data-agent="p4"] svg.sprite',
@@ -298,18 +339,18 @@ def main():
           });
         }""")
         results.append(("agent_positions", in_stage))
-        check("agents_in_stage", len(in_stage) == 6 and all(0 <= a["x"] <= 100 and 0 <= a["y"] <= 100 for a in in_stage), in_stage)
+        check("agents_in_stage", len(in_stage) == 8 and all(0 <= a["x"] <= 100 and 0 <= a["y"] <= 100 for a in in_stage), in_stage)
 
-        # 인원 표기 5명 ON / 로스터
+        # 인원 표기 8명 ON / 로스터
         on_count = page.inner_text("#onCount")
         roster = page.inner_text("#mapRoster")
         results.append(("on_count", on_count))
         results.append(("map_roster", roster))
-        check("on_count_6", "6명 ON" in on_count, on_count)
+        check("on_count_8", "8명 ON" in on_count, on_count)
         check("roster_president", "피사장" in roster, roster)
         check("roster_lead", "클부장" in roster, roster)
-        check("roster_order", roster.replace(" ", "") == "회장님·피사장·클부장·지과장·제미대리·피사원", roster)
-        check("no_5myeong", "5명 ON" not in page.inner_text("#view-map"), "")
+        check("roster_order", roster.replace(" ", "") == "회장님·피사장·클부장·그록차장·지과장·제미대리·피주임·피사원", roster)
+        check("no_6myeong", "6명 ON" not in page.inner_text("#view-map"), "")
         results.append(("map_footnote", page.inner_text("#view-map .foot-note")))
 
         # ---- 4층 건물 구조 ----
@@ -332,15 +373,15 @@ def main():
           return out;
         }""")
         results.append(("agent_floors", assign))
-        check("floor_assign", assign == {"captain": "4", "p1": "4", "p2": "1", "p4": "3", "p0": "2", "p3": "3"}, assign)
+        check("floor_assign", assign == {"captain": "4", "p1": "4", "p0": "3", "p5": "3", "p4": "2", "p3": "2", "p6": "1", "p2": "1"}, assign)
 
         cards_all = page.eval_on_selector_all(
             "#floorCards .floor-card .fc-name", "els => els.map(e => e.textContent.trim())")
         results.append(("floor_cards_all", cards_all))
-        check("floor_cards_all", len(cards_all) == 4 and "회장·사장 지휘실" in cards_all, cards_all)
+        check("floor_cards_all", cards_all == ["회장·사장 기획실", "핵심 실무·개발실", "전략 검수실", "현장 실행·응모 라운지"], cards_all)
 
-        # ---- 클로드 부장·챗지피티 과장 말풍선이 실제로 뜨는지 (최대 100초 관찰) ----
-        seen = {"p0": "", "p4": ""}
+        # ---- 클부장·그록 차장·지과장 말풍선이 실제로 뜨는지 (최대 100초 관찰) ----
+        seen = {"p0": "", "p4": "", "p5": "", "p6": ""}
         for _ in range(200):
             snap = page.evaluate("""() => {
               const out = {};
@@ -358,11 +399,16 @@ def main():
             page.wait_for_timeout(500)
         results.append(("p0_bubble_seen", seen["p0"]))
         results.append(("p4_bubble_seen", seen["p4"]))
+        results.append(("p5_bubble_seen", seen["p5"]))
+        results.append(("p6_bubble_seen", seen["p6"]))
         check("p0_talk", bool(seen["p0"]), seen["p0"] or "100초 안에 말풍선 못 봄")
         check("p4_talk", bool(seen["p4"]), seen["p4"] or "100초 안에 말풍선 못 봄")
+        check("p5_talk", bool(seen["p5"]), seen["p5"] or "100초 안에 말풍선 못 봄")
+        check("p6_talk", bool(seen["p6"]), seen["p6"] or "100초 안에 말풍선 못 봄")
+        check("p5_line_set", seen["p5"] in ["🛠️ 코드 리뷰 2건", "📈 X 실시간 트렌드", "🧪 데이터 정합성 확인", "🗂️ 클부장 백업 대기"], seen["p5"])
         check("p4_line_set", seen["p4"] in ["💡 아이디어 제안", "🔍 교차 검증 완료", "💬 전략 조언", "📰 아침 뉴스 브리핑"], seen["p4"])
         page.screenshot(path=str(SHOTS / "01-map-basic.png"))
-        for aid in ["captain", "p0", "p1", "p2", "p3", "p4"]:
+        for aid in ["captain", "p0", "p1", "p2", "p3", "p4", "p5", "p6"]:
             try:
                 page.locator(f'.agent[data-agent="{aid}"]').screenshot(path=str(SHOTS / f"agent-{aid}.png"))
             except Exception:
@@ -380,7 +426,7 @@ def main():
             ".agent", "els => els.map(e => e.style.left + '/' + e.style.top)")
         moved = sum(1 for a, b in zip(before, after) if a != b)
         results.append(("agents_moved", moved))
-        check("agents_move", moved >= 2, f"{moved}/5 이동")
+        check("agents_move", moved >= 2, f"{moved}/8 이동")
 
         # 클레이 배경
         page.click('.seg-btn[data-style="clay"]')
@@ -437,11 +483,11 @@ def main():
         check("captain_focus_aura", "drop-shadow" in focus_4["capAura"] and "255, 170, 40" in focus_4["capAura"],
               focus_4["capAura"])
         check("elevator_4", page.inner_text("#shaftCar") == "4F", page.get_attribute("#shaftCar", "style"))
-        check("floor_visible_4", focus_4["vis"] == {"captain": True, "p1": True, "p2": False, "p4": False, "p0": False, "p3": False}, focus_4["vis"])
+        check("floor_visible_4", focus_4["vis"] == {"captain": True, "p1": True, "p2": False, "p4": False, "p0": False, "p3": False, "p5": False, "p6": False}, focus_4["vis"])
         check("floor4_bubble", focus_4["talk"] in ["📣 08:00 통합 브리핑", "🗂️ 04:00 전체 상황공유", "🧭 최종 의사결정 대기", "⚡ 크레딧 릴레이 총괄"], focus_4["talk"])
         cards_4 = page.inner_text("#floorCards")
         results.append(("floor_cards_4", cards_4[:220]))
-        check("floor_card_4", all(k in cards_4 for k in ["회장·사장 지휘실", "회장님 · 피사장", "08:00 통합 브리핑", "크레딧 릴레이 총괄"]), cards_4[:140])
+        check("floor_card_4", all(k in cards_4 for k in ["회장·사장 기획실", "기획실", "회장님 · 피사장", "08:00 통합 브리핑", "크레딧 릴레이 총괄"]), cards_4[:140])
         page.screenshot(path=str(SHOTS / "03-floor-4.png"))
 
         # ---- 회장님 캐릭터 클릭 → 말풍선 + 프로필 ----
@@ -488,7 +534,7 @@ def main():
         check("captain_bubble", bool(cap_talk["talk"]), cap_talk["talk"])
         check("captain_profile", "회장" in cap_talk["profile"], cap_talk["profile"])
 
-        # ---- 층 전환: 3F ----
+        # ---- 층 전환: 3F (핵심 실무·개발실 — 클부장 · 그록 차장) ----
         page.click('.floor-btn[data-floor="3"]')
         page.wait_for_timeout(750)
         focus_3 = page.evaluate("""() => {
@@ -496,17 +542,17 @@ def main():
           const f4 = document.querySelector('.floor[data-floor="4"]');
           const vis = {};
           document.querySelectorAll('.agent').forEach(a => { vis[a.getAttribute('data-agent')] = !a.classList.contains('is-hidden'); });
-          const p4 = document.querySelector('.agent[data-agent="p4"]');
+          const p5 = document.querySelector('.agent[data-agent="p5"]');
           return {f3: f3.className, f4: f4.className, h3: Math.round(f3.getBoundingClientRect().height), h4: Math.round(f4.getBoundingClientRect().height), vis: vis,
-                  talk: p4.classList.contains('talk') ? p4.querySelector('.bubble').textContent.trim() : ''};
+                  talk: p5.classList.contains('talk') ? p5.querySelector('.bubble').textContent.trim() : ''};
         }""")
         results.append(("focus_3", focus_3))
         check("floor_focus_3", "is-focus" in focus_3["f3"] and "is-dim" in focus_3["f4"] and focus_3["h3"] > focus_3["h4"] * 2, focus_3)
-        check("floor_visible_3", focus_3["vis"] == {"captain": False, "p1": False, "p2": False, "p4": True, "p0": False, "p3": True}, focus_3["vis"])
-        check("floor3_bubble", focus_3["talk"] in ["🔍 교차 검증 완료", "💬 전략 조언 3건", "📰 아침 뉴스 브리핑", "🩺 의료기기 브리핑"], focus_3["talk"])
+        check("floor_visible_3", focus_3["vis"] == {"captain": False, "p1": False, "p2": False, "p4": False, "p0": True, "p3": False, "p5": True, "p6": False}, focus_3["vis"])
+        check("floor3_bubble", focus_3["talk"] in ["🛠️ 코드 리뷰 2건", "📈 X 실시간 트렌드", "🧪 데이터 정합성 확인", "🗂️ 클부장 백업 대기"], focus_3["talk"])
         cards_3 = page.inner_text("#floorCards")
         results.append(("floor_cards_3", cards_3[:220]))
-        check("floor_card_3", all(k in cards_3 for k in ["전략·검수·기획실", "지과장", "제미대리", "교차 검증·전략 조언"]), cards_3[:140])
+        check("floor_card_3", all(k in cards_3 for k in ["핵심 실무·개발실", "클부장", "그록 차장", "GitHub 동기화", "코드 리뷰"]), cards_3[:140])
         page.screenshot(path=str(SHOTS / "03-floor-3.png"))
 
         # ---- 층 전환: 1F ----
@@ -518,10 +564,11 @@ def main():
           return o;
         }""")
         results.append(("visible_1", vis_1))
-        check("floor_visible_1", vis_1 == {"captain": False, "p1": False, "p2": True, "p4": False, "p0": False, "p3": False}, vis_1)
+        check("floor_visible_1", vis_1 == {"captain": False, "p1": False, "p2": True, "p4": False, "p0": False, "p3": False, "p5": False, "p6": True}, vis_1)
         cards_1 = page.inner_text("#floorCards")
         results.append(("floor_cards_1", cards_1[:220]))
-        check("floor_card_1", all(k in cards_1 for k in ["현장 실행·응모 라운지", "피사원", "무료 경품·퀴즈 응모 124건+", "0원 쿠폰 줍줍"]), cards_1[:140])
+        check("floor_card_1", all(k in cards_1 for k in ["현장 실행·응모 라운지", "피주임", "피사원", "무료 경품·퀴즈 응모 124건+", "0원 쿠폰 줍줍"]), cards_1[:140])
+        check("floor_card_1_juim_status", "연동 대기" in cards_1, cards_1[:200])
         page.screenshot(path=str(SHOTS / "03-floor-1.png"))
 
         # ---- 층 카드에서 2F, 다시 전체 ----
@@ -533,7 +580,7 @@ def main():
         check("floor_click_2", "is-focus" in (page.get_attribute('.floor[data-floor="2"]', "class") or ""), page.get_attribute('.floor[data-floor="2"]', "class"))
         check("floor_chip_2", "2F" in page.inner_text("#floorChip"), page.inner_text("#floorChip"))
         cards_2 = page.inner_text("#floorCards")
-        check("floor_card_2", all(k in cards_2 for k in ["핵심 실무·개발실", "클부장", "GitHub 동기화"]), cards_2[:140])
+        check("floor_card_2", all(k in cards_2 for k in ["전략 검수실", "지과장", "제미대리", "교차 검증·전략 조언"]), cards_2[:140])
         page.click('.floor-btn[data-floor="all"]')
         page.wait_for_timeout(750)
         all_state = page.evaluate("""() => {
@@ -578,10 +625,10 @@ def main():
         results.append(("chain_names", chain_names))
         results.append(("chain_roles", chain_roles))
         results.append(("team_names", team_names))
-        check("chain_6", chain_names == ["회장님", "피사장", "클부장", "지과장", "제미대리", "피사원"], chain_names)
-        check("chain_roles", chain_roles == ["회장", "사장", "부장", "과장", "대리", "사원"], chain_roles)
-        check("team_6", len(team_names) == 6 and "회장님" in team_names and "클부장" in team_names and "지과장" in team_names, team_names)
-        check("team_order", team_names == ["회장님", "피사장", "클부장", "지과장", "제미대리", "피사원"], team_names)
+        check("chain_8", chain_names == ["회장님", "피사장", "클부장", "그록 차장", "지과장", "제미대리", "피주임", "피사원"], chain_names)
+        check("chain_roles", chain_roles == ["회장", "사장", "부장", "차장", "과장", "대리", "주임", "사원"], chain_roles)
+        check("team_8", len(team_names) == 8 and "회장님" in team_names and "클부장" in team_names and "그록 차장" in team_names and "피주임" in team_names, team_names)
+        check("team_order", team_names == ["회장님", "피사장", "클부장", "그록 차장", "지과장", "제미대리", "피주임", "피사원"], team_names)
         team_txt = page.inner_text("#teamGrid")
         check("team_gemini_rendered", "Gemini" in team_txt, team_txt[:120])
         results.append(("team_scroll_w", page.evaluate("document.documentElement.scrollWidth")))
@@ -679,8 +726,8 @@ def main():
             "#creditList .cc-note", "els => els.map(e => e.textContent.trim())")
         results.append(("credit_names", credit_names))
         results.append(("credit_notes", credit_notes))
-        check("credit_5", len(credit_names) == 5 and "클부장" in credit_names and "지과장" in credit_names, credit_names)
-        check("credit_order", credit_names == ["피사장", "클부장", "지과장", "제미대리", "피사원"], credit_names)
+        check("credit_7", len(credit_names) == 7 and "클부장" in credit_names and "그록 차장" in credit_names and "피주임" in credit_names, credit_names)
+        check("credit_order", credit_names == ["피사장", "클부장", "그록 차장", "지과장", "제미대리", "피주임", "피사원"], credit_names)
         idx0 = credit_names.index("클부장") if "클부장" in credit_names else -1
         p0_note = credit_notes[idx0] if idx0 >= 0 and idx0 < len(credit_notes) else ""
         check("credit_p0_note", "Claude Pro" in p0_note and "GitHub" in p0_note, p0_note)
@@ -751,7 +798,7 @@ def main():
         page.wait_for_timeout(200)
         page.screenshot(path=str(ROOT / "preview.png"))
         results.append(("preview_agents", page.locator("#officeStage .agent").count()))
-        check("preview_6_agents", page.locator("#officeStage .agent").count() == 6, "")
+        check("preview_8_agents", page.locator("#officeStage .agent").count() == 8, "")
 
         # 데스크톱 폭 확인
         page.set_viewport_size({"width": 1280, "height": 900})
