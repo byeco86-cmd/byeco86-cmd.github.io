@@ -162,11 +162,11 @@
 
       <div class="card">
         <div class="card-head">
-          <h3>5번 · 3단 검증 파이프라인</h3>
+          <h3>5번 · 5단 검증 파이프라인</h3>
           <span class="pill pill-amber">검증 게이트 ON</span>
         </div>
         <div class="pipe" id="pipe"></div>
-        <p class="foot-note">리서치 → 검증 → 실행. 검증 승인 없이는 실행 단계 지시가 나가지 않습니다.</p>
+        <p class="foot-note">2호 수집 → 3호 사전검증 → 1호 실행 → 3호 사후검수 → 클로드 총괄. 검증자와 실행자를 분리해 자기 검증을 막습니다.</p>
       </div>
 
       <div class="card">
@@ -202,11 +202,21 @@
 
       <div class="card">
         <div class="card-head">
+          <h3>🎯 당첨·수령 추적</h3>
+          <span class="pill pill-blue">당첨률·기대수익</span>
+        </div>
+        <div id="trackGrid"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
           <h3>100% 페이백 체험단</h3>
-          <span class="pill pill-green">자부담 0원 24건</span>
+          <span class="pill pill-green">0원 24 · 저자부담 2</span>
         </div>
         <div class="bars" id="dealBars"></div>
+        <p class="deal-note" id="dealNote"></p>
         <div class="mini-list" id="dealMini"></div>
+        <p class="eff-note" id="dealScoreNote"></p>
       </div>
 
       <div class="card">
@@ -216,6 +226,7 @@
         </div>
         <div class="mini-list" id="couponMini"></div>
         <p class="foot-note left">앱테크 퀴즈 정답 10건 정리 · 편의점 만근 27일차 — 오늘 빠지면 이번 달 리셋</p>
+        <div class="eff-box" id="couponEff"></div>
       </div>
 
       <div class="card">
@@ -246,9 +257,10 @@
       <div class="card">
         <div class="card-head">
           <h3>다가오는 당첨 발표</h3>
-          <span class="muted-sm">11/30 ~ 12/4</span>
+          <span class="muted-sm">11/30 ~ 12/4 · 요일 자동계산</span>
         </div>
         <div class="award-list" id="awardList"></div>
+        <p class="eff-note">요일은 날짜에서 자동 계산합니다 · data.json의 수기 요일은 표시하지 않음</p>
       </div>
 
       <div class="card">
@@ -278,6 +290,14 @@
         <p class="relay-rule" id="relayRule"></p>
         <ul class="rule-list" id="relayRules"></ul>
       </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3>인계 패킷 7항목</h3>
+          <span class="pill">표준</span>
+        </div>
+        <div id="packetList"></div>
+      </div>
     </section>
 
     <!-- ================= 응모/당첨 ================= -->
@@ -291,6 +311,15 @@
 
       <div class="card">
         <div class="card-head">
+          <h3>🎯 당첨·수령 추적</h3>
+          <span class="pill pill-blue">발표예정 → 수령완료</span>
+        </div>
+        <div id="entryTrack"></div>
+        <p class="eff-note">출처 등급 A 주최기관 공식 · B 공식 공지 · C 이벤트 사이트 · D 미확인</p>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
           <h3>오늘 응모 <span class="count" id="entryCount">10</span>건</h3>
           <span class="pill pill-green">제출 완료</span>
         </div>
@@ -300,7 +329,7 @@
       <div class="card">
         <div class="card-head">
           <h3>100% 페이백 알짜</h3>
-          <span class="pill pill-amber">미달 26건</span>
+          <span class="pill pill-amber">조건 충족 44 · 미달 26</span>
         </div>
         <div class="deal-list" id="dealList"></div>
         <button class="btn-ghost block" type="button" data-goto="dash">대시보드에서 전체 보기 →</button>
@@ -309,7 +338,7 @@
       <div class="card">
         <div class="card-head">
           <h3>오늘 0원 쿠폰 핵심</h3>
-          <span class="pill pill-green">오늘 마감</span>
+          <span class="pill pill-green">오늘 참여 마감 2건</span>
         </div>
         <div class="coupon-list" id="couponList"></div>
       </div>

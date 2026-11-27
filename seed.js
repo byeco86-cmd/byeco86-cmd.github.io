@@ -1,7 +1,7 @@
 /* 자동 생성 파일입니다. 원본은 data.json — scripts/build-seed.py 로 다시 만듭니다. */
 window.SECRETARY_SEED = {
-  "version": 2,
-  "updatedAt": "2026-11-27T12:44:00+09:00",
+  "version": 3,
+  "updatedAt": "2026-11-27T12:56:28+09:00",
   "captain": {
     "name": "대장님",
     "badge": "대장님 전용",
@@ -54,13 +54,14 @@ window.SECRETARY_SEED = {
       "desc": "부대장 클로드가 브리핑을 총괄 검토하는 방",
       "tab": "meeting",
       "tabLabel": "회의실 입장",
-      "line": "1호 · [08:00] 통합 브리핑 발송 완료",
+      "line": "2호 · [12:56] 오류 3건 수정·재배포 완료",
       "activities": [
+        "12:53 참모 GPT → 2호 · 교차 검증 완료: 요일·수치 오류 3건 발견 및 수정 반영",
+        "12:53 요일 5건 자동계산 전환 · 오늘 마감 응모 4건/쿠폰 2건 분리",
+        "12:54 체험단 정의 확정 · 조건 충족 44건 중 미달 26건(0원 24 · 저자부담 2)",
+        "12:56 2호 → 참모 GPT 추가 아이디어 7건 반영 · 5단 검증·인계 패킷 적용",
         "08:00 1호 → 대장님 통합 브리핑 발송",
-        "08:10 부대장 클로드 총괄 검토 · 지시 3건 정리",
-        "08:15 2호 아침 보고 도착 · 신규 응모 10건",
-        "08:20 참모 GPT 교차 검증 의견 · data.json 대조",
-        "오늘 의제 · 3호 검증 게이트 + 참모 GPT 검증 3건"
+        "08:15 2호 아침 보고 도착 · 신규 응모 10건"
       ]
     },
     {
@@ -70,12 +71,13 @@ window.SECRETARY_SEED = {
       "desc": "부대장 클로드가 1·2·3호에 지시를 나누는 방",
       "tab": "dash",
       "tabLabel": "대시보드 입장",
-      "line": "부대장 클로드 · [09:20] 5명 체제 지시 배분 완료",
+      "line": "부대장 클로드 · [12:58] 5단 검증 게이트 승인",
       "activities": [
         "지휘 체계 · 대장님 > 부대장 클로드 > 1호 > 2호 > 3호 · 참모 GPT 검증",
         "누적 응모 124건 · 11/26 114 + 11/27 10",
-        "3단 검증 게이트 · 리서치 → 검증 → 실행",
-        "크레딧 릴레이 · 1호 → 2호 → 3호 대기"
+        "5단 검증 · 2호 수집 → 3호 사전검증 → 1호 실행 → 3호 사후검수 → 클로드 총괄",
+        "당첨률 0% · 기대수익 0원 · 발표 확인 0건 (정직 표기)",
+        "크레딧 릴레이 · 1호 → 2호 → 3호 · 인계 패킷 7항목"
       ]
     },
     {
@@ -87,9 +89,11 @@ window.SECRETARY_SEED = {
       "tabLabel": "응모/당첨 입장",
       "line": "2호 · [07:36] 0원 쿠폰 6종 정리 완료",
       "activities": [
-        "오늘 0원 쿠폰 · 금감원 설문 · 삼성증권 16시 라이브",
-        "100% 페이백 미달 26건 · 자부담 0원 24건",
-        "네이버페이 클릭 적립 최대 840원"
+        "오늘 마감 · 금감원 설문(오늘 종료) · 삼성증권 라이브 16:00 시작 17:00 마감",
+        "오늘 마감 경품 4건은 새벽에 응모 완료 · 쿠폰·라이브 2건만 남음",
+        "체험단 조건 충족 44건 중 신청 미달 26건 (0원 24 · 저자부담 2)",
+        "삼성증권 라이브 경로 · 공식 유튜브 16:00, 링크 미확인",
+        "네이버페이 클릭 적립 예상 840원 · 실제 적립 기록 전"
       ]
     }
   ],
@@ -168,47 +172,75 @@ window.SECRETARY_SEED = {
   "pipeline": [
     {
       "step": "1",
-      "title": "리서치",
+      "title": "2호 수집",
       "owner": "2호",
       "state": "done",
-      "note": "응모 후보·체험단·쿠폰 수집"
+      "note": "응모 후보·체험단·쿠폰 수집 · 출처 등급 기록"
     },
     {
       "step": "2",
-      "title": "검증",
+      "title": "3호 사전검증",
       "owner": "3호",
       "state": "active",
-      "note": "중복·부정참여·자부담 확인"
+      "note": "중복키·부정참여·자부담·모집 조건 확인"
     },
     {
       "step": "3",
-      "title": "실행",
-      "owner": "1호 · 3호",
+      "title": "1호 실행",
+      "owner": "1호",
       "state": "wait",
-      "note": "승인 후 응모·보고"
+      "note": "검증 통과 건만 응모·신청 · 승인 기록"
+    },
+    {
+      "step": "4",
+      "title": "3호 사후검수",
+      "owner": "3호",
+      "state": "wait",
+      "note": "제출 결과·당첨 발표·수령 여부 확인"
+    },
+    {
+      "step": "5",
+      "title": "클로드 총괄",
+      "owner": "부대장",
+      "state": "wait",
+      "note": "보고서 대조 · 대장님 최종 보고"
     }
   ],
   "reports": [
+    {
+      "at": "12:56",
+      "from": "p2",
+      "to": "p1",
+      "tag": "수정 반영",
+      "text": "참모 GPT 지적 3건 + 추가 아이디어 7건 반영해 재배포했습니다. ① 당첨 요일 자동계산(수기 오류 원천 차단) ② 오늘 참여 마감 쿠폰·라이브 2건 / 오늘 마감 경품 4건(새벽 응모 완료) 분리 ③ 체험단 조건 충족 44건 중 미달 26건(0원 24 · 저자부담 2) 정의 확정. 점수제·중복키·출처등급·당첨추적·인계패킷도 함께 넣었습니다."
+    },
+    {
+      "at": "12:53",
+      "from": "p4",
+      "to": "p2",
+      "tag": "교차 검증",
+      "text": "data.json 대조 결과 오류 3건: awards 요일 5건이 하루씩 밀림 · 오늘 마감 2건(쿠폰)과 응모 4건이 한 숫자로 섞임 · 체험단 44/26/24+2 정의 불명. 추가 아이디어 7건(점수제·중복방지·당첨추적·쿠폰효율·인계패킷·시간대 분리·5대 점검) 전달. 읽기 전용이라 실행은 하지 않습니다."
+    },
     {
       "at": "08:20",
       "from": "p4",
       "to": "p1",
       "tag": "교차 검증",
-      "text": "data.json을 읽고 오늘 마감 2건과 체험단 미달 26건을 대조했습니다. 추가 아이디어는 1호 검토 뒤 반영해 주세요. 읽기 전용이라 실행은 하지 않습니다."
+      "text": "오늘 참여 마감 쿠폰·라이브 2건(금감원 설문 · 삼성증권 16시)과 오늘 마감 경품 4건(새벽에 응모 완료)을 구분해 대조했습니다. 체험단은 조건 충족 44건 중 신청 미달 26건(0원 24 · 저자부담 2)으로 정의를 맞췄습니다. 읽기 전용이라 실행은 하지 않습니다."
     },
     {
       "at": "08:15",
       "from": "p2",
       "to": "p1",
       "tag": "아침 보고",
-      "text": "신규 무인증 응모 10건 · 당첨 발표 확인 0건 · 0원 쿠폰 6종 · 체험단 44건(미달 26건) 전달했습니다."
+      "text": "신규 무인증 응모 10건(오늘 마감 4건 포함) · 당첨 발표 확인 0건 · 0원 쿠폰 6종 · 체험단 조건 충족 44건 중 미달 26건(0원 24 · 저자부담 2) 전달했습니다."
     },
     {
       "at": "08:10",
       "from": "p0",
       "to": "p1",
       "tag": "총괄 검토",
-      "text": "브리핑 전 건수·지시 대조 마쳤습니다. 5명 체제(부대장 · 참모 GPT · 1호 · 2호 · 3호) 편성을 반영하고 3호 검증 게이트를 최우선으로 올렸습니다."
+      "text": "브리핑 전 건수·지시 대조 마쳤습니다. 5명 체제(부대장 · 참모 GPT · 1호 · 2호 · 3호) 편성을 반영하고 3호 검증 게이트를 최우선으로 올렸습니다. 검증자(3호)와 실행자(1호)를 분리합니다."
     },
     {
       "at": "08:00",
@@ -222,14 +254,14 @@ window.SECRETARY_SEED = {
       "from": "p2",
       "to": "p1",
       "tag": "쿠폰",
-      "text": "선착순 0원 쿠폰·앱테크 정리 완료. 금감원 설문은 오늘 마감, 삼성증권 라이브는 16시입니다."
+      "text": "선착순 0원 쿠폰·앱테크 정리 완료. 금감원 설문은 오늘 참여 마감, 삼성증권 라이브는 16:00 시작·17:00 마감입니다."
     },
     {
       "at": "04:08",
       "from": "p2",
       "to": "p1",
       "tag": "체험단",
-      "text": "리뷰플레이스 90건 · 스타일씨 947건 확인. 자부담 0~3,000원 44건, 미달 26건 추렸습니다."
+      "text": "리뷰플레이스 90건 · 스타일씨 947건(합 1,037건) 확인. 조건 충족 44건 중 신청 미달 26건(0원 24 · 저자부담 2) 추렸습니다. 상세 목록은 우선순위 상위 6건만 표시합니다."
     },
     {
       "at": "04:03",
@@ -243,13 +275,18 @@ window.SECRETARY_SEED = {
     "entries": {
       "total": 124,
       "prev": 114,
-      "today": 10
+      "today": 10,
+      "todayClosed": 4
     },
     "deals": {
       "total": 44,
       "under": 26,
       "zero": 24,
-      "low": 2
+      "low": 2,
+      "collected": 1037,
+      "applied": 18,
+      "detail": 6,
+      "qualified": 44
     },
     "awards": {
       "today": 0,
@@ -259,11 +296,21 @@ window.SECRETARY_SEED = {
     "coupons": {
       "zero": 6,
       "quiz": 10,
-      "naverPoint": 840
+      "naverPoint": 840,
+      "naverPointActual": null
     },
     "home": {
       "done": 0,
       "total": 8
+    },
+    "tracking": {
+      "entered": 124,
+      "resultChecked": 0,
+      "wins": 0,
+      "winRate": 0,
+      "expectedValue": 0,
+      "received": 0,
+      "note": "당첨 0건 · 발표 확인 0건이라 당첨률 0% / 기대수익 0원으로 표기합니다."
     }
   },
   "entries": [
@@ -274,7 +321,21 @@ window.SECRETARY_SEED = {
       "prize": "모바일 커피쿠폰 5,000원",
       "deadline": "11/27",
       "announce": "공지",
-      "url": "https://form.naver.com/response/BwhYx2MCHfY"
+      "url": "https://form.naver.com/response/BwhYx2MCHfY",
+      "dedupeKey": "노사발전재단|2026 적극행정 우수사례 국민참여조사|~11/27",
+      "verification": {
+        "status": "verified",
+        "sourceGrade": "A",
+        "checkedAt": "2026-11-27T12:56:28+09:00",
+        "checkedBy": "p2",
+        "note": "주최기관 공식 신청 폼"
+      },
+      "result": {
+        "status": "발표예정",
+        "announce": "공지",
+        "value": 0,
+        "receivedAt": null
+      }
     },
     {
       "id": "e-02",
@@ -283,7 +344,21 @@ window.SECRETARY_SEED = {
       "prize": "모바일 커피쿠폰 5,000원",
       "deadline": "11/27",
       "announce": "공지",
-      "url": "https://form.naver.com/response/B5kx1Zw4eZb"
+      "url": "https://form.naver.com/response/B5kx1Zw4eZb",
+      "dedupeKey": "노사발전재단|2026 혁신 실행과제 국민참여조사|~11/27",
+      "verification": {
+        "status": "verified",
+        "sourceGrade": "A",
+        "checkedAt": "2026-11-27T12:56:28+09:00",
+        "checkedBy": "p2",
+        "note": "주최기관 공식 신청 폼"
+      },
+      "result": {
+        "status": "발표예정",
+        "announce": "공지",
+        "value": 0,
+        "receivedAt": null
+      }
     },
     {
       "id": "e-03",
@@ -292,7 +367,21 @@ window.SECRETARY_SEED = {
       "prize": "커피 기프티콘 100명",
       "deadline": "11/27",
       "announce": "공지",
-      "url": "https://form.naver.com/response/EAy2sPNruwB"
+      "url": "https://form.naver.com/response/EAy2sPNruwB",
+      "dedupeKey": "한국수목원정원관리원|SNS채널 만족도 조사 (24문항)|~11/27",
+      "verification": {
+        "status": "verified",
+        "sourceGrade": "A",
+        "checkedAt": "2026-11-27T12:56:28+09:00",
+        "checkedBy": "p2",
+        "note": "주최기관 공식 신청 폼"
+      },
+      "result": {
+        "status": "발표예정",
+        "announce": "공지",
+        "value": 0,
+        "receivedAt": null
+      }
     },
     {
       "id": "e-04",
@@ -301,7 +390,21 @@ window.SECRETARY_SEED = {
       "prize": "모바일 기프티콘 5,000원 10명",
       "deadline": "11/27",
       "announce": "12/4",
-      "url": "https://form.naver.com/response/EWE8wZXhZZR"
+      "url": "https://form.naver.com/response/EWE8wZXhZZR",
+      "dedupeKey": "미추홀구시설관리공단|가치체계 공유도 조사 (외부용)|~11/27",
+      "verification": {
+        "status": "verified",
+        "sourceGrade": "A",
+        "checkedAt": "2026-11-27T12:56:28+09:00",
+        "checkedBy": "p2",
+        "note": "주최기관 공식 신청 폼"
+      },
+      "result": {
+        "status": "발표예정",
+        "announce": "12/4",
+        "value": 0,
+        "receivedAt": null
+      }
     },
     {
       "id": "e-05",
@@ -310,7 +413,21 @@ window.SECRETARY_SEED = {
       "prize": "배달의민족 2만원 20명",
       "deadline": "11/30",
       "announce": "12/4",
-      "url": "https://docs.google.com/forms/d/e/1FAIpQLSet7I1zkhbNFEVvQ7IguMATvpcQOePqbcX6XsjjAFRcHe3Nzw/viewform"
+      "url": "https://docs.google.com/forms/d/e/1FAIpQLSet7I1zkhbNFEVvQ7IguMATvpcQOePqbcX6XsjjAFRcHe3Nzw/viewform",
+      "dedupeKey": "부산 영도구|SNS 만족도 설문조사|~11/30",
+      "verification": {
+        "status": "verified",
+        "sourceGrade": "A",
+        "checkedAt": "2026-11-27T12:56:28+09:00",
+        "checkedBy": "p2",
+        "note": "주최기관 공식 신청 폼"
+      },
+      "result": {
+        "status": "발표예정",
+        "announce": "12/4",
+        "value": 0,
+        "receivedAt": null
+      }
     },
     {
       "id": "e-06",
@@ -319,7 +436,21 @@ window.SECRETARY_SEED = {
       "prize": "3만원 상당 쿠폰 50명",
       "deadline": "11/30 18시",
       "announce": "12월 셋째 주",
-      "url": "https://form.naver.com/response/14VjklO69Hq"
+      "url": "https://form.naver.com/response/14VjklO69Hq",
+      "dedupeKey": "산림청|개청 60주년 기념 캐치프레이즈 공모|~11/30 18시",
+      "verification": {
+        "status": "verified",
+        "sourceGrade": "A",
+        "checkedAt": "2026-11-27T12:56:28+09:00",
+        "checkedBy": "p2",
+        "note": "주최기관 공식 신청 폼"
+      },
+      "result": {
+        "status": "발표예정",
+        "announce": "12월 셋째 주",
+        "value": 0,
+        "receivedAt": null
+      }
     },
     {
       "id": "e-07",
@@ -328,7 +459,21 @@ window.SECRETARY_SEED = {
       "prize": "모바일 기프티콘 추첨",
       "deadline": "12/2 17시",
       "announce": "12/4 이후 개별",
-      "url": "https://form.naver.com/response/IhgdAYMLMr5"
+      "url": "https://form.naver.com/response/IhgdAYMLMr5",
+      "dedupeKey": "전남도박문제예방치유센터|여수 개소 기념 퀴즈|~12/2 17시",
+      "verification": {
+        "status": "verified",
+        "sourceGrade": "A",
+        "checkedAt": "2026-11-27T12:56:28+09:00",
+        "checkedBy": "p2",
+        "note": "주최기관 공식 신청 폼"
+      },
+      "result": {
+        "status": "발표예정",
+        "announce": "12/4 이후 개별",
+        "value": 0,
+        "receivedAt": null
+      }
     },
     {
       "id": "e-08",
@@ -337,7 +482,21 @@ window.SECRETARY_SEED = {
       "prize": "편의점 5,000원 상품권",
       "deadline": "11/30 18시",
       "announce": "공지",
-      "url": "https://form.naver.com/response/8semjCIivVV"
+      "url": "https://form.naver.com/response/8semjCIivVV",
+      "dedupeKey": "충북청소년활동진흥센터|청소년 활동 퀴즈 이벤트|~11/30 18시",
+      "verification": {
+        "status": "verified",
+        "sourceGrade": "A",
+        "checkedAt": "2026-11-27T12:56:28+09:00",
+        "checkedBy": "p2",
+        "note": "주최기관 공식 신청 폼"
+      },
+      "result": {
+        "status": "발표예정",
+        "announce": "공지",
+        "value": 0,
+        "receivedAt": null
+      }
     },
     {
       "id": "e-09",
@@ -346,7 +505,21 @@ window.SECRETARY_SEED = {
       "prize": "삼동이 캘린더·스티커 200명",
       "deadline": "12/4",
       "announce": "12/10",
-      "url": "https://form.naver.com/response/1sj76eYNSTI"
+      "url": "https://form.naver.com/response/1sj76eYNSTI",
+      "dedupeKey": "금산군|공식 SNS 만족도 조사 (6페이지)|~12/4",
+      "verification": {
+        "status": "verified",
+        "sourceGrade": "A",
+        "checkedAt": "2026-11-27T12:56:28+09:00",
+        "checkedBy": "p2",
+        "note": "주최기관 공식 신청 폼"
+      },
+      "result": {
+        "status": "발표예정",
+        "announce": "12/10",
+        "value": 0,
+        "receivedAt": null
+      }
     },
     {
       "id": "e-10",
@@ -355,11 +528,25 @@ window.SECRETARY_SEED = {
       "prize": "음료 쿠폰 300명",
       "deadline": "12/6 23시",
       "announce": "공지",
-      "url": "https://form.naver.com/response/KQGTgvaVkib"
+      "url": "https://form.naver.com/response/KQGTgvaVkib",
+      "dedupeKey": "서울시 동부권직장맘지원센터|서비스 욕구조사 및 홍보채널 만족도|~12/6 23시",
+      "verification": {
+        "status": "partial",
+        "sourceGrade": "A",
+        "checkedAt": "2026-11-27T12:56:28+09:00",
+        "checkedBy": "p2",
+        "note": "마감 시각 원문 재확인 필요"
+      },
+      "result": {
+        "status": "발표예정",
+        "announce": "공지",
+        "value": 0,
+        "receivedAt": null
+      }
     }
   ],
   "deals": {
-    "summary": "리뷰플레이스 90건 · 스타일씨 947건 확인 → 조건 충족 44건, 미달 26건",
+    "summary": "리뷰플레이스 90건 · 스타일씨 947건 수집(1,037건) → 조건 충족 44건 중 신청 미달 26건 (0원 24 · 저자부담 2) · 목록 표시 6건",
     "items": [
       {
         "id": "d-01",
@@ -370,7 +557,25 @@ window.SECRETARY_SEED = {
         "applied": 0,
         "pay": "0원",
         "deadline": "12-02",
-        "url": "https://www.reviewplace.co.kr/pr/?id=323690"
+        "url": "https://www.reviewplace.co.kr/pr/?id=323690",
+        "category": "반려동물",
+        "scoreBreakdown": {
+          "자부담": 40,
+          "실사용": 15,
+          "경쟁률": 20,
+          "리뷰부담": 15,
+          "리뷰조건": 10,
+          "raw": 100
+        },
+        "score": 91,
+        "dedupeKey": "리뷰플레이스|페토세라 논슬립 포우크림 40ml|~12-02",
+        "verification": {
+          "status": "verified",
+          "sourceGrade": "C",
+          "checkedAt": "2026-11-27T12:56:28+09:00",
+          "checkedBy": "p2",
+          "note": "이벤트 전문 사이트 공고 확인 · 모집 조건 원문 재확인 필요"
+        }
       },
       {
         "id": "d-02",
@@ -381,7 +586,25 @@ window.SECRETARY_SEED = {
         "applied": 3,
         "pay": "0원",
         "deadline": "12-01",
-        "url": "https://www.reviewplace.co.kr/pr/?id=323015"
+        "url": "https://www.reviewplace.co.kr/pr/?id=323015",
+        "category": "생활",
+        "scoreBreakdown": {
+          "자부담": 40,
+          "실사용": 5,
+          "경쟁률": 18,
+          "리뷰부담": 10,
+          "리뷰조건": 10,
+          "raw": 83
+        },
+        "score": 75,
+        "dedupeKey": "리뷰플레이스|SKY CLIMBER BOOST 액상비료 100ml|~12-01",
+        "verification": {
+          "status": "verified",
+          "sourceGrade": "C",
+          "checkedAt": "2026-11-27T12:56:28+09:00",
+          "checkedBy": "p2",
+          "note": "이벤트 전문 사이트 공고 확인 · 모집 조건 원문 재확인 필요"
+        }
       },
       {
         "id": "d-03",
@@ -392,7 +615,25 @@ window.SECRETARY_SEED = {
         "applied": 3,
         "pay": "0원",
         "deadline": "12-01",
-        "url": "https://www.reviewplace.co.kr/pr/?id=323012"
+        "url": "https://www.reviewplace.co.kr/pr/?id=323012",
+        "category": "생활",
+        "scoreBreakdown": {
+          "자부담": 40,
+          "실사용": 5,
+          "경쟁률": 12,
+          "리뷰부담": 8,
+          "리뷰조건": 10,
+          "raw": 75
+        },
+        "score": 68,
+        "dedupeKey": "리뷰플레이스|SUAN GROWSTALK PRIME 액상비료 500ml|~12-01",
+        "verification": {
+          "status": "verified",
+          "sourceGrade": "C",
+          "checkedAt": "2026-11-27T12:56:28+09:00",
+          "checkedBy": "p2",
+          "note": "이벤트 전문 사이트 공고 확인 · 모집 조건 원문 재확인 필요"
+        }
       },
       {
         "id": "d-04",
@@ -403,7 +644,25 @@ window.SECRETARY_SEED = {
         "applied": 4,
         "pay": "0원",
         "deadline": "12-07",
-        "url": "https://www.reviewplace.co.kr/pr/?id=323796"
+        "url": "https://www.reviewplace.co.kr/pr/?id=323796",
+        "category": "생활",
+        "scoreBreakdown": {
+          "자부담": 40,
+          "실사용": 20,
+          "경쟁률": 18,
+          "리뷰부담": 15,
+          "리뷰조건": 10,
+          "raw": 103
+        },
+        "score": 94,
+        "dedupeKey": "리뷰플레이스|SOMO 고체 탈취제 코지 340g|~12-07",
+        "verification": {
+          "status": "verified",
+          "sourceGrade": "C",
+          "checkedAt": "2026-11-27T12:56:28+09:00",
+          "checkedBy": "p2",
+          "note": "이벤트 전문 사이트 공고 확인 · 모집 조건 원문 재확인 필요"
+        }
       },
       {
         "id": "d-05",
@@ -414,7 +673,25 @@ window.SECRETARY_SEED = {
         "applied": 2,
         "pay": "0원",
         "deadline": "11-29",
-        "url": "https://www.stylec.co.kr/trials/166856"
+        "url": "https://www.stylec.co.kr/trials/166856",
+        "category": "주방",
+        "scoreBreakdown": {
+          "자부담": 40,
+          "실사용": 20,
+          "경쟁률": 18,
+          "리뷰부담": 10,
+          "리뷰조건": 10,
+          "raw": 98
+        },
+        "score": 89,
+        "dedupeKey": "스타일씨|티타늄 굽대접 (금빛 반상기)|~11-29",
+        "verification": {
+          "status": "verified",
+          "sourceGrade": "C",
+          "checkedAt": "2026-11-27T12:56:28+09:00",
+          "checkedBy": "p2",
+          "note": "이벤트 전문 사이트 공고 확인 · 모집 조건 원문 재확인 필요"
+        }
       },
       {
         "id": "d-06",
@@ -425,9 +702,49 @@ window.SECRETARY_SEED = {
         "applied": 5,
         "pay": "0원",
         "deadline": "11-30",
-        "url": "https://www.reviewplace.co.kr/pr/?id=323232"
+        "url": "https://www.reviewplace.co.kr/pr/?id=323232",
+        "category": "교육/도서",
+        "scoreBreakdown": {
+          "자부담": 40,
+          "실사용": 25,
+          "경쟁률": 10,
+          "리뷰부담": 15,
+          "리뷰조건": 10,
+          "raw": 100
+        },
+        "score": 91,
+        "dedupeKey": "리뷰플레이스|중학 독파민 1단계 (비문학/문학/어휘 택1)|~11-30",
+        "verification": {
+          "status": "verified",
+          "sourceGrade": "C",
+          "checkedAt": "2026-11-27T12:56:28+09:00",
+          "checkedBy": "p2",
+          "note": "이벤트 전문 사이트 공고 확인 · 모집 조건 원문 재확인 필요"
+        }
       }
-    ]
+    ],
+    "definition": {
+      "collected": 1037,
+      "qualified": 44,
+      "under": 26,
+      "zero": 24,
+      "low": 2,
+      "applied": 18,
+      "detailShown": 6,
+      "note": "수집 건수 / 조건 충족 / 신청 미달 / 상세 표시는 각각 다른 지표입니다."
+    },
+    "scoring": {
+      "basis": "참모 GPT 제안 배점 110점 → 100점 환산",
+      "weights": {
+        "자부담 0원": 40,
+        "자부담 1~3,000원": 25,
+        "실사용 필요": 25,
+        "경쟁률 유리": 20,
+        "배송·리뷰 부담 낮음": 15,
+        "리뷰 조건 명확": 10
+      },
+      "note": "점수는 2호 잠정 산정 · 실제 신청 전 모집 조건 원문 확인 필요"
+    }
   },
   "coupons": [
     {
@@ -437,7 +754,15 @@ window.SECRETARY_SEED = {
       "note": "스벅·배민·네이버페이 택1 · 로그인 없음",
       "deadline": "오늘 11/27 종료",
       "tone": "red",
-      "url": "https://kon.kric.com/project/2610028_A/INDEX.asp"
+      "url": "https://kon.kric.com/project/2610028_A/INDEX.asp",
+      "dedupeKey": "금감원 홈페이지 설문|오늘 11/27 종료",
+      "verification": {
+        "status": "verified",
+        "sourceGrade": "A",
+        "checkedAt": "2026-11-27T12:56:28+09:00",
+        "checkedBy": "p2",
+        "note": "공식 페이지 확인"
+      }
     },
     {
       "id": "c-02",
@@ -446,7 +771,17 @@ window.SECRETARY_SEED = {
       "note": "오늘 16:00 라이브 · 17:00 마감 · 폼은 라이브 중 공개",
       "deadline": "오늘 17:00",
       "tone": "red",
-      "url": ""
+      "url": "",
+      "dedupeKey": "삼성증권 채권투자 유튜브 라이브 OX|오늘 17:00",
+      "verification": {
+        "status": "partial",
+        "sourceGrade": "B",
+        "checkedAt": "2026-11-27T12:56:28+09:00",
+        "checkedBy": "p4",
+        "note": "링크·마감 시각 일부 미확인"
+      },
+      "watchPath": "삼성증권 공식 유튜브 채널 라이브 16:00 — 라이브 중 폼 공개, 시청 링크 미확인(확인 불가 시 이 문구 유지)",
+      "channel": "YouTube · 삼성증권 공식 채널"
     },
     {
       "id": "c-03",
@@ -455,7 +790,15 @@ window.SECRETARY_SEED = {
       "note": "전화 체험 후 문자폼 · 1인 1회",
       "deadline": "~12/2",
       "tone": "green",
-      "url": "https://event.channel.io/cafe2026/"
+      "url": "https://event.channel.io/cafe2026/",
+      "dedupeKey": "채널카페 AI 전화 체험|~12/2",
+      "verification": {
+        "status": "verified",
+        "sourceGrade": "B",
+        "checkedAt": "2026-11-27T12:56:28+09:00",
+        "checkedBy": "p4",
+        "note": "공식 페이지 확인"
+      }
     },
     {
       "id": "c-04",
@@ -464,7 +807,15 @@ window.SECRETARY_SEED = {
       "note": "U+one 앱에서 참여",
       "deadline": "~11/30",
       "tone": "green",
-      "url": "https://www.lguplus.com/benefit-event/ongoing/82623"
+      "url": "https://www.lguplus.com/benefit-event/ongoing/82623",
+      "dedupeKey": "LG U+ 양림동 설문|~11/30",
+      "verification": {
+        "status": "verified",
+        "sourceGrade": "A",
+        "checkedAt": "2026-11-27T12:56:28+09:00",
+        "checkedBy": "p2",
+        "note": "공식 페이지 확인"
+      }
     },
     {
       "id": "c-05",
@@ -473,7 +824,15 @@ window.SECRETARY_SEED = {
       "note": "소진 시까지 · 발표일까지 채널 유지 필수",
       "deadline": "선착순",
       "tone": "amber",
-      "url": "https://allrights.kr/kakao-event/"
+      "url": "https://allrights.kr/kakao-event/",
+      "dedupeKey": "권리지켜 가입 + 카톡채널|선착순",
+      "verification": {
+        "status": "partial",
+        "sourceGrade": "C",
+        "checkedAt": "2026-11-27T12:56:28+09:00",
+        "checkedBy": "p2",
+        "note": "링크·마감 시각 일부 미확인"
+      }
     },
     {
       "id": "c-06",
@@ -482,7 +841,40 @@ window.SECRETARY_SEED = {
       "note": "10시 3건 180원씩 · 11시 180원 · 06시 120원",
       "deadline": "시간대별",
       "tone": "blue",
-      "url": "https://point.pay.naver.com"
+      "url": "https://point.pay.naver.com",
+      "dedupeKey": "네이버페이 클릭 적립|시간대별",
+      "verification": {
+        "status": "verified",
+        "sourceGrade": "A",
+        "checkedAt": "2026-11-27T12:56:28+09:00",
+        "checkedBy": "p2",
+        "note": "공식 페이지 확인"
+      },
+      "efficiency": [
+        {
+          "slot": "06:00",
+          "expected": 120,
+          "actual": null,
+          "minutes": null,
+          "status": "기록 전"
+        },
+        {
+          "slot": "10:00",
+          "expected": 540,
+          "actual": null,
+          "minutes": null,
+          "status": "기록 전",
+          "detail": "180원 × 3건"
+        },
+        {
+          "slot": "11:00",
+          "expected": 180,
+          "actual": null,
+          "minutes": null,
+          "status": "기록 전"
+        }
+      ],
+      "efficiencyNote": "예상 합계 840원 · 실제 적립·소요시간은 루틴 후 직접 기록"
     }
   ],
   "routine": [
@@ -490,54 +882,68 @@ window.SECRETARY_SEED = {
       "time": "04:00",
       "title": "자동응모 · 체험단 · 당첨확인",
       "owner": "2호",
-      "note": "오늘 10건 응모 · 체험단 44건 수집 · 발표 확인 0건"
+      "note": "오늘 10건 응모 · 체험단 44건 수집 · 발표 확인 0건",
+      "slot": "오전"
     },
     {
       "time": "07:20",
       "title": "선착순 쿠폰 줍줍",
       "owner": "2호",
-      "note": "오늘 07:30:48 시작 → 07:36:20 완료 · 11/28부터 07:20 조정 중"
+      "note": "오늘 07:30:48 시작 → 07:36:20 완료 · 11/28부터 07:20 조정 중",
+      "slot": "오전"
     },
     {
       "time": "07:45",
       "title": "1호 보고",
       "owner": "2호 → 1호",
-      "note": "완료 내역 · 누적 건수 · 스케줄 전달"
+      "note": "완료 내역 · 누적 건수 · 스케줄 전달",
+      "slot": "오전"
     },
     {
       "time": "07:50",
       "title": "부대장 총괄 검토",
       "owner": "부대장 → 1호",
-      "note": "브리핑 전 건수·지시 대조 · Claude Pro"
+      "note": "브리핑 전 건수·지시 대조 · Claude Pro",
+      "slot": "오전"
     },
     {
       "time": "08:00",
       "title": "통합 브리핑",
       "owner": "1호 → 대장님",
-      "note": "기존 08:30에서 08:00으로 앞당김"
+      "note": "기존 08:30에서 08:00으로 앞당김",
+      "slot": "오전"
     },
     {
       "time": "17:00",
       "title": "가족 집안일 알람",
       "owner": "2호",
-      "note": "청소기 · 세탁 · 아이 책 정리 체크"
+      "note": "청소기 · 세탁 · 아이 책 정리 체크",
+      "slot": "오후"
+    },
+    {
+      "time": "18:30",
+      "title": "저녁 점검 (제안)",
+      "owner": "2호",
+      "slot": "저녁",
+      "note": "당첨 발표·미완료 건 확인 · 참모 GPT 제안, 알람 등록 전 대장님 확인 필요"
     }
   ],
   "awards": [
     {
       "date": "11/30",
-      "dow": "일",
+      "dow": "월",
       "count": 4,
       "items": [
         "동학농민혁명기념재단 11월 퀴즈 · 네이버페이 1만/30명",
         "대구마을센터 웹진 달팽이 94호 퀴즈 · 커피/15명",
         "한국관광공사 관광두레 테마관 · 네이버페이 5천/200명",
         "전남광주 북구의회 정책퀴즈 · 5천원권/30명"
-      ]
+      ],
+      "dowAuto": true
     },
     {
       "date": "12/1",
-      "dow": "월",
+      "dow": "화",
       "count": 9,
       "items": [
         "AI 육아상담소 · AI 진실게임 11월 퀴즈 · 아메리카노 2,000명(문자 발송)",
@@ -548,22 +954,24 @@ window.SECRETARY_SEED = {
         "한국관광공사 DMZ 테마관 · 네이버페이 5천/200명",
         "포천시 영상퀴즈 · 올리브영 1만/100명",
         "농식품정보누리 만족도 · 40명 외"
-      ]
+      ],
+      "dowAuto": true
     },
     {
       "date": "12/2",
-      "dow": "화",
+      "dow": "수",
       "count": 4,
       "items": [
         "인천 영상미디어 시민 만족도 · 투썸/50명",
         "국가보훈부 보훈문화 퀴즈 · 100명",
         "한국여성인권진흥원 여성폭력방지 인지도 · 음료/50명",
         "국립축산과학원 축사로 퍼즐 · 투썸 세트/100명"
-      ]
+      ],
+      "dowAuto": true
     },
     {
       "date": "12/3",
-      "dow": "수",
+      "dow": "목",
       "count": 6,
       "items": [
         "한국콘텐츠진흥원 공공데이터 수요조사 · 배민 1만/200명",
@@ -572,11 +980,12 @@ window.SECRETARY_SEED = {
         "양산시 우수사례 투표 · 1만/200명",
         "산림청 산림보호 OX · 임산물 꾸러미/100명",
         "한국여성인권진흥원 중앙디지털성범죄피해자지원센터 만족도"
-      ]
+      ],
+      "dowAuto": true
     },
     {
       "date": "12/4",
-      "dow": "목",
+      "dow": "금",
       "count": 15,
       "items": [
         "SGIS 통계지도 퀴즈 · 1만/120명",
@@ -585,7 +994,8 @@ window.SECRETARY_SEED = {
         "비짓부산 AI 여행코스 · 온누리 1만/30명",
         "대구광역치매센터 퀴즈 · 1만/110명",
         "부산시립도서관 원북원부산 · 커피/200명 외 9건"
-      ]
+      ],
+      "dowAuto": true
     }
   ],
   "birthdays": [
@@ -732,15 +1142,30 @@ window.SECRETARY_SEED = {
       "순서 · 1호 → 2호 → 3호, 3호 소진 시 다시 1호",
       "인계 시점 판단은 부대장 클로드가 총괄 검토로 확정한다",
       "인계 즉시 이 오피스의 AI한도 판에 상태를 바꾼다",
-      "멈춘 일은 다음 실행에서 이어받아 처음부터 다시 하지 않는다"
-    ]
+      "멈춘 일은 다음 실행에서 이어받아 처음부터 다시 하지 않는다",
+      "검증자와 실행자 분리 · 2호 수집 → 3호 사전검증 → 1호 실행 → 3호 사후검수 → 클로드 총괄",
+      "인계 패킷 7항목(작업ID·완료단계·미완료·검증출처·미확인·다음할일·보고대상)을 모두 채운다"
+    ],
+    "handoffPacket": {
+      "title": "인계 패킷 7항목",
+      "items": [
+        "작업 ID",
+        "마지막 완료 단계",
+        "미완료 업무",
+        "검증한 출처",
+        "확인되지 않은 내용",
+        "다음 작업자가 할 일",
+        "최종 보고 대상"
+      ],
+      "note": "크레딧이 끊겨도 다음 피클이 처음부터 다시 조사하지 않도록 7항목을 모두 채워 넘깁니다."
+    }
   },
   "alerts": [
     {
       "id": "a-01",
       "tone": "red",
-      "title": "오늘 마감 2건",
-      "body": "금감원 설문(1만원·500명) 오늘 종료 · 삼성증권 라이브 17:00 마감",
+      "title": "오늘 참여 마감 2건",
+      "body": "쿠폰·라이브 2건 — 금감원 설문(1만원·500명) 오늘 종료 · 삼성증권 라이브 16:00 시작 17:00 마감. 오늘 마감 경품 4건은 새벽에 응모 완료.",
       "when": "11/27"
     },
     {
@@ -764,5 +1189,10 @@ window.SECRETARY_SEED = {
       "body": "음력 11/23 · 생신 12/31 · 08:30 알람 등록됨",
       "when": "12/24"
     }
-  ]
+  ],
+  "routineSlots": {
+    "오전": "응모·쿠폰·체험단",
+    "오후": "가족·집안일",
+    "저녁": "당첨발표·미완료"
+  }
 };

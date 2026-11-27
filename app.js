@@ -181,6 +181,58 @@
     return parseInt(parts[0], 10) * 60 + parseInt(parts[1] || "0", 10);
   }
 
+  /* awards 요일은 data.json의 수기 dow를 믿지 않고 날짜에서 계산합니다.
+     (11/30 월 · 12/1 화 … 2026년 달력 기준, 연말 넘김은 updatedAt 기준으로 처리) */
+  var DOW_KO = ["일", "월", "화", "수", "목", "금", "토"];
+
+  function dataYear() {
+    var y = data && data.updatedAt ? parseInt(String(data.updatedAt).slice(0, 4), 10) : NaN;
+    return isNaN(y) ? new Date().getFullYear() : y;
+  }
+
+  function monthDayYear(md) {
+    var parts = String(md).split("/");
+    var m = parseInt(parts[0], 10);
+    var d = parseInt(parts[1], 10);
+    if (!m || !d) return null;
+    var y = dataYear();
+    var baseM = data && data.updatedAt ? parseInt(String(data.updatedAt).slice(5, 7), 10) : (new Date().getMonth() + 1);
+    if (m < baseM) y += 1;
+    return { y: y, m: m, d: d };
+  }
+
+  function dowOf(md) {
+    var p = monthDayYear(md);
+    if (!p) return "";
+    return DOW_KO[new Date(p.y, p.m - 1, p.d).getDay()];
+  }
+
+  function deadlineKey(md) {
+    var p = String(md).split(/[^0-9]+/).filter(function (x) { return x !== ""; });
+    var m = parseInt(p[0], 10) || 99;
+    var d = parseInt(p[1], 10) || 99;
+    return m * 100 + d;
+  }
+
+  function gradeBadge(v) {
+    if (!v || !v.sourceGrade) return "";
+    var g = String(v.sourceGrade).toUpperCase();
+    var label = { A: "공식 홈페이지", B: "공식 공지", C: "이벤트 사이트", D: "미확인" }[g] || "미확인";
+    return '<span class="grade g' + esc(g) + '" title="출처 등급 ' + esc(g) + ' · ' + esc(label) + '">' +
+      esc(g) + '<span class="grade-label">' + esc(label) + '</span></span>';
+  }
+
+  function verifiedRank() {
+    var list = data.entries.concat(data.coupons).filter(function (x) { return x.verification; });
+    var out = { A: 0, B: 0, C: 0, D: 0 };
+    list.forEach(function (x) {
+      var g = String(x.verification.sourceGrade || "D").toUpperCase();
+      if (out[g] == null) out[g] = 0;
+      out[g] += 1;
+    });
+    return out;
+  }
+
   /* ------------------------------------------------------------
      부트스트랩
      ------------------------------------------------------------ */
@@ -249,6 +301,7 @@
     renderAwards();
     renderBirthdays();
     renderCredits();
+    renderPacket();
     renderEntries();
     var count = data.stats && data.stats.entries ? data.stats.entries.total : "–";
     var todayEl = $("#todayCount");
@@ -327,6 +380,16 @@
     }).join("");
   }
 
+  function renderPacket() {
+    var box = $("#packetList");
+    if (!box) return;
+    var p = data.credits && data.credits.handoffPacket;
+    if (!p) { box.innerHTML = ""; return; }
+    box.innerHTML = '<ol class="packet-list">' + p.items.map(function (it) {
+      return '<li>' + esc(it) + '</li>';
+    }).join("") + '</ol><p class="eff-note">' + esc(p.note || "") + '</p>';
+  }
+
   var WHO = { p0: "부대장 클로드", p1: "1호", p2: "2호 크리", p3: "3호", p4: "참모 GPT", captain: "대장님" };
 
   function renderLogs() {
@@ -372,7 +435,8 @@
         label: "🛒 100% 페이백",
         value: s.deals.total,
         unit: "건",
-        sub: "미달 " + s.deals.under + "건 · 자부담 0원 " + s.deals.zero
+        sub: "조건 충족 " + s.deals.total + "건 중 미달 " + s.deals.under +
+          "건 (0원 " + s.deals.zero + " · 저자부담 " + (s.deals.low || 0) + ")"
       },
       {
         label: "🏆 오늘 당첨 확인",
@@ -401,15 +465,27 @@
     if (bars) {
       var d = data.stats.deals;
       bars.innerHTML =
-        barRow("미달 공고", d.under, d.total, (d.under / d.total) * 100, "green") +
-        barRow("자부담 0원", d.zero, d.total, (d.zero / d.total) * 100, "");
+        barRow("신청 미달", d.under, d.total, (d.under / d.total) * 100, "green") +
+        barRow("저자부담 0원", d.zero, d.total, (d.zero / d.total) * 100, "") +
+        barRow("저자부담 1~3,000원", d.low || 0, d.total, ((d.low || 0) / d.total) * 100, "");
     }
+    var note = $("#dealNote");
+    if (note) {
+      var def = data.deals.definition || {};
+      note.textContent = "수집 " + (def.collected || 0).toLocaleString() + "건 → 조건 충족 " +
+        (def.qualified || (data.stats.deals.total)) + "건 · 신청 미달 " + (def.under || 0) +
+        "건(0원 " + (def.zero || 0) + " · 저자부담 " + (def.low || 0) + ") · 표시 " +
+        (def.detailShown || data.deals.items.length) + "건";
+    }
+    var scoreNote = $("#dealScoreNote");
+    if (scoreNote && data.deals.scoring) scoreNote.textContent = data.deals.scoring.basis + " · " + data.deals.scoring.note;
     var mini = $("#dealMini");
     if (mini) {
-      mini.innerHTML = data.deals.items.slice(0, 3).map(function (it) {
+      mini.innerHTML = sortedDeals().slice(0, 3).map(function (it) {
         return '<div class="mini-row"><span class="mr-dot green"></span>' +
           '<div class="mr-main"><div class="mr-title">' + esc(it.name) + '</div>' +
-          '<div class="mr-sub">' + esc(it.platform) + " · 정원 " + it.slots + " / 신청 " + it.applied + '</div></div>' +
+          '<div class="mr-sub">' + esc((it.category || "미분류") + " · 실사용 " + (it.score == null ? "—" : it.score) + "점 · " +
+            it.platform + " · 정원 " + it.slots + " / 신청 " + it.applied) + '</div></div>' +
           '<span class="mr-val">' + esc(it.pay) + '</span></div>';
       }).join("");
     }
@@ -467,16 +543,31 @@
     var label = $("#todayLabel");
     if (label) label.textContent = fmtDateLabel(new Date());
     var nowMin = new Date().getHours() * 60 + new Date().getMinutes();
-    box.innerHTML = data.routine.map(function (r) {
-      var m = minutesOf(r.time);
-      var isNow = Math.abs(nowMin - m) <= 20;
-      return '<div class="tl-item' + (isNow ? " now" : "") + '">' +
-        '<span class="tl-time">' + esc(r.time) + '</span>' +
-        '<span class="tl-rail"><span class="tl-dot"></span></span>' +
-        '<div class="tl-body"><div class="tl-title">' + esc(r.title) + '</div>' +
-        '<div class="tl-note">' + esc(r.note) + '</div>' +
-        '<span class="tl-owner">' + esc(r.owner) + '</span></div>' +
-        '</div>';
+    var slotNames = ["오전", "오후", "저녁"];
+    var slotIcon = { "오전": "☀️", "오후": "🌤️", "저녁": "🌙" };
+    var slotNote = data.routineSlots || {};
+    var groups = {};
+    data.routine.forEach(function (r) {
+      var key = r.slot || "오전";
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(r);
+    });
+    var order = slotNames.filter(function (n) { return groups[n]; });
+    Object.keys(groups).forEach(function (n) { if (order.indexOf(n) < 0) order.push(n); });
+    box.innerHTML = order.map(function (slot) {
+      var head = '<div class="slot-head"><span>' + esc(slotIcon[slot] || "•") + ' ' + esc(slot) +
+        '</span><small>' + esc(slotNote[slot] || "") + '</small></div>';
+      return '<div class="slot-group">' + head + groups[slot].map(function (r) {
+        var m = minutesOf(r.time);
+        var isNow = Math.abs(nowMin - m) <= 20;
+        return '<div class="tl-item' + (isNow ? " now" : "") + '">' +
+          '<span class="tl-time">' + esc(r.time) + '</span>' +
+          '<span class="tl-rail"><span class="tl-dot"></span></span>' +
+          '<div class="tl-body"><div class="tl-title">' + esc(r.title) + '</div>' +
+          '<div class="tl-note">' + esc(r.note) + '</div>' +
+          '<span class="tl-owner">' + esc(r.owner) + '</span></div>' +
+          '</div>';
+      }).join("") + '</div>';
     }).join("");
   }
 
@@ -485,7 +576,7 @@
     if (!box) return;
     box.innerHTML = data.awards.map(function (a, i) {
       return '<details class="award-item"' + (i === 0 ? " open" : "") + '>' +
-        '<summary><span class="award-date">' + esc(a.date) + ' (' + esc(a.dow) + ')</span>' +
+        '<summary><span class="award-date">' + esc(a.date) + ' (' + esc(dowOf(a.date)) + ')</span>' +
         '<span>' + esc(a.count) + '건 발표</span>' +
         '<span class="award-count">' + esc(a.dday || "") + '</span></summary>' +
         '<ul class="award-items">' + a.items.map(function (it) {
@@ -552,6 +643,7 @@
     if (sum) {
       sum.innerHTML = [
         { v: s.entries.today, l: "오늘 응모" },
+        { v: s.entries.todayClosed || 4, l: "오늘 마감 경품" },
         { v: s.deals.under, l: "체험단 미달" },
         { v: s.coupons.zero, l: "0원 쿠폰" }
       ].map(function (x) {
@@ -566,31 +658,37 @@
     if (list) {
       list.innerHTML = data.entries.map(function (e, i) {
         var due = /^11\/27/.test(e.deadline);
+        var st = (e.result && e.result.status) || "발표예정";
         return '<div class="entry-item">' +
           '<span class="entry-no">' + pad(i + 1) + '</span>' +
           '<div class="entry-body">' +
           '<div class="entry-title">' +
           (e.url ? '<a href="' + esc(e.url) + '" target="_blank" rel="noopener noreferrer">' + esc(e.title) + ' ↗</a>' : esc(e.title)) +
+          gradeBadge(e.verification) +
           '</div>' +
           '<div class="entry-host">' + esc(e.host) + '</div>' +
           '<div class="entry-meta">' +
           '<span class="prize">' + esc(e.prize) + '</span>' +
           '<span class="' + (due ? "due" : "") + '">마감 ' + esc(e.deadline) + '</span>' +
           '<span>발표 ' + esc(e.announce) + '</span>' +
+          '<span class="status s-' + esc(statusKey(st)) + '">' + esc(st) + '</span>' +
           '</div></div></div>';
       }).join("");
     }
 
     var deals = $("#dealList");
     if (deals) {
-      deals.innerHTML = data.deals.items.map(function (d) {
+      deals.innerHTML = sortedDeals().map(function (d) {
         var pct = d.slots ? (d.applied / d.slots) * 100 : 0;
         var hot = d.slots - d.applied >= Math.max(10, d.slots * 0.6);
         return '<div class="deal-item">' +
           '<div class="deal-top"><div class="deal-name">' +
           (d.url ? '<a href="' + esc(d.url) + '" target="_blank" rel="noopener noreferrer">' + esc(d.name) + ' ↗</a>' : esc(d.name)) +
+          gradeBadge(d.verification) +
           '</div><span class="deal-pay">' + esc(d.pay) + '</span></div>' +
           '<div class="deal-meta">' +
+          '<span class="dm cat">' + esc(d.category || "미분류") + '</span>' +
+          '<span class="dm score">실사용 ' + esc(d.score == null ? "—" : d.score) + '점</span>' +
           '<span class="dm">' + esc(d.platform) + '</span>' +
           '<span class="dm">' + esc(d.market) + '</span>' +
           '<span class="dm' + (hot ? " hot" : "") + '">정원 ' + d.slots + ' / 신청 ' + d.applied + '</span>' +
@@ -611,12 +709,93 @@
           (c.url ? '<a href="' + esc(c.url) + '" target="_blank" rel="noopener noreferrer">' + esc(c.title) + ' ↗</a>' : esc(c.title)) +
           '</div>' +
           '<div class="coupon-prize">' + esc(c.prize) + '</div>' +
-          '<div class="coupon-note">' + esc(c.note) + '</div>' +
+          '<div class="coupon-note">' + esc(c.note) +
+          (c.watchPath ? '<br>▸ ' + esc(c.watchPath) : '') +
+          (c.verification ? ' ' + gradeBadge(c.verification) : '') +
+          '</div>' +
           '</div>' +
           '<span class="coupon-due ' + esc(c.tone) + '">' + esc(c.deadline) + '</span>' +
           '</div>';
       }).join("");
     }
+    renderCouponEfficiency();
+    renderTracking();
+  }
+
+  /* 체험단 정렬 — 점수 높은 순, 같으면 마감 빠른 순 */
+  function sortedDeals() {
+    return (data.deals.items || []).slice().sort(function (a, b) {
+      var diff = (b.score || 0) - (a.score || 0);
+      if (diff) return diff;
+      return deadlineKey(a.deadline) - deadlineKey(b.deadline);
+    });
+  }
+
+  function statusKey(status) {
+    return { "발표예정": "wait", "발표확인": "check", "당첨": "win",
+      "미당첨": "lose", "수령완료": "done", "개별 연락 대기": "wait", "수령 기한 초과": "late" }[status] || "wait";
+  }
+
+  /* 당첨·수령 추적 + 기대수익 카드 (대시보드·응모/당첨 공용) */
+  function trackingHtml() {
+    var t = (data.stats && data.stats.tracking) || {};
+    var rate = t.winRate || 0;
+    var checked = t.resultChecked || 0;
+    var wins = t.wins || 0;
+    var value = t.expectedValue || 0;
+    var received = t.received || 0;
+    var items = [
+      { k: "누적 응모", v: t.entered || 0, u: "건", s: "발표 확인 " + checked + "건" },
+      { k: "당첨", v: wins, u: "건", s: "당첨률 " + rate + "%" },
+      { k: "기대수익", v: value.toLocaleString(), u: "원", s: wins ? "당첨분 합계" : "당첨 0건 기준" },
+      { k: "수령 완료", v: received, u: "건", s: "수령 대기 " + Math.max(0, wins - received) + "건" }
+    ];
+    var counts = {};
+    (data.entries || []).forEach(function (e) {
+      var st = (e.result && e.result.status) || "발표예정";
+      counts[st] = (counts[st] || 0) + 1;
+    });
+    var order = ["발표예정", "발표확인", "당첨", "미당첨", "수령완료"];
+    var chips = order.map(function (st) {
+      return '<span class="status s-' + esc(statusKey(st)) + '">' + esc(st) + ' ' + (counts[st] || 0) + '</span>';
+    }).join("");
+    return '<div class="trk-grid">' + items.map(function (x) {
+      return '<div class="trk-item"><span class="tk-k">' + esc(x.k) + '</span>' +
+        '<span class="tk-v">' + esc(x.v) + '<small>' + esc(x.u) + '</small></span>' +
+        '<span class="tk-s">' + esc(x.s) + '</span></div>';
+    }).join("") + '</div>' +
+      '<div class="status-row">' + chips + '</div>' +
+      '<p class="eff-note">' + esc(t.note || "") + '</p>';
+  }
+
+  function renderTracking() {
+    var html = trackingHtml();
+    ["#trackGrid", "#entryTrack"].forEach(function (sel) {
+      var box = $(sel);
+      if (box) box.innerHTML = html;
+    });
+  }
+
+  /* 쿠폰 시간대별 예상/실제 적립 기록란 */
+  function renderCouponEfficiency() {
+    var box = $("#couponEff");
+    if (!box) return;
+    var rows = [];
+    data.coupons.forEach(function (c) {
+      if (!c.efficiency || !c.efficiency.length) return;
+      rows.push('<div class="eff-head">' + esc(c.title) + '</div>');
+      c.efficiency.forEach(function (f) {
+        rows.push('<div class="eff-row">' +
+          '<span class="eff-slot">' + esc(f.slot) + '</span>' +
+          '<span class="eff-k">예상 <strong>' + (f.expected == null ? "—" : f.expected + "원") + '</strong></span>' +
+          '<span class="eff-k">실제 <strong>' + (f.actual == null ? "—" : f.actual + "원") + '</strong></span>' +
+          '<span class="eff-k">소요 <strong>' + (f.minutes == null ? "—" : f.minutes + "분") + '</strong></span>' +
+          '<span class="eff-st">' + esc(f.status) + '</span>' +
+          '</div>');
+      });
+      if (c.efficiencyNote) rows.push('<p class="eff-note">' + esc(c.efficiencyNote) + '</p>');
+    });
+    box.innerHTML = rows.join("");
   }
 
   function nextBirthday() {
