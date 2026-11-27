@@ -129,10 +129,10 @@
       /* 둥근 귀 + 귀 안쪽 줄무늬 */
       return '<circle cx="19.6" cy="19.2" r="4.6" fill="' + a.fur + '"/>' +
         '<circle cx="19.6" cy="19.4" r="2.3" fill="' + a.furLight + '"/>' +
-        '<path d="M19.6 15.2v2.2" stroke="' + a.stripe + '" stroke-width="1" stroke-linecap="round" opacity=".55"/>' +
+        '<path d="M19.6 15.2v2.2" stroke="' + a.stripe + '" stroke-width="1.3" stroke-linecap="round" opacity=".6"/>' +
         '<circle cx="36.4" cy="19.2" r="4.6" fill="' + a.fur + '"/>' +
         '<circle cx="36.4" cy="19.4" r="2.3" fill="' + a.furLight + '"/>' +
-        '<path d="M36.4 15.2v2.2" stroke="' + a.stripe + '" stroke-width="1" stroke-linecap="round" opacity=".55"/>';
+        '<path d="M36.4 15.2v2.2" stroke="' + a.stripe + '" stroke-width="1.3" stroke-linecap="round" opacity=".6"/>';
     }
     if (kind === "shiba") {
       return '<path d="M19.9 21.2L15.3 9.2l9.6 4.9z" fill="' + a.fur + '"/>' +
@@ -194,6 +194,13 @@
       '<rect x="28.4" y="62.6" width="8.2" height="1.5" rx=".75" fill="#5A4E46" opacity=".6"/>');
 
     /* 재킷 · 셔츠 · 라펠 */
+    if (kind === "tiger") {
+      /* 회장님 호랑이 — 당당한 어깨선 (어깨 요크·각진 견갑) */
+      s.push('<path d="M15.5 43.6c.4-6.7 5.5-10.8 12.5-10.8s12.1 4.1 12.5 10.8l.6 4.8H14.9z" fill="' + a.suit + '"/>' +
+        '<path d="M15.6 43.1c.6-5.3 4.6-8.9 9.4-9.2-2.9 2.4-4.5 5.5-4.8 9.7z" fill="#fff" opacity=".07"/>' +
+        '<path d="M40.4 43.1c-.6-5.3-4.6-8.9-9.4-9.2 2.9 2.4 4.5 5.5 4.8 9.7z" fill="#fff" opacity=".07"/>' +
+        '<path d="M15.9 41.6h5.1l-.7 2.9h-4.9zM35.7 41.6h5.1l-.5 2.9h-4.9z" fill="' + a.suitLight + '" opacity=".85"/>');
+    }
     s.push('<path d="M17.2 44.4c0-6.2 4.6-9.8 10.8-9.8s10.8 3.6 10.8 9.8l1.35 12.7c.16 1.5-.94 2.7-2.45 2.7H18.3c-1.51 0-2.61-1.2-2.45-2.7z" fill="' + a.suit + '"/>' +
       '<path d="M22.4 36.4L28 47.6l5.6-11.2c-3.4-1-7.8-1-11.2 0z" fill="' + a.shirt + '"/>' +
       '<path d="M22.2 36 28 47.8 24.6 49 19.2 39.2z" fill="' + a.suitLight + '"/>' +
@@ -227,12 +234,13 @@
       '<ellipse cx="28" cy="28.2" rx="14.2" ry="13.4" fill="' + a.fur + '" stroke="rgba(38,44,54,.10)" stroke-width=".8"/>' +
       '<ellipse cx="22.4" cy="21.4" rx="5.6" ry="3.8" fill="#fff" opacity=".16"/>');
     if (kind === "tiger") {
-      /* 이마·볼 줄무늬 */
+      /* 이마·관자놀이 굵은 줄무늬 (카리스마) */
       var st = a.stripe;
-      s.push('<path d="M27.2 15.9v3.4M30.6 15.7v3.2M24.2 17.2l1.9 2.4M33.7 17l-1.9 2.4" stroke="' + st +
-        '" stroke-width="1.5" stroke-linecap="round" opacity=".9"/>' +
-        '<path d="M14.9 26.4l3.5 1.5M14.9 31.2l3.4-1.4M41.1 26.4l-3.5 1.5M41.1 31.2l-3.4-1.4" stroke="' + st +
-        '" stroke-width="1.5" stroke-linecap="round" opacity=".85"/>' +
+      s.push('<g stroke="' + st + '" stroke-linecap="round" fill="none" opacity=".95">' +
+        '<path d="M28 15.6v4M25.2 16.2l-.5 3.2M30.8 16.2l.5 3.2" stroke-width="1.8"/>' +
+        '</g>' +
+        '<path d="M15.5 26.6l3.3 1.9M15.2 31l3.8 1.8M40.5 26.6l-3.3 1.9M40.8 31l-3.8 1.8" stroke="' + st +
+        '" stroke-width="1.8" stroke-linecap="round" opacity=".9"/>' +
         '<path d="M22.6 40.4h10.8v2.6c0 1.4-1.6 2.1-2.6 1.2-1.6 1.4-4 1.4-5.6 0-1 .9-2.6.2-2.6-1.2z" fill="' +
         a.furLight + '" opacity=".95"/>');
     }
@@ -257,17 +265,35 @@
         '" stroke-width=".55" stroke-linecap="round" opacity=".45"/>');
     }
 
-    /* 눈 (깜빡임) */
-    s.push('<g class="eye"><ellipse cx="22.5" cy="26.2" rx="2.85" ry="3.1" fill="#2B2118"/><circle cx="23.5" cy="25.2" r="1" fill="#fff"/></g>' +
-      '<g class="eye"><ellipse cx="33.5" cy="26.2" rx="2.85" ry="3.1" fill="#2B2118"/><circle cx="34.5" cy="25.2" r="1" fill="#fff"/></g>' +
-      '<path d="M19.4 21.5c1.5-.9 3.1-.9 4.5-.2M32.1 21.3c1.4-.7 3-.7 4.5.2" stroke="' + a.furDark + '" stroke-width=".85" stroke-linecap="round" fill="none" opacity=".5"/>');
+    /* 눈 (깜빡임) — 호랑이는 치켜뜬 눈매 · 짙은 눈썹 */
+    if (kind === "tiger") {
+      s.push('<path d="M18.4 19.3 25 22.3 24.6 23.1 18.2 21.6z" fill="#231A12"/>' +
+        '<path d="M37.6 19.3 31 22.3 31.4 23.1 37.8 21.6z" fill="#231A12"/>' +
+        '<g class="eye">' +
+        '<ellipse cx="22.4" cy="26.6" rx="2.9" ry="2.05" transform="rotate(14 22.4 26.6)" fill="#2B2118"/>' +
+        '<circle cx="21.2" cy="25.9" r=".55" fill="#fff"/>' +
+        '</g>' +
+        '<g class="eye">' +
+        '<ellipse cx="33.6" cy="26.6" rx="2.9" ry="2.05" transform="rotate(-14 33.6 26.6)" fill="#2B2118"/>' +
+        '<circle cx="34.8" cy="25.9" r=".55" fill="#fff"/>' +
+        '</g>' +
+        '<path d="M19.8 24.4c1.8-1.1 4.2-1 5.7.4M36.2 24.4c-1.8-1.1-4.2-1-5.7.4" stroke="' + a.furDark + '" stroke-width="1" stroke-linecap="round" fill="none" opacity=".7"/>');
+    } else {
+      s.push('<g class="eye"><ellipse cx="22.5" cy="26.2" rx="2.85" ry="3.1" fill="#2B2118"/><circle cx="23.5" cy="25.2" r="1" fill="#fff"/></g>' +
+        '<g class="eye"><ellipse cx="33.5" cy="26.2" rx="2.85" ry="3.1" fill="#2B2118"/><circle cx="34.5" cy="25.2" r="1" fill="#fff"/></g>' +
+        '<path d="M19.4 21.5c1.5-.9 3.1-.9 4.5-.2M32.1 21.3c1.4-.7 3-.7 4.5.2" stroke="' + a.furDark + '" stroke-width=".85" stroke-linecap="round" fill="none" opacity=".5"/>');
+    }
 
-    /* 코 · 입 · 볼 */
+    /* 코 · 입 · 볼 — 호랑이는 굳은 입매 + 송곳니 */
     s.push('<path d="M26.7 30c.4-1.2 2.2-1.2 2.6 0 .4 1-.6 1.9-1.3 1.9s-1.7-.9-1.3-1.9z" fill="#3A2A22"/>' +
       '<path d="M28 31.9v1.4" stroke="#3A2A22" stroke-width=".85" stroke-linecap="round"/>' +
-      '<path d="M28 33.3c-.9 1.2-2.4 1.1-3-.4M28 33.3c.9 1.2 2.4 1.1 3-.4" stroke="#3A2A22" stroke-width=".85" stroke-linecap="round" fill="none"/>' +
-      '<ellipse cx="17.6" cy="31.8" rx="2.6" ry="1.6" fill="#E9817A" opacity=".38"/>' +
-      '<ellipse cx="38.4" cy="31.8" rx="2.6" ry="1.6" fill="#E9817A" opacity=".38"/>');
+      (kind === "tiger"
+        ? '<path d="M26.2 33.7h3.6" stroke="#3A2A22" stroke-width="1.15" stroke-linecap="round"/>' +
+          '<path d="M26.2 33.6l-.7.9M29.8 33.6l.7.9" stroke="#3A2A22" stroke-width=".8" stroke-linecap="round"/>' +
+          '<path d="M26.6 33.8l.45 1.3.45-1.2zM29.4 33.8l-.45 1.3-.45-1.2z" fill="#FFFDF7" stroke="#3A2A22" stroke-width=".26" stroke-linejoin="round"/>'
+        : '<path d="M28 33.3c-.9 1.2-2.4 1.1-3-.4M28 33.3c.9 1.2 2.4 1.1 3-.4" stroke="#3A2A22" stroke-width=".85" stroke-linecap="round" fill="none"/>' +
+          '<ellipse cx="17.6" cy="31.8" rx="2.6" ry="1.6" fill="#E9817A" opacity=".38"/>' +
+          '<ellipse cx="38.4" cy="31.8" rx="2.6" ry="1.6" fill="#E9817A" opacity=".38"/>'));
     if (kind === "squirrel") {
       s.push('<rect x="26.4" y="34.6" width="1.5" height="2.4" rx=".5" fill="#FFFDF8" stroke="#C9B49B" stroke-width=".3"/>' +
         '<rect x="28.1" y="34.6" width="1.5" height="2.4" rx=".5" fill="#FFFDF8" stroke="#C9B49B" stroke-width=".3"/>');
@@ -285,8 +311,8 @@
         '<circle cx="19.3" cy="45.2" r="1.5" fill="#FFF0BF"/>' +
         '<path d="M25.7 47.9h4.6" stroke="#F2C64E" stroke-width=".9" stroke-linecap="round"/>' +
         '<circle cx="28" cy="47.9" r=".75" fill="#FFF0BF"/>' +
-        '<rect x="16.9" y="38.4" width="3.4" height="1.5" rx=".75" fill="#F2C64E" stroke="#B8862F" stroke-width=".4"/>' +
-        '<rect x="35.7" y="38.4" width="3.4" height="1.5" rx=".75" fill="#F2C64E" stroke="#B8862F" stroke-width=".4"/>');
+        '<rect x="15.7" y="38.2" width="4" height="1.7" rx=".6" fill="#F2C64E" stroke="#B8862F" stroke-width=".4" transform="rotate(-12 17.7 39)"/>' +
+        '<rect x="36.3" y="38.2" width="4" height="1.7" rx=".6" fill="#F2C64E" stroke="#B8862F" stroke-width=".4" transform="rotate(12 38.3 39)"/>');
     } else if (id === "p0") {
       /* 왕관 + 골드 스타 배지 */
       s.push('<path d="M19.4 14.2l1.3-7.3 4.3 3.5 3-4.9 3 4.9 4.3-3.5 1.3 7.3z" fill="#F2C64E" stroke="#C08F1E" stroke-width=".8" stroke-linejoin="round"/>' +

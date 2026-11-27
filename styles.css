@@ -955,6 +955,62 @@ html[data-theme="dark"] .fp-duties span { background: rgba(227, 167, 100, .14); 
 .agent.p1 { z-index: 5; }
 .agent.p0 { z-index: 6; }
 .agent.captain { z-index: 12; }
+
+/* ---------------- 회장님 호랑이 — +5% · 황금 아우라 ---------------- */
+/* 크기는 상태별로 5%만 확대 (transform은 breathe/bob 애니메이션이 쓰므로 width/height로 처리) */
+.agent.captain { width: 48.3px; height: 61.95px; margin-left: -24.15px; margin-top: -61.95px; }
+.floor .agent.captain { width: 42px; height: 53.55px; margin-left: -21px; margin-top: -53.55px; }
+.floor.is-focus .agent.captain { width: 69.3px; height: 89.25px; margin-left: -34.65px; margin-top: -89.25px; }
+
+/* 외곽 황금·앰버 광채 */
+.agent.captain svg.sprite {
+  filter:
+    drop-shadow(0 0 2.5px rgba(255, 219, 128, .95))
+    drop-shadow(0 0 7px rgba(255, 168, 40, .8))
+    drop-shadow(0 3px 3px rgba(0, 0, 0, .35));
+}
+/* 뒤에서 맥동하는 금빛 후광 */
+.agent.captain::before {
+  content: "";
+  position: absolute;
+  left: 50%; top: 55%;
+  width: 158%; height: 152%;
+  transform: translate(-50%, -50%) scale(.94);
+  border-radius: 50%;
+  background: radial-gradient(closest-side,
+    rgba(255, 216, 108, .42),
+    rgba(248, 178, 46, .22) 46%,
+    rgba(248, 178, 46, 0) 72%);
+  filter: blur(1.5px);
+  pointer-events: none;
+  z-index: -1;
+  animation: captainAura 3.2s ease-in-out infinite;
+}
+/* 캐릭터 테두리를 감싸는 맥동 링 */
+.agent.captain::after {
+  content: "";
+  position: absolute;
+  left: 50%; top: 54%;
+  width: 112%; height: 102%;
+  transform: translate(-50%, -50%) scale(.97);
+  border-radius: 50%;
+  border: 1.8px solid rgba(255, 208, 96, .95);
+  box-shadow:
+    0 0 9px rgba(255, 176, 38, .85),
+    inset 0 0 8px rgba(255, 190, 60, .5);
+  pointer-events: none;
+  z-index: -1;
+  animation: captainHalo 3.2s ease-in-out infinite;
+}
+@keyframes captainAura {
+  0%, 100% { opacity: .55; transform: translate(-50%, -50%) scale(.94); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.06); }
+}
+@keyframes captainHalo {
+  0%, 100% { opacity: .55; transform: translate(-50%, -50%) scale(.96); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.06); }
+}
+
 .agent.talk, .agent.is-picked { z-index: 9; }
 
 .agent .sprite-wrap {

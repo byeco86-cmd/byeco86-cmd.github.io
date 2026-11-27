@@ -137,6 +137,19 @@ def main():
     check("decisions_unique", len({d["id"] for t in tracks for d in t["decisions"]}) ==
           sum(len(t["decisions"]) for t in tracks), "결정 id 중복")
 
+    # ---- ⑤ 멀티 제휴 큐레이터 파이프라인 ----
+    t5 = [t for t in tracks if t["id"] == "t5"][0]
+    check("t5_title", t5["name"].startswith("멀티 제휴 큐레이터 파이프라인") and "쿠팡" in t5["name"], t5["name"])
+    t5_blob = json.dumps(t5, ensure_ascii=False)
+    t5_platforms = ["쿠팡 파트너스", "카카오 선물하기", "올리브영 쇼핑 큐레이터", "토스 쉐어링크",
+                    "네이버 쇼핑 커넥트", "오늘의집", "워드로브픽", "마이리얼트립"]
+    check("t5_platforms", all(p in t5_blob for p in t5_platforms),
+          [p for p in t5_platforms if p not in t5_blob])
+    check("t5_rates", all(k in t5["monthly"]["basis"] for k in ["9%", "7%", "3%", "5%"]), t5["monthly"]["basis"][:80])
+    check("t5_checklist9", len(t5["checklist"]) == 9, len(t5["checklist"]))
+    check("t5_priority_decision", "d16" in [x["id"] for x in t5["decisions"]], [x["id"] for x in t5["decisions"]])
+    check("t5_readme", all(p in readme for p in ["멀티 제휴 큐레이터", "카카오 선물하기", "토스 쉐어링크", "마이리얼트립"]), "README ⑤ 설명")
+
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
         page = browser.new_page(
@@ -203,8 +216,40 @@ def main():
         cap_svg = page.eval_on_selector('.agent[data-agent="captain"] svg.sprite', "el => el.outerHTML") or ""
         for mark, why in [("#1C1B20", "블랙 쓰리피스"), ("#D4A94A", "골드 넥타이"),
                           ("#F2C64E", "금메달 회장 배지"), ("#8C1B1B", "배지 리본"),
-                          ("#E8933F", "호랑이 털"), ("#2E2620", "호랑이 줄무늬")]:
+                          ("#E8933F", "호랑이 털"), ("#2E2620", "호랑이 줄무늬"),
+                          ("#231A12", "날카로운 눈썹 능선"), ("#FFFDF7", "송곳니"),
+                          ("M28 15.6v4", "굵은 이마 줄무늬")]:
             check("captain_mark:" + mark, mark in cap_svg, why)
+
+        # 회장님 +5% · 황금 아우라 (계산된 스타일로 확인)
+        cap_style = page.evaluate("""() => {
+          const a = document.querySelector('.agent[data-agent="captain"]');
+          const ref = document.querySelector('.agent[data-agent="p1"]');
+          const sprite = getComputedStyle(a.querySelector('svg.sprite'));
+          const before = getComputedStyle(a, '::before');
+          const after = getComputedStyle(a, '::after');
+          return {
+            w: a.getBoundingClientRect().width, refW: ref.getBoundingClientRect().width,
+            h: a.getBoundingClientRect().height, refH: ref.getBoundingClientRect().height,
+            filter: sprite.filter, beforeBg: before.backgroundImage, beforeAnim: before.animationName,
+            afterBorder: after.borderTopColor, afterAnim: after.animationName,
+            shakey: before.backgroundImage.indexOf('rgba(255, 216, 108, 0.42)') >= 0
+          };
+        }""")
+        results.append(("captain_style", cap_style))
+        check("captain_scale_105", abs(cap_style["w"] / cap_style["refW"] - 1.05) < 0.012
+              and abs(cap_style["h"] / cap_style["refH"] - 1.05) < 0.012,
+              (round(cap_style["w"] / cap_style["refW"], 4), round(cap_style["h"] / cap_style["refH"], 4)))
+        check("captain_aura_glow", "drop-shadow" in cap_style["filter"] and "255, 168, 40" in cap_style["filter"],
+              cap_style["filter"])
+        check("captain_aura_halo", cap_style["shakey"] and cap_style["beforeAnim"] == "captainAura"
+              and cap_style["afterAnim"] == "captainHalo",
+              (cap_style["beforeAnim"], cap_style["afterAnim"], cap_style["shakey"]))
+        check("captain_aura_ring", "255, 208, 96" in cap_style["afterBorder"], cap_style["afterBorder"])
+
+        # 다른 캐릭터는 기존 순한 얼굴 그대로 (회장님만 변경)
+        p2_svg = page.eval_on_selector('.agent[data-agent="p2"] svg.sprite', "el => el.outerHTML") or ""
+        check("p2_face_unchanged", 'rx="2.85" ry="3.1"' in p2_svg and "#231A12" not in p2_svg, "피사원 눈")
 
         for aid, mark, why in [("p1", "#26344E", "네이비 정장"), ("p1", "#EFBB77", "시바 털"),
                                ("p2", "#2E6FA8", "블루 정장"), ("p2", "#D8E5F2", "토끼 털"),
@@ -578,6 +623,8 @@ def main():
         money_txt = page.inner_text("#trackList")
         check("money_new_names", all(k in money_txt for k in ["디지털 템플릿", "트렌드 블로그", "위탁판매"]),
               money_txt[:80])
+        check("money_t5_curator", all(k in money_txt for k in ["멀티 제휴 큐레이터 파이프라인", "카카오 선물하기", "올리브영",
+                                                              "토스 쉐어링크", "마이리얼트립"]), money_txt[:80])
         money_w = page.evaluate("document.documentElement.scrollWidth")
         results.append(("money_scroll_w", money_w))
         check("money_no_hscroll", money_w <= 390, money_w)
