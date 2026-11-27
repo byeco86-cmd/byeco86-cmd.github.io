@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""헤드리스 검증 — 390x844 모바일 화면, 클로드 부장·챗지피티 과장 포함 5명 캐릭터 렌더링,
-탭 전환, 테마/배경 전환, 콘솔 에러 0건, preview.png 갱신."""
+"""헤드리스 검증 — 390x844 모바일 화면, 정장 입은 동물 캐릭터 5명 렌더링,
+탭 전환, 테마/배경 전환, 수익화 8대 트랙, 콘솔 에러 0건, preview.png 갱신."""
 import http.server
 import json
 import pathlib
@@ -89,6 +89,24 @@ def main():
     check("coupon_efficiency", any(c.get("efficiency") for c in data["coupons"]), "쿠폰 효율 기록란")
     check("routine_slots", len({r.get("slot") for r in data["routine"]}) >= 3, [r.get("slot") for r in data["routine"]])
 
+    # ---- 수익화 8대 트랙 (⑤까지 5개 + ⑥⑦⑧ 신규) ----
+    mon = data["monetization"]
+    tracks = mon["tracks"]
+    check("monetization_8", len(tracks) == 8, [t["no"] + t["short"] for t in tracks])
+    check("monetization_title", mon["title"] == "수익화 8대 트랙", mon["title"])
+    check("money_label_index", "수익화 8대 트랙" in indexhtml, "index.html 제목")
+    check("money_label_app", 'tracks.length + \'대 트랙 예상 월 수익' in appjs, "app.js 합계 라벨")
+    check("track_shape", all(
+        t.get("monthly", {}).get("basis") and t.get("capital", {}).get("basis")
+        and len(t.get("checklist", [])) >= 5 and len(t.get("risks", [])) >= 3
+        and t.get("blockers") and t.get("roles") and t.get("decisions")
+        for t in tracks), [t["id"] for t in tracks if not t.get("checklist")])
+    new_ids = [t["id"] for t in tracks[5:]]
+    check("track_new_ids", new_ids == ["t6", "t7", "t8"], new_ids)
+    check("track_tones", all(t.get("tone") for t in tracks), [t.get("tone") for t in tracks])
+    check("decisions_unique", len({d["id"] for t in tracks for d in t["decisions"]}) ==
+          sum(len(t["decisions"]) for t in tracks), "결정 id 중복")
+
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
         page = browser.new_page(
@@ -143,7 +161,14 @@ def main():
         p0_svg = page.eval_on_selector('.agent[data-agent="p0"] svg.sprite', "el => el.outerHTML") or ""
         check("p0_crown", "#F2C64E" in p0_svg, "왕관 금색")
         check("p0_badge", "#FBE08C" in p0_svg, "별 배지")
-        check("p0_palette", "#E09272" in p0_svg, "코랄/테라코타 몸통")
+        check("p0_suit", "#2E2C33" in p0_svg, "차콜 정장")
+        check("p0_palette", "#C68A5A" in p0_svg, "곰 갈색 털")
+
+        for aid, mark, why in [("p1", "#26344E", "네이비 정장"), ("p1", "#EFBB77", "시바 털"),
+                               ("p2", "#2E6FA8", "블루 정장"), ("p2", "#D8E5F2", "토끼 털"),
+                               ("p3", "#4FBB9D", "민트 정장")]:
+            svg = page.eval_on_selector(f'.agent[data-agent="{aid}"] svg.sprite', "el => el.outerHTML") or ""
+            check(f"{aid}_mark:{mark}", mark in svg, why)
 
         p4_box = page.eval_on_selector(
             '.agent[data-agent="p4"] svg.sprite',
@@ -152,7 +177,8 @@ def main():
         check("p4_sprite_visible", p4_box["w"] > 20 and p4_box["h"] > 20, p4_box)
 
         p4_svg = page.eval_on_selector('.agent[data-agent="p4"] svg.sprite', "el => el.outerHTML") or ""
-        check("p4_palette", "#10A37F" in p4_svg, "에메랄드 몸통")
+        check("p4_palette", "#10A37F" in p4_svg, "에메랄드 정장")
+        check("p4_fur", "#E79451" in p4_svg, "여우 주황 털")
         check("p4_bulb", "#FFE07A" in p4_svg, "전구 배지")
         check("p4_monocle", "#0B3B2E" in p4_svg, "모노클")
         check("p4_note", "#EAFBF4" in p4_svg, "노트 배지")
@@ -447,6 +473,26 @@ def main():
         results.append(("entry_status", statuses[:3]))
         check("entry_status", len(statuses) == 10 and "발표예정" in statuses, statuses[:3])
         page.screenshot(path=str(SHOTS / "05-entries-extra.png"))
+
+        # ---- 수익화 8대 트랙 렌더링 ----
+        page.click('.tab[data-tab="money"]')
+        page.wait_for_timeout(600)
+        chip_n = page.locator("#trackChips .tchip").count()
+        track_n = page.locator("#trackList details.track").count()
+        results.append(("money_chips", chip_n))
+        results.append(("money_tracks", track_n))
+        check("money_chips_8", chip_n == 8, chip_n)
+        check("money_tracks_8", track_n == 8, track_n)
+        money_sum = page.inner_text("#moneySummary")
+        results.append(("money_summary", money_sum[:120]))
+        check("money_sum_8", "8대 트랙" in money_sum, money_sum[:80])
+        money_txt = page.inner_text("#trackList")
+        check("money_new_names", all(k in money_txt for k in ["디지털 템플릿", "트렌드 블로그", "위탁판매"]),
+              money_txt[:80])
+        money_w = page.evaluate("document.documentElement.scrollWidth")
+        results.append(("money_scroll_w", money_w))
+        check("money_no_hscroll", money_w <= 390, money_w)
+        page.screenshot(path=str(SHOTS / "09-money.png"))
 
         page.click('.tab[data-tab="credits"]')
         page.wait_for_timeout(450)

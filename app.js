@@ -84,86 +84,198 @@
   /* ------------------------------------------------------------
      컬러 팔레트 · 스프라이트
      ------------------------------------------------------------ */
+  /* ------------------------------------------------------------
+     캐릭터 — 정장 입은 귀여운 동물 5명 (고퀄 SVG)
+     1호 시바견·네이비 / 2호 크리 토끼·블루 / 클로드 부장 곰·에스프레소+골드타이
+     챗지피티 과장 여우·에메랄드+모노클 / 3호 대리 다람쥐·민트
+     ------------------------------------------------------------ */
   var PALETTE = {
-    p0: { body: "#E09272", dark: "#B4603F", ink: "#4A2318" },
-    p1: { body: "#E7B36B", dark: "#BE8A42", ink: "#4A3218" },
-    p2: { body: "#95BAD9", dark: "#5F8BB0", ink: "#24384A" },
-    p3: { body: "#A9C88C", dark: "#7C9E5C", ink: "#33421F" },
-    p4: { body: "#10A37F", dark: "#0A7A5F", ink: "#0B3B2E" }
+    p1: {
+      fur: "#EFBB77", furDark: "#C0863F", furLight: "#FFF3E0",
+      suit: "#26344E", suitLight: "#33456A", trouser: "#222C3C",
+      shirt: "#FBFCFE", tie: "#B0392F", tieStyle: "necktie"
+    },
+    p2: {
+      fur: "#D8E5F2", furDark: "#9EB6CE", furLight: "#FFFFFF",
+      suit: "#2E6FA8", suitLight: "#3E86C2", trouser: "#27587E",
+      shirt: "#FBFCFE", tie: "#7FB3DC", tieStyle: "bow"
+    },
+    p0: {
+      fur: "#C68A5A", furDark: "#96613A", furLight: "#F3DCC2",
+      suit: "#2E2C33", suitLight: "#403D47", trouser: "#26242A",
+      shirt: "#FBFCFE", tie: "#DEAF3D", tieStyle: "necktie"
+    },
+    p4: {
+      fur: "#E79451", furDark: "#B0622A", furLight: "#FFF7EC",
+      suit: "#10A37F", suitLight: "#18B78F", trouser: "#0B4C3C",
+      shirt: "#FBFCFE", tie: "#F2C64E", tieStyle: "necktie"
+    },
+    p3: {
+      fur: "#BE8A5F", furDark: "#946440", furLight: "#F6E6D2",
+      suit: "#4FBB9D", suitLight: "#6BD0B4", trouser: "#2E7A66",
+      shirt: "#FBFCFE", tie: "#2C8C74", tieStyle: "necktie"
+    }
   };
+  var EAR = { p1: "shiba", p2: "rabbit", p0: "bear", p4: "fox", p3: "squirrel" };
+
+  /* 머리 뒤로 나온 귀 */
+  function earsSvg(kind, a) {
+    if (kind === "shiba") {
+      return '<path d="M19.9 21.2L15.3 9.2l9.6 4.9z" fill="' + a.fur + '"/>' +
+        '<path d="M20.5 18.9l-2.6-6.4 4.8 2.7z" fill="' + a.furLight + '"/>' +
+        '<path d="M36.1 21.2L40.7 9.2l-9.6 4.9z" fill="' + a.fur + '"/>' +
+        '<path d="M35.5 18.9l2.6-6.4-4.8 2.7z" fill="' + a.furLight + '"/>';
+    }
+    if (kind === "rabbit") {
+      return '<ellipse cx="21.5" cy="11.4" rx="3.4" ry="8.3" fill="' + a.fur + '" transform="rotate(-12 21.5 11.4)"/>' +
+        '<ellipse cx="21.7" cy="11.2" rx="1.6" ry="5.5" fill="#F0BAC8" transform="rotate(-12 21.7 11.2)"/>' +
+        '<ellipse cx="34.5" cy="11.4" rx="3.4" ry="8.3" fill="' + a.fur + '" transform="rotate(12 34.5 11.4)"/>' +
+        '<ellipse cx="34.3" cy="11.2" rx="1.6" ry="5.5" fill="#F0BAC8" transform="rotate(12 34.3 11.2)"/>' +
+        '<path d="M23.2 19.4c1.6-1.4 2.6-2.6 3.2-4" stroke="' + a.furDark + '" stroke-width=".7" fill="none" opacity=".4"/>';
+    }
+    if (kind === "bear") {
+      return '<circle cx="18.2" cy="16.4" r="5.2" fill="' + a.fur + '"/>' +
+        '<circle cx="18.2" cy="16.4" r="2.6" fill="' + a.furLight + '"/>' +
+        '<circle cx="37.8" cy="16.4" r="5.2" fill="' + a.fur + '"/>' +
+        '<circle cx="37.8" cy="16.4" r="2.6" fill="' + a.furLight + '"/>';
+    }
+    if (kind === "fox") {
+      return '<path d="M19.6 22.4L13.9 8.4l10.5 5.8z" fill="' + a.fur + '"/>' +
+        '<path d="M14.6 9.6l4.6 2.6-1.9.9z" fill="' + a.furDark + '"/>' +
+        '<path d="M20.2 19c-1.4-3.4-2.4-5.6-2.9-7.3 1.9 1 3.6 1.9 5 2.6z" fill="' + a.furLight + '"/>' +
+        '<path d="M36.4 22.4L42.1 8.4l-10.5 5.8z" fill="' + a.fur + '"/>' +
+        '<path d="M41.4 9.6l-4.6 2.6 1.9.9z" fill="' + a.furDark + '"/>' +
+        '<path d="M35.8 19c1.4-3.4 2.4-5.6 2.9-7.3-1.9 1-3.6 1.9-5 2.6z" fill="' + a.furLight + '"/>';
+    }
+    /* squirrel */
+    return '<path d="M19.4 20.6L16.2 11.2l6.6 3.7z" fill="' + a.fur + '"/>' +
+      '<path d="M19.9 18.3l-1.5-4.4 3 1.7z" fill="' + a.furLight + '"/>' +
+      '<path d="M36.6 20.6L39.8 11.2l-6.6 3.7z" fill="' + a.fur + '"/>' +
+      '<path d="M36.1 18.3l1.5-4.4-3 1.7z" fill="' + a.furLight + '"/>';
+  }
+
+  /* 몸 뒤로 보이는 꼬리 */
+  function tailSvg(kind, a) {
+    if (kind === "squirrel") {
+      return '<path d="M39.8 61.4c4.6-.2 7.6-3 7.8-7 .2-3.6-2.2-6.4-5-6.2-2.2.2-3.4 2.4-2.6 4.2.6 1.4 2.4 1.6 3.3.5" fill="none" stroke="' + a.furDark + '" stroke-width="7.4" stroke-linecap="round"/>' +
+        '<path d="M39.8 61.4c4.6-.2 7.6-3 7.8-7 .2-3.6-2.2-6.4-5-6.2-2.2.2-3.4 2.4-2.6 4.2.6 1.4 2.4 1.6 3.3.5" fill="none" stroke="' + a.fur + '" stroke-width="4.4" stroke-linecap="round"/>';
+    }
+    return "";
+  }
 
   function spriteSvg(id) {
-    var p = PALETTE[id] || PALETTE.p2;
-    var face = "";
-    /* eyes + glints */
-    face += '<g class="eye"><circle cx="22" cy="38" r="2.6" fill="#2B2118"/>' +
-      '<circle cx="22.8" cy="37.2" r="0.85" fill="#fff"/></g>' +
-      '<g class="eye"><circle cx="34" cy="38" r="2.6" fill="#2B2118"/>' +
-      '<circle cx="34.8" cy="37.2" r="0.85" fill="#fff"/></g>';
-    /* cheeks */
-    face += '<circle cx="15.5" cy="45" r="3" fill="#E58B7C" opacity=".5"/>' +
-      '<circle cx="40.5" cy="45" r="3" fill="#E58B7C" opacity=".5"/>';
-    /* mouth */
-    if (id === "p0") {
-      face += '<path d="M22.5 43.5q5.5 5.5 11 .5" fill="none" stroke="#2B2118" stroke-width="1.8" stroke-linecap="round"/>';
-    } else if (id === "p1") {
-      face += '<path d="M23 47q5 4 10 0" fill="none" stroke="#2B2118" stroke-width="1.7" stroke-linecap="round"/>';
-    } else if (id === "p2") {
-      face += '<path d="M23 44v6h6v-6M23 47h6" fill="none" stroke="#2B2118" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>';
-    } else if (id === "p4") {
-      face += '<path d="M23.4 45.4q4.6 3.8 9.2 0" fill="none" stroke="#2B2118" stroke-width="1.7" stroke-linecap="round"/>';
+    var a = PALETTE[id] || PALETTE.p2;
+    var kind = EAR[id] || "rabbit";
+    var s = [];
+
+    /* 바닥 그림자 */
+    s.push('<ellipse cx="28" cy="68.6" rx="13" ry="2.8" fill="rgba(24,30,38,.20)"/>' + tailSvg(kind, a));
+
+    /* 다리 · 구두 */
+    s.push('<rect x="21.5" y="52.2" width="6.2" height="11" rx="3" fill="' + a.trouser + '"/>' +
+      '<rect x="28.3" y="52.2" width="6.2" height="11" rx="3" fill="' + a.trouser + '"/>' +
+      '<rect x="19.4" y="62.6" width="8.2" height="4.2" rx="2.1" fill="#2A2320"/>' +
+      '<rect x="28.4" y="62.6" width="8.2" height="4.2" rx="2.1" fill="#2A2320"/>' +
+      '<rect x="19.4" y="62.6" width="8.2" height="1.5" rx=".75" fill="#5A4E46" opacity=".6"/>' +
+      '<rect x="28.4" y="62.6" width="8.2" height="1.5" rx=".75" fill="#5A4E46" opacity=".6"/>');
+
+    /* 재킷 · 셔츠 · 라펠 */
+    s.push('<path d="M17.2 44.4c0-6.2 4.6-9.8 10.8-9.8s10.8 3.6 10.8 9.8l1.35 12.7c.16 1.5-.94 2.7-2.45 2.7H18.3c-1.51 0-2.61-1.2-2.45-2.7z" fill="' + a.suit + '"/>' +
+      '<path d="M22.4 36.4L28 47.6l5.6-11.2c-3.4-1-7.8-1-11.2 0z" fill="' + a.shirt + '"/>' +
+      '<path d="M22.2 36 28 47.8 24.6 49 19.2 39.2z" fill="' + a.suitLight + '"/>' +
+      '<path d="M33.8 36 28 47.8 31.4 49 36.8 39.2z" fill="' + a.suitLight + '"/>' +
+      '<path d="M18.6 45.4c-.2-4.6 3.4-8.4 8.2-9.2-3.6 2.2-5.6 5.4-6.2 10z" fill="#fff" opacity=".10"/>' +
+      '<path d="M32.8 45.6h4.6" stroke="#000" stroke-opacity=".16" stroke-width=".9" stroke-linecap="round"/>' +
+      '<circle cx="31.6" cy="52.4" r=".85" fill="#fff" opacity=".38"/>' +
+      '<circle cx="31.6" cy="55.6" r=".85" fill="#fff" opacity=".38"/>');
+
+    /* 넥타이 */
+    if (a.tieStyle === "bow") {
+      s.push('<path d="M23.6 40.4c1.9-1 3.3-.2 4.1 1.2.8-1.4 2.2-2.2 4.1-1.2 1.1 2 .3 4-1.7 4.6-1.1.3-1.9 0-2.4-.8-.5.8-1.3 1.1-2.4.8-2-.6-2.8-2.6-1.7-4.6z" fill="' + a.tie + '"/>' +
+        '<circle cx="28" cy="42.6" r="1.6" fill="' + a.tie + '" stroke="' + a.suit + '" stroke-width=".5"/>');
     } else {
-      face += '<ellipse cx="28" cy="47.4" rx="2.6" ry="2.2" fill="#2B2118"/>';
+      s.push('<path d="M26.3 38.5h3.4l-.3 2.2-1.4 1-1.4-1z" fill="' + a.tie + '"/>' +
+        '<path d="M26.4 42.1 28 41.1l1.6 1 .95 6.7-2.55 2.7-2.55-2.7z" fill="' + a.tie + '"/>' +
+        '<path d="M28 41.1v10.4" stroke="#000" stroke-opacity=".14" stroke-width=".8"/>' +
+        '<path d="M25.9 46.6h4.2" stroke="#fff" stroke-opacity=".35" stroke-width=".9"/>');
     }
-    /* accessories */
-    var extra = "";
+
+    /* 팔 · 손 */
+    s.push('<path d="M17.4 41.2c-2.7 1.9-4 5.4-4 9.5 0 2 2.4 2.6 3.5 1 1.1-1.7 1.5-4.9 1.5-8z" fill="' + a.suit + '"/>' +
+      '<path d="M38.6 41.2c2.7 1.9 4 5.4 4 9.5 0 2-2.4 2.6-3.5 1-1.1-1.7-1.5-4.9-1.5-8z" fill="' + a.suit + '"/>' +
+      '<circle cx="15.7" cy="51.7" r="2.7" fill="' + a.fur + '"/>' +
+      '<circle cx="40.3" cy="51.7" r="2.7" fill="' + a.fur + '"/>' +
+      '<circle cx="15.7" cy="51.7" r="2.7" fill="' + a.furDark + '" opacity=".18"/>' +
+      '<circle cx="40.3" cy="51.7" r="2.7" fill="' + a.furDark + '" opacity=".18"/>');
+
+    /* 귀 · 머리 */
+    s.push(earsSvg(kind, a) +
+      '<ellipse cx="28" cy="28.2" rx="14.2" ry="13.4" fill="' + a.fur + '" stroke="rgba(38,44,54,.10)" stroke-width=".8"/>' +
+      '<ellipse cx="22.4" cy="21.4" rx="5.6" ry="3.8" fill="#fff" opacity=".16"/>');
+
+    /* 얼굴 — 주둥이 */
+    s.push('<ellipse cx="28" cy="32.9" rx="8.8" ry="6.4" fill="' + a.furLight + '"/>');
+    if (kind === "shiba") {
+      s.push('<ellipse cx="17.6" cy="31.4" rx="3.1" ry="4.2" fill="' + a.furLight + '"/>' +
+        '<ellipse cx="38.4" cy="31.4" rx="3.1" ry="4.2" fill="' + a.furLight + '"/>');
+    }
+    if (kind === "fox") {
+      s.push('<ellipse cx="18.4" cy="33.4" rx="3.4" ry="3.1" fill="' + a.furLight + '"/>' +
+        '<ellipse cx="37.6" cy="33.4" rx="3.4" ry="3.1" fill="' + a.furLight + '"/>');
+    }
+    if (kind === "squirrel") {
+      s.push('<ellipse cx="28" cy="30.4" rx="3.6" ry="2.6" fill="' + a.furLight + '" opacity=".9"/>');
+    }
+
+    /* 눈 (깜빡임) */
+    s.push('<g class="eye"><ellipse cx="22.5" cy="26.2" rx="2.85" ry="3.1" fill="#2B2118"/><circle cx="23.5" cy="25.2" r="1" fill="#fff"/></g>' +
+      '<g class="eye"><ellipse cx="33.5" cy="26.2" rx="2.85" ry="3.1" fill="#2B2118"/><circle cx="34.5" cy="25.2" r="1" fill="#fff"/></g>' +
+      '<path d="M19.4 21.5c1.5-.9 3.1-.9 4.5-.2M32.1 21.3c1.4-.7 3-.7 4.5.2" stroke="' + a.furDark + '" stroke-width=".85" stroke-linecap="round" fill="none" opacity=".5"/>');
+
+    /* 코 · 입 · 볼 */
+    s.push('<path d="M26.7 30c.4-1.2 2.2-1.2 2.6 0 .4 1-.6 1.9-1.3 1.9s-1.7-.9-1.3-1.9z" fill="#3A2A22"/>' +
+      '<path d="M28 31.9v1.4" stroke="#3A2A22" stroke-width=".85" stroke-linecap="round"/>' +
+      '<path d="M28 33.3c-.9 1.2-2.4 1.1-3-.4M28 33.3c.9 1.2 2.4 1.1 3-.4" stroke="#3A2A22" stroke-width=".85" stroke-linecap="round" fill="none"/>' +
+      '<ellipse cx="17.6" cy="31.8" rx="2.6" ry="1.6" fill="#E9817A" opacity=".38"/>' +
+      '<ellipse cx="38.4" cy="31.8" rx="2.6" ry="1.6" fill="#E9817A" opacity=".38"/>');
+    if (kind === "squirrel") {
+      s.push('<rect x="26.4" y="34.6" width="1.5" height="2.4" rx=".5" fill="#FFFDF8" stroke="#C9B49B" stroke-width=".3"/>' +
+        '<rect x="28.1" y="34.6" width="1.5" height="2.4" rx=".5" fill="#FFFDF8" stroke="#C9B49B" stroke-width=".3"/>');
+    }
+    if (kind === "fox") {
+      s.push('<path d="M28 36.2v.9" stroke="#3A2A22" stroke-width=".8" stroke-linecap="round"/>');
+    }
+
+    /* 액세서리 */
     if (id === "p0") {
-      /* 왕관 + 별 배지 — 클로드 부장 */
-      extra += '<path d="M16.5 21.5l2.2-9.4 5.1 5.2 4.2-8 4.2 8 5.1-5.2 2.2 9.4z" fill="#F2C64E" stroke="#C08F1E" stroke-width="1.1" stroke-linejoin="round"/>' +
-        '<rect x="16.2" y="21.4" width="23.6" height="3.1" rx="1.55" fill="#E3B33A" stroke="#C08F1E" stroke-width="1"/>' +
-        '<circle cx="18.7" cy="12.8" r="1" fill="#B98413"/>' +
-        '<circle cx="28" cy="10" r="1" fill="#B98413"/>' +
-        '<circle cx="37.3" cy="12.8" r="1" fill="#B98413"/>' +
-        '<path d="M28 50.6l1.9 3.8 4.2.6-3 2.9.7 4.2-3.8-2-3.8 2 .7-4.2-3-2.9 4.2-.6z" fill="#FBE08C" stroke="#C9A02C" stroke-width=".9" stroke-linejoin="round"/>';
-    } else if (id === "p1") {
-      extra += '<g fill="none" stroke="#6B4A2A" stroke-width="1.5">' +
-        '<circle cx="22" cy="38" r="6.2"/>' +
-        '<circle cx="34" cy="38" r="6.2"/>' +
-        '</g><path d="M28 38h0" stroke="#6B4A2A" stroke-width="1.4"/>';
-    } else if (id === "p2") {
-      extra += '<path d="M11 35a17 17 0 0 1 34 0" fill="none" stroke="#3F6079" stroke-width="2.3" stroke-linecap="round"/>' +
-        '<rect x="7.6" y="32" width="5.6" height="9.5" rx="2.8" fill="#3F6079"/>' +
-        '<rect x="42.8" y="32" width="5.6" height="9.5" rx="2.8" fill="#3F6079"/>' +
-        '<path d="M45 41.5c0 3.4-3.4 5.4-6.4 5.4" fill="none" stroke="#3F6079" stroke-width="1.6" stroke-linecap="round"/>' +
-        '<circle cx="38" cy="47" r="1.4" fill="#3F6079"/>';
+      /* 왕관 + 골드 스타 배지 */
+      s.push('<path d="M19.4 14.2l1.3-7.3 4.3 3.5 3-4.9 3 4.9 4.3-3.5 1.3 7.3z" fill="#F2C64E" stroke="#C08F1E" stroke-width=".8" stroke-linejoin="round"/>' +
+        '<rect x="19" y="13.4" width="18" height="3.1" rx="1.55" fill="#E3B33A" stroke="#C08F1E" stroke-width=".8"/>' +
+        '<circle cx="20.7" cy="7.5" r=".95" fill="#FFF0BF"/>' +
+        '<circle cx="28" cy="5.2" r=".95" fill="#FFF0BF"/>' +
+        '<circle cx="35.3" cy="7.5" r=".95" fill="#FFF0BF"/>' +
+        '<circle cx="28" cy="15" r=".9" fill="#C08F1E"/>' +
+        '<path d="M20.6 44.9l.8 1.7 1.9.2-1.4 1.3.4 1.9-1.7-1-1.7 1 .4-1.9-1.4-1.3 1.9-.2z" fill="#FBE08C" stroke="#C9A02C" stroke-width=".5"/>');
     } else if (id === "p4") {
-      /* 전구 · 모노클 · 노트 배지 — 챗지피티 과장 */
-      extra += '<path d="M28 4.6v-3M22.2 6.8l-1.6-1.8M33.8 6.8l1.6-1.8" stroke="#E8C64B" stroke-width="1.2" stroke-linecap="round"/>' +
-        '<circle cx="28" cy="13.4" r="4.7" fill="#FFE07A" stroke="#C9A02C" stroke-width="1.1"/>' +
-        '<path d="M26.2 17.6h3.6v2.4h-3.6z" fill="#C9A02C"/>' +
-        '<circle cx="34" cy="38" r="6.3" fill="none" stroke="#0B3B2E" stroke-width="1.6"/>' +
-        '<path d="M40.2 41.6c1.5 2.6 1 5.2-1.1 6.6" fill="none" stroke="#0B3B2E" stroke-width="1.1" stroke-linecap="round"/>' +
-        '<rect x="18.8" y="52.2" width="18.4" height="11" rx="2.2" fill="#EAFBF4" stroke="#10A37F" stroke-width="1"/>' +
-        '<path d="M21.4 55.6h13.2M21.4 58.2h13.2M21.4 60.8h8.6" stroke="#10A37F" stroke-width="1" stroke-linecap="round"/>';
-    } else {
-      extra += '<path d="M11 31a17.4 12.4 0 0 1 34 0z" fill="#6E9153"/>' +
-        '<ellipse cx="28" cy="31" rx="19" ry="3.2" fill="#5A7A42"/>' +
-        '<path d="M27 19c0-3 2-4 3-6" fill="none" stroke="#5A7A42" stroke-width="1.6" stroke-linecap="round"/>' +
-        '<circle cx="30.4" cy="12.4" r="2.4" fill="#8FB26A"/>';
+      /* 모노클 · 전구 배지 · 노트 */
+      s.push('<circle cx="33.5" cy="26.2" r="5.3" fill="rgba(255,255,255,.16)" stroke="#0B3B2E" stroke-width="1.2"/>' +
+        '<path d="M38.9 27.2c1.8 1.6 2.2 4 1 6" fill="none" stroke="#0B3B2E" stroke-width=".8" stroke-linecap="round"/>' +
+        '<path d="M18.6 43.6v-2.4M17.4 42.6h2.4M17.9 41.7l1.4 1.4M19.3 41.7l-1.4 1.4" stroke="#FFE07A" stroke-width=".7" stroke-linecap="round"/>' +
+        '<circle cx="18.6" cy="42.6" r="1.7" fill="#FFE07A" stroke="#C9A02C" stroke-width=".5"/>' +
+        '<rect x="31.6" y="46.6" width="4.6" height="5.4" rx=".9" fill="#EAFBF4" stroke="#0B5B49" stroke-width=".5"/>' +
+        '<path d="M32.6 48.4h2.6M32.6 49.7h2.6M32.6 51h1.7" stroke="#10A37F" stroke-width=".5" stroke-linecap="round"/>');
+    } else if (id === "p1") {
+      /* 금색 라펠 핀 */
+      s.push('<path d="M20.2 44.2v-2.2M19.1 43.2h2.2" stroke="#E9C46A" stroke-width=".7" stroke-linecap="round"/>' +
+        '<circle cx="20.2" cy="43.2" r="1.1" fill="#E9C46A" stroke="#B8862F" stroke-width=".4"/>');
+    } else if (id === "p3") {
+      /* 도토리 배지 */
+      s.push('<path d="M18.2 42.2c0-1.4 1.2-2.4 2.5-2.4s2.5 1 2.5 2.4z" fill="#8A5A32"/>' +
+        '<path d="M18.6 42.4h4.2c.4 1.6-.6 3.2-2.1 3.2s-2.5-1.6-2.1-3.2z" fill="#C98D4F"/>');
     }
-    return '' +
-      '<svg class="sprite" viewBox="0 0 56 72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
-      '<ellipse cx="28" cy="68" rx="15" ry="3.2" fill="rgba(0,0,0,.32)"/>' +
-      '<ellipse cx="7.5" cy="46" rx="4" ry="6" fill="' + p.dark + '"/>' +
-      '<ellipse cx="48.5" cy="46" rx="4" ry="6" fill="' + p.dark + '"/>' +
-      '<ellipse cx="28" cy="44" rx="20" ry="24" fill="' + p.dark + '"/>' +
-      '<ellipse cx="28" cy="42.4" rx="18.6" ry="22.4" fill="' + p.body + '"/>' +
-      '<ellipse cx="21" cy="32" rx="6" ry="9" fill="#fff" opacity=".2"/>' +
-      '<circle cx="13.5" cy="53" r="1.7" fill="' + p.dark + '" opacity=".55"/>' +
-      '<circle cx="42.5" cy="55" r="1.5" fill="' + p.dark + '" opacity=".5"/>' +
-      '<circle cx="19" cy="59" r="1.2" fill="' + p.dark + '" opacity=".45"/>' +
-      face + extra +
-      '</svg>';
+
+    return '<svg class="sprite" viewBox="0 0 56 72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
+      s.join("") + '</svg>';
   }
 
   /* ------------------------------------------------------------
@@ -1158,12 +1270,20 @@
   }
 
   /* ------------------------------------------------------------
-     수익화 5대 트랙
+     수익화 8대 트랙 · 정장 입은 동물 캐릭터
      ------------------------------------------------------------ */
   function won(n) {
     if (!n) return "0원";
     if (n >= 10000) return (n / 10000).toLocaleString() + "만원";
     return n.toLocaleString() + "원";
+  }
+  function shortRange(r) {
+    if (!r) return "—";
+    if (r.min === r.max) return won(r.max);
+    if (r.min >= 10000 && r.max >= 10000) {
+      return (r.min / 10000).toLocaleString() + "~" + (r.max / 10000).toLocaleString() + "만원";
+    }
+    return won(r.min) + "~" + won(r.max);
   }
   function rangeText(r) {
     if (!r) return "—";
@@ -1257,9 +1377,9 @@
     var summary = $("#moneySummary");
     if (summary) {
       summary.innerHTML =
-        '<div class="ms-main"><span>5대 트랙 예상 월 수익 (추정)</span><b>' + esc(won(sum("monthly", "min")) + " ~ " + won(sum("monthly", "max"))) + '</b>' +
+        '<div class="ms-main"><span>' + tracks.length + '대 트랙 예상 월 수익 (추정)</span><b>' + esc(won(sum("monthly", "min")) + " ~ " + won(sum("monthly", "max"))) + '</b>' +
         '<small>실적 ' + esc(won(tracks.reduce(function (a, t) { return a + (t.actual || 0); }, 0))) + ' · 검증 전 범위</small></div>' +
-        '<div class="ms-item"><span>초기 자본</span><b>' + esc(won(sum("capital", "min")) + "~" + won(sum("capital", "max"))) + '</b></div>' +
+        '<div class="ms-item"><span>초기 자본</span><b>' + esc(shortRange({ min: sum("capital", "min"), max: sum("capital", "max") })) + '</b></div>' +
         '<div class="ms-item"><span>가동 트랙</span><b>' + running + ' / ' + tracks.length + '</b></div>' +
         '<div class="ms-item"><span>주간 체크</span><b>' + done + ' / ' + checks.length + '</b></div>' +
         '<div class="ms-item warn"><span>결정 대기</span><b>' + pend + '건</b></div>';
