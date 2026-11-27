@@ -1493,7 +1493,7 @@ html[data-theme="dark"] .relay-node.is-now {
   align-items: center;
   justify-content: center;
   gap: 2px;
-  padding: 7px 5px 6px;
+  padding: 7px 4px 6px;
   border-radius: 11px;
   background: var(--bg-2);
   border: 1px solid var(--line);
@@ -1501,19 +1501,25 @@ html[data-theme="dark"] .relay-node.is-now {
   text-align: center;
 }
 .chain-node .cn-name {
-  font-size: 10.5px;
+  font-size: 9.6px;
   font-weight: 800;
-  letter-spacing: -0.1px;
+  letter-spacing: -0.25px;
   white-space: nowrap;
 }
-.chain-node small { font-size: 8.5px; font-weight: 700; color: var(--muted); }
+.chain-node small { font-size: 8px; font-weight: 700; color: var(--muted); }
 .chain-node.captain { background: var(--accent-soft); border-color: var(--accent-line); border-top-color: var(--accent); }
 .chain-node.coral { border-top-color: #E09272; }
 .chain-node.clay { border-top-color: #E7B36B; }
 .chain-node.blue { border-top-color: #95BAD9; }
 .chain-node.sage { border-top-color: #A9C88C; }
-.chain-arrow { flex: 0 0 auto; align-self: center; font-size: 12px; font-weight: 800; color: var(--accent); }
+.chain-node.mint { border-top-color: #10A37F; }
+.chain-arrow { flex: 0 0 auto; align-self: center; font-size: 10px; font-weight: 800; color: var(--accent); }
 
 /* 부대장 클로드는 맵에서 가장 앞에 */
 .agent.p0 { z-index: 6; }
 .agent.p0 .agent-tag { font-size: 7.6px; padding: 1px 4px; letter-spacing: -0.2px; }
+
+/* 참모 GPT — 에메랄드 톤 */
+.agent.p4 { z-index: 4; }
+.agent.p4 .agent-tag { font-size: 8px; padding: 1px 4px; background: rgba(6, 60, 46, .82); }
+.cc-state.read { background: rgba(16, 163, 127, .12); color: #0A7A5F; border-color: #9FDCC9; }

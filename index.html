@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>대장님 AI 오피스</title>
 <meta name="theme-color" content="#FAF5EC">
-<meta name="description" content="대장님 전용 AI 오피스 — 부대장 클로드·1호·2호·3호가 움직이는 본부 맵, 회의실, 대시보드, 캘린더, AI한도, 응모/당첨">
+<meta name="description" content="대장님 전용 AI 오피스 — 부대장 클로드·참모 GPT·1호·2호·3호가 움직이는 본부 맵, 회의실, 대시보드, 캘린더, AI한도, 응모/당첨">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="대장님 AI 오피스">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -103,10 +103,10 @@
 
       <div class="status-chips">
         <span class="chip chip-green"><span class="live-dot" aria-hidden="true"></span>3개 방 가동</span>
-        <span class="chip" id="onCount">👥 4명 ON</span>
+        <span class="chip" id="onCount">👥 5명 ON</span>
         <span class="chip" id="clockChip">🕘 --:--</span>
       </div>
-      <p class="map-roster" id="mapRoster">부대장 클로드 · 1호 기획실장 · 2호 크리 부장 · 3호 합류대기</p>
+      <p class="map-roster" id="mapRoster">부대장 클로드 · 참모 GPT · 1호 기획실장 · 2호 크리 부장 · 3호 합류대기</p>
 
       <div class="stage-wrap">
         <div class="office-stage style-basic" id="officeStage" aria-label="대장님 AI 오피스 맵">
@@ -140,20 +140,20 @@
       <h3 class="sec-title">지금 본부에서는</h3>
       <div class="room-cards" id="roomCards"></div>
 
-      <p class="foot-note">방 3개 · 봇 <span id="botCount">4</span>명 · 오늘 처리 <strong id="todayCount">–</strong>건 · 데이터는 이 기기에 저장됩니다</p>
+      <p class="foot-note">방 3개 · 봇 <span id="botCount">5</span>명 · 오늘 처리 <strong id="todayCount">–</strong>건 · 데이터는 이 기기에 저장됩니다</p>
     </section>
 
     <!-- ================= 회의실 ================= -->
     <section class="view" id="view-meeting" data-view="meeting" role="tabpanel" aria-labelledby="tab-meeting" hidden>
       <div class="sec-head">
         <h2>💬 회의실</h2>
-        <p>부대장 클로드가 총괄 검토하고 1·2·3호가 같은 판을 보고 움직입니다.</p>
+        <p>부대장 클로드가 총괄 검토하고, 참모 GPT가 교차 검증으로 덧붙이며 1·2·3호가 같은 판을 보고 움직입니다.</p>
       </div>
 
       <div class="card chain-card">
         <div class="card-head">
           <h3>지휘 체계</h3>
-          <span class="muted-sm">대장님 &gt; 부대장 &gt; 1호 &gt; 2호 &gt; 3호</span>
+          <span class="muted-sm">대장님 &gt; 부대장 &gt; 1호 &gt; 2호 &gt; 3호 · 참모 GPT 교차 검증</span>
         </div>
         <div class="chain-strip" id="chainStrip" aria-label="지휘 체계"></div>
       </div>
@@ -322,7 +322,7 @@
   <footer class="app-foot">
     <span>대장님 AI 오피스 v2</span>
     <span class="dot-sep" aria-hidden="true">·</span>
-    <span>부대장 클로드 · 1호 기획실장 · 2호 크리 부장 · 3호</span>
+    <span>부대장 클로드 · 참모 GPT · 1호 기획실장 · 2호 크리 부장 · 3호</span>
   </footer>
 </div>
 

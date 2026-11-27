@@ -1,7 +1,7 @@
 {
   "name": "대장님 AI 오피스",
   "short_name": "AI 오피스",
-  "description": "대장님 전용 AI 오피스 — 부대장 클로드·1호·2호·3호가 움직이는 본부 맵과 통합 현황판",
+  "description": "대장님 전용 AI 오피스 — 부대장 클로드·참모 GPT·1호·2호·3호가 움직이는 본부 맵과 통합 현황판",
   "lang": "ko",
   "start_url": "./index.html",
   "scope": "./",

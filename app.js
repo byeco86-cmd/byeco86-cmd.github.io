@@ -68,7 +68,8 @@
     p0: { body: "#E09272", dark: "#B4603F", ink: "#4A2318" },
     p1: { body: "#E7B36B", dark: "#BE8A42", ink: "#4A3218" },
     p2: { body: "#95BAD9", dark: "#5F8BB0", ink: "#24384A" },
-    p3: { body: "#A9C88C", dark: "#7C9E5C", ink: "#33421F" }
+    p3: { body: "#A9C88C", dark: "#7C9E5C", ink: "#33421F" },
+    p4: { body: "#10A37F", dark: "#0A7A5F", ink: "#0B3B2E" }
   };
 
   function spriteSvg(id) {
@@ -89,6 +90,8 @@
       face += '<path d="M23 47q5 4 10 0" fill="none" stroke="#2B2118" stroke-width="1.7" stroke-linecap="round"/>';
     } else if (id === "p2") {
       face += '<path d="M23 44v6h6v-6M23 47h6" fill="none" stroke="#2B2118" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>';
+    } else if (id === "p4") {
+      face += '<path d="M23.4 45.4q4.6 3.8 9.2 0" fill="none" stroke="#2B2118" stroke-width="1.7" stroke-linecap="round"/>';
     } else {
       face += '<ellipse cx="28" cy="47.4" rx="2.6" ry="2.2" fill="#2B2118"/>';
     }
@@ -113,6 +116,15 @@
         '<rect x="42.8" y="32" width="5.6" height="9.5" rx="2.8" fill="#3F6079"/>' +
         '<path d="M45 41.5c0 3.4-3.4 5.4-6.4 5.4" fill="none" stroke="#3F6079" stroke-width="1.6" stroke-linecap="round"/>' +
         '<circle cx="38" cy="47" r="1.4" fill="#3F6079"/>';
+    } else if (id === "p4") {
+      /* 전구 · 모노클 · 노트 배지 — 참모 GPT */
+      extra += '<path d="M28 4.6v-3M22.2 6.8l-1.6-1.8M33.8 6.8l1.6-1.8" stroke="#E8C64B" stroke-width="1.2" stroke-linecap="round"/>' +
+        '<circle cx="28" cy="13.4" r="4.7" fill="#FFE07A" stroke="#C9A02C" stroke-width="1.1"/>' +
+        '<path d="M26.2 17.6h3.6v2.4h-3.6z" fill="#C9A02C"/>' +
+        '<circle cx="34" cy="38" r="6.3" fill="none" stroke="#0B3B2E" stroke-width="1.6"/>' +
+        '<path d="M40.2 41.6c1.5 2.6 1 5.2-1.1 6.6" fill="none" stroke="#0B3B2E" stroke-width="1.1" stroke-linecap="round"/>' +
+        '<rect x="18.8" y="52.2" width="18.4" height="11" rx="2.2" fill="#EAFBF4" stroke="#10A37F" stroke-width="1"/>' +
+        '<path d="M21.4 55.6h13.2M21.4 58.2h13.2M21.4 60.8h8.6" stroke="#10A37F" stroke-width="1" stroke-linecap="round"/>';
     } else {
       extra += '<path d="M11 31a17.4 12.4 0 0 1 34 0z" fill="#6E9153"/>' +
         '<ellipse cx="28" cy="31" rx="19" ry="3.2" fill="#5A7A42"/>' +
@@ -315,7 +327,7 @@
     }).join("");
   }
 
-  var WHO = { p0: "부대장 클로드", p1: "1호", p2: "2호 크리", p3: "3호", captain: "대장님" };
+  var WHO = { p0: "부대장 클로드", p1: "1호", p2: "2호 크리", p3: "3호", p4: "참모 GPT", captain: "대장님" };
 
   function renderLogs() {
     var box = $("#logList");
@@ -505,7 +517,7 @@
         '<div class="cc-body">' +
         '<div class="cc-top"><span class="cc-name">' + esc(team.name) + '</span>' +
         '<span class="cc-role">' + esc(team.role) + '</span>' +
-        '<span class="cc-state ' + (c.tone === "amber" ? "amber" : "") + '">' + esc(c.state) + '</span></div>' +
+        '<span class="cc-state ' + (c.tone === "amber" ? "amber" : c.tone === "read" ? "read" : "") + '">' + esc(c.state) + '</span></div>' +
         '<div class="cc-note">' + esc(c.note) + '</div>' +
         '<div class="cc-today">오늘 처리 <strong>' + esc(c.today) + '</strong></div>' +
         '</div></div>';
@@ -657,15 +669,17 @@
     p0: ["grand", "command", "lounge", "corridor"],
     p1: ["grand", "command", "corridor", "grand"],
     p2: ["command", "lounge", "corridor", "command"],
-    p3: ["command", "grand", "corridor"]
+    p3: ["command", "grand", "corridor"],
+    p4: ["grand", "command", "lounge", "corridor"]
   };
   var LINES = {
-    p0: ["📋 총괄 검토", "⚡ 브리핑 조율", "🔗 GitHub 동기화", "📋 총괄 검토 완료", "⚡ 4명 체제 정렬"],
+    p0: ["📋 총괄 검토", "⚡ 브리핑 조율", "🔗 GitHub 동기화", "📋 총괄 검토 완료", "⚡ 5명 체제 정렬"],
     p1: ["💬 브리핑 준비 완료", "💬 3호 게이트 확인 중", "⚡ 지시 정리 중", "🎯 12/1 발표 9건"],
     p2: ["🎯 페토세라 0/16!", "💬 0원 쿠폰 6종", "⚡ 응모 10건 완료", "🎯 미달 26건 추렸어요", "☕ 잠깐 충전 중"],
-    p3: ["💬 검증 게이트 세팅", "⚡ 실행 승인 대기", "🎯 중복 0건 확인"]
+    p3: ["💬 검증 게이트 세팅", "⚡ 실행 승인 대기", "🎯 중복 0건 확인"],
+    p4: ["💡 아이디어 제안", "🔍 교차 검증", "💬 전략 조언"]
   };
-  var POS = { p0: [36, 52], p1: [16, 36], p2: [55, 47], p3: [71, 31] };
+  var POS = { p0: [36, 52], p1: [16, 36], p2: [55, 47], p3: [71, 31], p4: [46, 62] };
 
   function buildAgents() {
     var box = $("#agents");
