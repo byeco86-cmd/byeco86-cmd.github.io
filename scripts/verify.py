@@ -612,6 +612,11 @@ def main():
         page.click("#btnRelay")
         page.wait_for_timeout(400)
         results.append(("relay_nodes", page.locator("#sheetBody .relay-node").count()))
+        relay_txt = page.inner_text("#sheetBody .relay-chain")
+        results.append(("relay_text", relay_txt.replace("\n", " ")))
+        check("relay_4_nodes", page.locator("#sheetBody .relay-node").count() == 4, relay_txt)
+        check("relay_order_v8", all(k in relay_txt for k in ["피사장", "제미대리", "피사원", "피주임"])
+              and "연동 대기" in relay_txt and "합류 대기" not in relay_txt, relay_txt.replace("\n", " "))
         page.click("#sheetClose")
 
         # 회의실: 지휘 체계 + 팀 카드 5명
@@ -632,6 +637,11 @@ def main():
         check("team_order", team_names == ["회장님", "피사장", "클부장", "그록 차장", "지과장", "제미대리", "피주임", "피사원"], team_names)
         team_txt = page.inner_text("#teamGrid")
         check("team_gemini_rendered", "Gemini" in team_txt, team_txt[:120])
+        check("team_grok_rendered", "Grok" in team_txt, team_txt[:120])
+        check("team_juim_waiting", "연동 대기" in team_txt, team_txt[:120])
+        picker = page.eval_on_selector_all("#rolePicker button", "els => els.map(e => e.textContent.trim())")
+        results.append(("role_picker", picker))
+        check("role_picker_8", len(picker) == 8, picker)
         results.append(("team_scroll_w", page.evaluate("document.documentElement.scrollWidth")))
         check("meeting_no_hscroll", page.evaluate("document.documentElement.scrollWidth") <= 390, "")
         page.screenshot(path=str(SHOTS / "05-meeting.png"))

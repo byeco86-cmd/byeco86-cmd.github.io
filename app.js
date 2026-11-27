@@ -2179,12 +2179,13 @@
   }
 
   function openRelay() {
-    var order = ["p1", "p2", "p3"];
+    var order = ["p1", "p3", "p2", "p6"];
     var chain = order.map(function (id, i) {
       var t = data.team.filter(function (x) { return x.id === id; })[0];
       var now = id === "p2";
+      var label = now ? "이 오피스 담당" : (id === "p6" ? "연동 대기" : "가동 중");
       var out = '<div class="relay-node' + (now ? " is-now" : "") + '"><span>' + esc(t.name) + '</span>' +
-        '<small>' + (now ? "이 오피스 담당" : i === 2 ? "합류 대기" : "가동 중") + '</small></div>';
+        '<small>' + label + '</small></div>';
       if (i < order.length - 1) out += '<span class="relay-arrow">→</span>';
       return out;
     }).join("");
