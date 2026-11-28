@@ -148,7 +148,7 @@
 - **4F 회장님은 책상 뒤 실제 가죽 의자 자리** — 방문객 쪽이 아니라 대형 책상 **뒤**로 옮겨, 책상 너머로 상반신만 보이게 앉혔습니다. 하체는 그리지 않아 책상에 가립니다. 금장 스터드·메달·리본·골드 타이·황금 아우라·날카로운 눈매는 그대로입니다.
 - **업무 모션 유지** — 팔 타이핑(`typeArmL/R`), 회장님 손 키 누름(`typeHandL/R`), 고개 끄덕임(`nodWork`), 앉은 호흡·기울임(`seatWork`), 의자 굴림(`seatRoll`). `움직임 OFF`면 전부 멈춥니다.
 - **2F·3F 중앙 라운지 보완 유지** (v11): 원형 라운지 테이블·러그·스툴·화분, `floor-2f/3f.webp`·`clay-2f/3f.webp` 동일 구도.
-- **버전** — 푸터·`data.json`·`seed.js` **v12**. 검사 `seat_mark:*`·`chair_rank:*`·`suit_lapel:*`를 없애고 `no_fake_chair`·`back_pose:*`·`back_mark:*`·`back_face_turn:*`·`look_left_*`를 새로 넣었습니다.
+- **버전** — 푸터·`data.json`·`seed.js` **v12**. 기존 `seat_mark:*`·`chair_rank:*`·`suit_lapel:*` 검사를 없애고 `no_fake_chair`·`back_pose:*`·`back_mark:*`·`back_face_turn:*`·`look_left_*`를 새로 넣었습니다.
 - 검증: `python3 scripts/verify.py` → **257/257 통과 · 콘솔 에러 0건**.
 
 <!-- legacy-titles:start -->
