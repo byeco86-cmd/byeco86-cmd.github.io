@@ -952,10 +952,10 @@ html[data-theme="dark"] .fp-duties span { background: rgba(227, 167, 100, .14); 
 .floor .agent.is-hidden { opacity: 0; transform: scale(.6) translateY(8px); }
 /* 전체 보기 카드는 낮아서 앉은 캐릭터 머리가 잘리므로 층별로 조금 내립니다 (확대 보기에는 적용 안 함) */
 .floor { --seat-drop: 0px; }
-.floor[data-floor="4"] { --seat-drop: 2px; }
-.floor[data-floor="3"] { --seat-drop: 3px; }
-.floor[data-floor="2"] { --seat-drop: 2px; }
-.floor[data-floor="1"] { --seat-drop: 4px; }
+.floor[data-floor="4"] { --seat-drop: 3px; }
+.floor[data-floor="3"] { --seat-drop: 8px; }
+.floor[data-floor="2"] { --seat-drop: 5px; }
+.floor[data-floor="1"] { --seat-drop: 6px; }
 .floor:not(.is-focus) .agent { translate: 0 var(--seat-drop); }
 .agent.p2 { z-index: 4; }
 .agent.p4 { z-index: 4; }
