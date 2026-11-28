@@ -352,33 +352,28 @@ def main():
         p5_svg = page.eval_on_selector('.agent[data-agent="p5"] svg.sprite', "el => el.outerHTML") or ""
         check("suit_p5_silver", "#D2DCE6" in p5_svg and "M25.7 46.8 30.3 47.2" in p5_svg, "실버 타이바·핀")
 
-        # ---- 직급별 책상·의자 ----
-        desk_ids = page.eval_on_selector_all(".desk-unit", "els => els.map(e => e.getAttribute('data-desk'))")
-        results.append(("desk_ids", desk_ids))
-        check("desks_9", len(desk_ids) == 9 and sorted(desk_ids) == ["captain", "p0", "p1", "p2", "p3", "p4", "p5", "p6", "p7"], desk_ids)
-        per_floor = page.evaluate("() => { const out = {}; document.querySelectorAll('.floor').forEach(f => { out[f.getAttribute('data-floor')] = f.querySelectorAll('.desk-unit').length; }); return out; }")
-        results.append(("desks_per_floor", per_floor))
-        check("desks_per_floor", per_floor == {"4": 2, "3": 2, "2": 2, "1": 3}, per_floor)
-        cap_desk = page.eval_on_selector('.desk-unit[data-desk="captain"] svg', "el => el.outerHTML") or ""
-        check("desk_chairman_mark", "CHAIRMAN" in cap_desk and "#D9B44A" in cap_desk and "#4E1418" in cap_desk,
-              "회장님 골드 명패·골드 트리밍·가죽 의자")
-        p7_desk = page.eval_on_selector('.desk-unit[data-desk="p7"] svg', "el => el.outerHTML") or ""
-        check("desk_intern_mark", "인턴" in p7_desk, "인턴 미니 데스크 명패")
-        plates = page.eval_on_selector_all(".desk-unit svg text", "els => els.map(e => e.textContent)")
-        results.append(("desk_plates", plates))
-        check("desk_plates_9", len(plates) == 9 and "CHAIRMAN" in plates and "인턴" in plates, plates)
-        widths = page.evaluate("() => { const out = {}; document.querySelectorAll('.desk-unit').forEach(e => { out[e.getAttribute('data-desk')] = Math.round(e.getBoundingClientRect().width); }); return out; }")
-        results.append(("desk_widths", widths))
-        order = ["captain", "p1", "p0", "p5", "p4", "p3", "p6", "p2", "p7"]
-        wv = [widths[k] for k in order if k in widths]
-        check("desk_luxury_order", len(wv) == 9 and all(wv[i] > wv[i + 1] for i in range(len(wv) - 1)), list(zip(order, wv)))
-        zinfo = page.evaluate("() => ({ desks: getComputedStyle(document.querySelector('.floor-desks')).zIndex, agents: getComputedStyle(document.querySelector('.floor-agents')).zIndex, pointer: getComputedStyle(document.querySelector('.floor-desks')).pointerEvents })")
-        results.append(("desk_z", zinfo))
-        check("desk_behind_agents", int(zinfo["desks"]) < int(zinfo["agents"]) and zinfo["pointer"] == "none", zinfo)
-        stacked = page.evaluate("() => { const a = document.querySelector('.agent'); const d = document.querySelector('.floor-desks'); const g = document.querySelector('.floor-agents'); return {agentZ: getComputedStyle(a).zIndex, layerZ: getComputedStyle(g).zIndex, deskZ: getComputedStyle(d).zIndex, deskParent: d.parentElement.getAttribute('data-floor'), agentParent: a.closest('.floor').getAttribute('data-floor')}; }")
-        results.append(("stacked", stacked))
-        check("agent_above_desk_layer", stacked["deskZ"] < stacked["layerZ"] and stacked["deskParent"] == stacked["agentParent"], stacked)
-
+        # ---- 3D 배경 통합 책상 (플랫 SVG 책상 제거 확인 + 배경 이미지 확인) ----
+        check("no_flat_desk_units", page.locator(".desk-unit").count() == 0, page.locator(".desk-unit").count())
+        desk_css = page.evaluate("() => { const out = {}; document.querySelectorAll('.floor').forEach(f => { const bg = getComputedStyle(f.querySelector('.floor-scene')).backgroundImage; out[f.getAttribute('data-floor')] = bg; }); return out; }")
+        results.append(("floor_bg", desk_css))
+        check("floor_bg_images", all("floor-" in v for v in desk_css.values()), desk_css)
+        import os as _os
+        for fn in ["floor-4f.webp", "floor-3f.webp", "floor-2f.webp", "floor-1f.webp",
+                   "clay-4f.webp", "clay-3f.webp", "clay-2f.webp", "clay-1f.webp"]:
+            fp = ROOT / fn
+            check(f"img_size:{fn}", fp.exists() and fp.stat().st_size > 60000, fp.stat().st_size if fp.exists() else "missing")
+        # 1F 세 자리 좌우 간격 (겹치지 않게)
+        pos1 = page.evaluate("""() => {
+          const o = {};
+          document.querySelectorAll('.floor[data-floor="1"] .agent').forEach(a => {
+            const f = a.closest('.floor').getBoundingClientRect(); const r = a.getBoundingClientRect();
+            o[a.getAttribute('data-agent')] = { x: Math.round((r.left + r.width/2 - f.left) / f.width * 100), w: Math.round(r.width) };
+          });
+          return o;
+        }""")
+        results.append(("floor1_spacing", pos1))
+        xs = sorted([v["x"] for v in pos1.values()])
+        check("floor1_wide_spacing", len(xs) == 3 and (xs[1] - xs[0]) >= 15 and (xs[2] - xs[1]) >= 12, xs)
         p4_box = page.eval_on_selector(
             '.agent[data-agent="p4"] svg.sprite',
             "el => { const r = el.getBoundingClientRect(); return {w: Math.round(r.width), h: Math.round(r.height), x: Math.round(r.x), y: Math.round(r.y)}; }")

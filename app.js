@@ -581,322 +581,6 @@
       s.join("") + '</g></svg>';
   }
 
-/* ---- 자리 책상·의자 (아이소메트릭) v3 ---- */
-var DESK_CFG = {
-  captain: {
-    w: 112, d: 44, h: 28, F: [87.8, 126], style: "exec", cssw: 145,
-    top: "#2C1E18", topHi: "#4A332A", edge: "#D9B44A", edge2: "#8A6A22",
-    face: "#241811", faceDark: "#170F0A", faceHi: "#39281F", trim: "#D9B44A",
-    chair: "president", chBack: "#4E1418", chBack2: "#2E0B0D", chSeat: "#5C1A1E", chFrame: "#D0A64A",
-    items: ["lamp", "dual-l", "tray", "blotter"],
-    plate: "CHAIRMAN", plateGold: true
-  },
-  p1: {
-    w: 100, d: 40, h: 26, F: [84.0, 126], style: "exec", cssw: 130,
-    top: "#5E3C23", topHi: "#825736", edge: "#C9A24C", edge2: "#8A6A22",
-    face: "#3E2717", faceDark: "#2A1B10", faceHi: "#523420", trim: "#C9A24C",
-    chair: "exec", chBack: "#3E2C24", chBack2: "#261913", chSeat: "#4E382C", chFrame: "#9A9288",
-    items: ["laptop", "monitor", "cup"],
-    plate: "사장", plateGold: true
-  },
-  p0: {
-    w: 96, d: 38, h: 24, F: [82.1, 126], style: "modern", cssw: 124,
-    top: "#3E3E45", topHi: "#5A5A63", edge: "#AEB4BA", edge2: "#5A6068",
-    face: "#2A2A30", faceDark: "#1D1D22", faceHi: "#3A3A41", trim: "#AEB4BA",
-    chair: "mesh", chBack: "#23272D", chBack2: "#15181C", chSeat: "#2B3037", chFrame: "#7E868E",
-    items: ["dual", "keyboard", "cup"],
-    plate: "부장"
-  },
-  p5: {
-    w: 92, d: 37, h: 23, F: [81.2, 126], style: "modern", cssw: 120,
-    top: "#363B41", topHi: "#4E555E", edge: "#8C949C", edge2: "#525A64",
-    face: "#262A30", faceDark: "#1A1E23", faceHi: "#31363C", trim: "#8C949C",
-    chair: "mesh", chBack: "#1F2329", chBack2: "#131619", chSeat: "#272C32", chFrame: "#6E7881",
-    items: ["dual-s", "keyboard", "paper"],
-    plate: "차장"
-  },
-  p4: {
-    w: 90, d: 36, h: 22, F: [80.2, 126], style: "modern", cssw: 116,
-    top: "#CBA87B", topHi: "#E6C9A4", edge: "#8A6A42", edge2: "#B08A5C",
-    face: "#A08054", faceDark: "#7E6240", faceHi: "#B4906A", trim: "#B08A5C",
-    chair: "std", chBack: "#414A55", chBack2: "#2C333A", chSeat: "#4D5762", chFrame: "#95A0AA",
-    items: ["monitor", "keyboard", "paper", "cup"],
-    plate: "과장"
-  },
-  p3: {
-    w: 86, d: 34, h: 21, F: [78.3, 126], style: "modern", cssw: 114,
-    top: "#E8E4DC", topHi: "#FAF7F1", edge: "#B9B2A4", edge2: "#CFC9BC",
-    face: "#DAD5CA", faceDark: "#BFB9AC", faceHi: "#E8E4DA", trim: "#CFC9BC",
-    chair: "std", chBack: "#5A6A78", chBack2: "#3E4A55", chSeat: "#68798A", chFrame: "#9AA4AE",
-    items: ["monitor", "keyboard", "paper"],
-    plate: "대리"
-  },
-  p6: {
-    w: 88, d: 35, h: 21, F: [79.2, 126], style: "modern", cssw: 112,
-    top: "#949BA3", topHi: "#B2B8BF", edge: "#6E767E", edge2: "#848C94",
-    face: "#7E858D", faceDark: "#666C74", faceHi: "#8E959D", trim: "#848C94",
-    chair: "task", chBack: "#2E3C50", chBack2: "#1F2B3B", chSeat: "#36465C", chFrame: "#8794A0",
-    items: ["monitor", "keyboard", "trayf"],
-    plate: "주임"
-  },
-  p2: {
-    w: 82, d: 32, h: 20, F: [76.4, 126], style: "modern", cssw: 106,
-    top: "#7FABD3", topHi: "#A3C8E7", edge: "#5E86AE", edge2: "#7A9CC0",
-    face: "#7193B7", faceDark: "#5A7898", faceHi: "#82A2C6", trim: "#7A9CC0",
-    chair: "task", chBack: "#303F53", chBack2: "#212D3B", chSeat: "#3A4B60", chFrame: "#84909C",
-    items: ["monitor", "keyboard"],
-    plate: "사원"
-  },
-  p7: {
-    w: 74, d: 29, h: 18, F: [73.5, 126], style: "modern", cssw: 98,
-    top: "#B7BDC5", topHi: "#D2D7DD", edge: "#8C939C", edge2: "#A6ADB6",
-    face: "#ABB1B9", faceDark: "#8A9098", faceHi: "#B9BFC7", trim: "#A6ADB6",
-    chair: "stool", chBack: "#4C5868", chBack2: "#38424F", chSeat: "#5C6A7A", chFrame: "#96A0AA",
-    items: ["tablet", "notebook"],
-    plate: "인턴"
-  }
-};
-
-function dkNum(v) { return (Math.round(v * 10) / 10).toFixed(1); }
-
-function deskSvg(id) {
-  var c = DESK_CFG[id] || DESK_CFG.p2;
-  var W = c.w, D = c.d, H = c.h, F = c.F;
-  var solid = c.style === "exec";
-  var slab = solid ? 5.6 : 3.4;
-  var CU = 0.95, CV = 0.36;
-
-  function P(u, v, z) {
-    return [F[0] + (u - v) * CU, F[1] - (u + v) * CV - (z || 0)];
-  }
-  function n(p) { return dkNum(p[0]) + "," + dkNum(p[1]); }
-  function poly(list, fill, extra) {
-    return '<polygon points="' + list.map(n).join(" ") + '" fill="' + fill + '"' + (extra ? " " + extra : "") + '/>';
-  }
-  var s = [];
-
-  /* 바닥 그림자 */
-  var cen = P(W * 0.42, D * 0.55, 0);
-  s.push('<ellipse cx="' + dkNum(cen[0]) + '" cy="' + dkNum(cen[1] + 1.4) + '" rx="' + dkNum(W * 0.54) +
-    '" ry="' + dkNum((W + D) * 0.105) + '" fill="rgba(26,32,40,.17)"/>');
-
-  var tF = P(0, 0, H), tE = P(W, 0, H), tN = P(W, D, H), tW = P(0, D, H);
-
-  /* ---- 다리 ---- */
-  var legW = solid ? 4.2 : 2.6;
-  [[1.2, D * 0.18], [W - legW - 1.2, D * 0.18], [W - legW - 1.2, D - 5], [1.2, D - 5]].forEach(function (l) {
-    var a = P(l[0], l[1], 0), b = P(l[0] + legW, l[1], 0), t = P(l[0] + legW, l[1], H - slab);
-    s.push('<path d="M' + n(a) + ' L' + n(b) + ' L' + n(t) + ' L' + n(P(l[0], l[1], H - slab)) + ' Z" fill="' + c.faceDark + '"/>');
-    s.push('<rect x="' + dkNum(a[0]) + '" y="' + dkNum(t[1]) + '" width="' + legW + '" height="' + dkNum(a[1] - t[1]) + '" fill="' + c.faceDark + '"/>');
-  });
-
-  /* ---- 무릎 공간 뒤 가림판 (모뎀시 패널) ---- */
-  var mp = D * 0.62;
-  s.push(poly([P(5, mp, H - slab), P(W - 5, mp, H - slab), P(W - 5, mp, 7), P(5, mp, 7)], c.faceDark, 'opacity=".92"'));
-  s.push(poly([P(5, mp, H - slab - 0.6), P(W - 5, mp, H - slab - 0.6), P(W - 5, mp, H - slab - 2.6), P(5, mp, H - slab - 2.6)], "#000", 'opacity=".18"'));
-
-  /* ---- 서랍 페데스탈 (오른쪽) ---- */
-  var du0 = W * 0.56, du1 = W - 2.4, dv0 = 2.4, dv1 = D * 0.60, dz1 = H - slab - 0.4, dz0 = 1.2;
-  var dr = c.chair === "president" || c.chair === "exec";
-  s.push(poly([P(du0, dv0, dz1), P(du1, dv0, dz1), P(du1, dv0, dz0), P(du0, dv0, dz0)], c.face));
-  s.push(poly([P(du1, dv0, dz1), P(du1, dv1, dz1), P(du1, dv1, dz0), P(du1, dv0, dz0)], c.faceDark));
-  s.push(poly([P(du0, dv0, dz1), P(du1, dv0, dz1), P(du1, dv1, dz1), P(du0, dv1, dz1)], c.faceHi));
-  for (var i = 0; i < 3; i++) {
-    var z1 = dz1 - 2.2 - i * 6.2, z0 = z1 - 5.2;
-    s.push(poly([P(du0 + 1.6, dv0, z1), P(du1 - 1.6, dv0, z1), P(du1 - 1.6, dv0, z0), P(du0 + 1.6, dv0, z0)], c.faceHi, 'stroke="' + c.faceDark + '" stroke-width=".5"'));
-    s.push('<path d="M' + n(P(du0 + 4.2, dv0, (z0 + z1) / 2)) + ' L' + n(P(du1 - 4.2, dv0, (z0 + z1) / 2)) +
-      '" stroke="' + c.trim + '" stroke-width="1.1" stroke-linecap="round" opacity=".8"/>');
-  }
-
-  /* ---- 상판 ---- */
-  s.push(poly([tF, tE, P(W, 0, H - slab), P(0, 0, H - slab)], c.faceHi));
-  s.push(poly([tF, tW, P(0, D, H - slab), P(0, 0, H - slab)], c.topHi));
-  s.push(poly([tF, tE, P(W, 0, H - slab), P(0, 0, H - slab)], "#000", 'opacity=".10"'));
-  s.push(poly([tF, tE, tN, tW], c.top));
-  /* 상판 광택 */
-  s.push(poly([tF, P(W * 0.62, 0, H), P(W * 0.44, D * 0.34, H), P(W * 0.08, D * 0.34, H)], c.topHi, 'opacity=".26"'));
-  s.push(poly([P(0, D, H), P(W * 0.30, D * 0.92, H), P(W * 0.30, D, H)], "#000", 'opacity=".10"'));
-  /* 테두리 인레이 */
-  s.push('<path d="M' + n(tF) + ' L' + n(tE) + ' L' + n(tN) + ' L' + n(tW) + ' Z" fill="none" stroke="' + c.edge +
-    '" stroke-width="1.15" stroke-linejoin="round" opacity=".95"/>');
-  s.push('<path d="M' + n(P(W * 0.02, D * 0.02, H + .1)) + ' L' + n(P(W * 0.98, D * 0.02, H + .1)) + ' L' +
-    n(P(W * 0.98, D * 0.98, H + .1)) + ' L' + n(P(W * 0.02, D * 0.98, H + .1)) + ' Z" fill="none" stroke="' + c.edge2 +
-    '" stroke-width="2.4" stroke-linejoin="round" opacity=".16"/>');
-
-  /* ---- 소품 ---- */
-  var items = c.items || [];
-  if (items.indexOf("blotter") >= 0) {
-    var q = [P(W * 0.08, D * 0.26, H + .2), P(W * 0.34, D * 0.26, H + .2), P(W * 0.34, D * 0.72, H + .2), P(W * 0.08, D * 0.72, H + .2)];
-    s.push(poly(q, "#241A14", 'stroke="#4E3A2E" stroke-width=".7"'));
-    s.push(poly(q, "none", 'stroke="' + c.edge + '" stroke-width=".5" opacity=".45"'));
-  }
-  if (items.indexOf("dual-l") >= 0) {
-    s.push(monitor(P(W * 0.24, D * 0.28, H), 26, 16, "#141A20", "#2A3A48"));
-    s.push(monitor(P(W * 0.48, D * 0.28, H), 26, 16, "#141A20", "#2A3A48"));
-  } else if (items.indexOf("dual") >= 0) {
-    s.push(monitor(P(W * 0.22, D * 0.26, H), 24, 15, "#141A20", "#2A3A48"));
-    s.push(monitor(P(W * 0.46, D * 0.26, H), 24, 15, "#141A20", "#2A3A48"));
-  } else if (items.indexOf("dual-s") >= 0) {
-    s.push(monitor(P(W * 0.24, D * 0.24, H), 21, 13, "#141A20", "#24333F"));
-    s.push(monitor(P(W * 0.47, D * 0.24, H), 21, 13, "#141A20", "#24333F"));
-  } else if (items.indexOf("monitor") >= 0) {
-    s.push(monitor(P(W * 0.32, D * 0.26, H), 24, 15, "#161C22", "#2C3C4A"));
-  }
-  if (items.indexOf("lamp") >= 0) {
-    var lp = P(W * 0.10, D * 0.22, H);
-    s.push('<ellipse cx="' + dkNum(lp[0]) + '" cy="' + dkNum(lp[1] + .8) + '" rx="6.8" ry="2.5" fill="#0E0A08" opacity=".45"/>');
-    s.push('<ellipse cx="' + dkNum(lp[0]) + '" cy="' + dkNum(lp[1]) + '" rx="4.2" ry="1.7" fill="' + c.edge + '"/>');
-    s.push('<rect x="' + dkNum(lp[0] - 1) + '" y="' + dkNum(lp[1] - 9) + '" width="2" height="9" rx="1" fill="' + c.edge + '"/>');
-    s.push('<path d="M' + dkNum(lp[0] - 1) + ' ' + dkNum(lp[1] - 9) + 'h2l5.8 -4h-13.6z" fill="' + c.edge + '"/>');
-    s.push('<ellipse cx="' + dkNum(lp[0] - 3.9) + '" cy="' + dkNum(lp[1] - 9.4) + '" rx="4.8" ry="1.9" fill="#FFEDB0"/>');
-    s.push('<ellipse cx="' + dkNum(lp[0] - 3.9) + '" cy="' + dkNum(lp[1] - 10) + '" rx="9" ry="4.2" fill="#FFD976" opacity=".24"/>');
-  }
-  if (items.indexOf("tray") >= 0) {
-    var tr = P(W * 0.70, D * 0.58, H);
-    s.push('<ellipse cx="' + dkNum(tr[0]) + '" cy="' + dkNum(tr[1]) + '" rx="8.6" ry="3.4" fill="' + c.edge + '"/>');
-    s.push('<ellipse cx="' + dkNum(tr[0]) + '" cy="' + dkNum(tr[1] - 1.2) + '" rx="6.9" ry="2.4" fill="#FFF0BF" opacity=".85"/>');
-    s.push('<rect x="' + dkNum(tr[0] - 5.4) + '" y="' + dkNum(tr[1] - 4.2) + '" width="10.8" height="1.7" rx=".85" fill="#8A6A22" transform="rotate(-10 ' + dkNum(tr[0]) + ' ' + dkNum(tr[1] - 3.3) + ')"/>');
-  }
-  if (items.indexOf("keyboard") >= 0) {
-    var k = [P(W * 0.20, D * 0.62, H + .4), P(W * 0.50, D * 0.62, H + .4), P(W * 0.50, D * 0.82, H + .4), P(W * 0.20, D * 0.82, H + .4)];
-    s.push(poly(k, "#E8ECF1", 'stroke="#9AA4AE" stroke-width=".45"'));
-    s.push(poly([P(W * 0.22, D * 0.66, H + .5), P(W * 0.48, D * 0.66, H + .5), P(W * 0.48, D * 0.78, H + .5), P(W * 0.22, D * 0.78, H + .5)], "none", 'stroke="#B6BFCA" stroke-width=".4"'));
-  }
-  if (items.indexOf("paper") >= 0) {
-    var pp = [P(W * 0.08, D * 0.56, H + .3), P(W * 0.22, D * 0.48, H + .3), P(W * 0.27, D * 0.74, H + .3), P(W * 0.13, D * 0.82, H + .3)];
-    s.push(poly(pp, "#FBFCFE", 'stroke="#C6D0DA" stroke-width=".45"'));
-    s.push('<path d="M' + n(pp[0]) + ' L' + n(pp[2]) + '" stroke="#DCE3EA" stroke-width=".35"/>');
-  }
-  if (items.indexOf("trayf") >= 0) {
-    var tt = P(W * 0.16, D * 0.44, H);
-    s.push('<rect x="' + dkNum(tt[0] - 5.4) + '" y="' + dkNum(tt[1] - 2.2) + '" width="10.8" height="3.4" rx="1.5" fill="#5A6169"/>');
-    s.push('<rect x="' + dkNum(tt[0] - 4.6) + '" y="' + dkNum(tt[1] - 4.2) + '" width="9" height="2.8" rx="1.3" fill="#767D85"/>');
-  }
-  if (items.indexOf("cup") >= 0) {
-    var cp = P(W * 0.72, D * 0.20, H);
-    s.push('<rect x="' + dkNum(cp[0] - 2.2) + '" y="' + dkNum(cp[1] - 5) + '" width="4.4" height="5" rx="1.3" fill="#F7FAFC" stroke="#C6D0DA" stroke-width=".35"/>');
-    s.push('<ellipse cx="' + dkNum(cp[0]) + '" cy="' + dkNum(cp[1] - 4.8) + '" rx="2.2" ry=".85" fill="#6B4A2F" opacity=".85"/>');
-  }
-  if (items.indexOf("laptop") >= 0) {
-    var lc = P(W * 0.18, D * 0.44, H);
-    s.push('<path d="M' + dkNum(lc[0] - 9) + ' ' + dkNum(lc[1] + 1) + 'h18l-3.6 -12h-10.8z" fill="#DDE3EA" stroke="#9AA6B2" stroke-width=".45"/>');
-    s.push('<rect x="' + dkNum(lc[0] - 7.6) + '" y="' + dkNum(lc[1] - 10.2) + '" width="15.2" height="9" rx=".9" fill="#2A3540"/>');
-  }
-  if (items.indexOf("tablet") >= 0) {
-    var tb = P(W * 0.18, D * 0.48, H);
-    s.push('<rect x="' + dkNum(tb[0] - 7) + '" y="' + dkNum(tb[1] - 2.6) + '" width="14" height="9" rx="1.3" fill="#EAF0F6" stroke="#A8B2BC" stroke-width=".45" transform="rotate(-13 ' + dkNum(tb[0]) + ' ' + dkNum(tb[1]) + ')"/>');
-  }
-  if (items.indexOf("notebook") >= 0) {
-    var nb = P(W * 0.58, D * 0.68, H);
-    s.push('<rect x="' + dkNum(nb[0] - 5.4) + '" y="' + dkNum(nb[1] - 3.6) + '" width="11.6" height="7.2" rx="1" fill="#F4F8FC" stroke="#B6C0CA" stroke-width=".45" transform="rotate(-10 ' + dkNum(nb[0]) + ' ' + dkNum(nb[1]) + ')"/>');
-    s.push('<rect x="' + dkNum(nb[0] - 5.4) + '" y="' + dkNum(nb[1] - 3.6) + '" width="2.8" height="7.2" rx="1" fill="#D9A93E" transform="rotate(-10 ' + dkNum(nb[0]) + ' ' + dkNum(nb[1]) + ')"/>');
-  }
-
-  /* ---- 명패 (상판 앞쪽, 캐릭터 오른편에 보이게) ---- */
-  if (c.plate) {
-    var u0 = W * 0.40, u1 = W * 0.64, pz1 = H + 8.4, pz0 = H;
-    var pa = P(u1, 0.6, pz1), pb = P(u0, 0.6, pz1), pbb = P(u0, 0.6, pz0), paa = P(u1, 0.6, pz0);
-    s.push(poly([pa, pb, pbb, paa], c.plateGold ? "#1A1410" : "#F4F6F9", 'stroke="' + (c.plateGold ? "#D4AF37" : "#9AA4AE") + '" stroke-width=".55"'));
-    var mid = P((u0 + u1) / 2, 0.6, (pz0 + pz1) / 2 + .6);
-    s.push('<text x="' + dkNum(mid[0]) + '" y="' + dkNum(mid[1]) + '" text-anchor="middle" dominant-baseline="middle" ' +
-      'font-family="Pretendard, -apple-system, sans-serif" font-size="' + (c.plateGold ? 4.6 : 4.2) + '" font-weight="800" letter-spacing=".2" fill="' +
-      (c.plateGold ? "#F2C64E" : "#39424E") + '">' + c.plate + '</text>');
-  }
-
-  /* ---- 의자 (책상 오른쪽 앞) ---- */
-  s.push(chairSvg(c, P, W * 0.84, -D * 0.14));
-
-  return '<svg class="desk" viewBox="0 0 240 132" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' + s.join("") + '</svg>';
-}
-
-/* 모니터 */
-function monitor(p, w, h, frame, glow) {
-  var x = p[0], y = p[1];
-  return '<g>' +
-    '<ellipse cx="' + dkNum(x) + '" cy="' + dkNum(y + .5) + '" rx="' + dkNum(w * .38) + '" ry="1.9" fill="#0E1216" opacity=".28"/>' +
-    '<rect x="' + dkNum(x - 1.3) + '" y="' + dkNum(y - 3.6) + '" width="2.6" height="3.8" rx="1" fill="' + frame + '"/>' +
-    '<rect x="' + dkNum(x - w / 2) + '" y="' + dkNum(y - h - 3.4) + '" width="' + w + '" height="' + h + '" rx="1.6" fill="' + frame + '"/>' +
-    '<rect x="' + dkNum(x - w / 2 + 1.3) + '" y="' + dkNum(y - h - 2.1) + '" width="' + dkNum(w - 2.6) + '" height="' + dkNum(h - 2.4) + '" rx=".9" fill="' + glow + '"/>' +
-    '<path d="M' + dkNum(x - w / 2 + 2.2) + ' ' + dkNum(y - h + .4) + 'h' + dkNum(w - 6) +
-    'M' + dkNum(x - w / 2 + 2.2) + ' ' + dkNum(y - h + 2.6) + 'h' + dkNum(w - 11) +
-    'M' + dkNum(x - w / 2 + 2.2) + ' ' + dkNum(y - h + 4.8) + 'h' + dkNum(w - 8) +
-    '" stroke="#7FD1F0" stroke-width=".45" opacity=".5"/>' +
-    '</g>';
-}
-
-/* 의자 — 책상 오른쪽에 빼 놓아 등받이가 또렷하게 보이게 */
-function chairSvg(c, P, cu, cv) {
-  var b = P(cu, cv, 0), bx = b[0], by = b[1];
-  var kind = c.chair;
-  var hb = kind === "president" ? 40 : kind === "exec" ? 33 : kind === "mesh" ? 30 : kind === "std" ? 26 : kind === "task" ? 24 : 12;
-  var bw = kind === "president" ? 19 : kind === "exec" ? 17 : kind === "mesh" ? 16 : kind === "stool" ? 14 : 15;
-  var s = [];
-  s.push('<ellipse cx="' + dkNum(bx) + '" cy="' + dkNum(by + 7) + '" rx="' + dkNum(bw * .64) + '" ry="3.6" fill="rgba(26,32,40,.18)"/>');
-  /* 등받이 — 둥근 상단 */
-  var top = by - hb, hw = bw / 2;
-  s.push('<path d="M' + dkNum(bx - hw) + ' ' + dkNum(by - 4) +
-    'C' + dkNum(bx - hw - .6) + ' ' + dkNum(top + 8) + ' ' + dkNum(bx - hw + 2) + ' ' + dkNum(top) + ' ' + dkNum(bx) + ' ' + dkNum(top) +
-    'C' + dkNum(bx + hw - 2) + ' ' + dkNum(top) + ' ' + dkNum(bx + hw + .6) + ' ' + dkNum(top + 8) + ' ' + dkNum(bx + hw) + ' ' + dkNum(by - 4) + 'Z" fill="' + c.chBack + '"/>');
-  s.push('<path d="M' + dkNum(bx - hw + 1.6) + ' ' + dkNum(by - 5.4) +
-    'C' + dkNum(bx - hw + 1.2) + ' ' + dkNum(top + 8.6) + ' ' + dkNum(bx - hw + 3.2) + ' ' + dkNum(top + 1.4) + ' ' + dkNum(bx) + ' ' + dkNum(top + 1.4) +
-    'C' + dkNum(bx + hw - 3.2) + ' ' + dkNum(top + 1.4) + ' ' + dkNum(bx + hw - 1.2) + ' ' + dkNum(top + 8.6) + ' ' + dkNum(bx + hw - 1.6) + ' ' + dkNum(by - 5.4) + 'Z" fill="' + c.chBack2 + '"/>');
-  if (kind === "president" || kind === "exec") {
-    for (var i = 0; i < 3; i++) {
-      var yy = top + 8 + i * (hb - 10) / 3;
-      s.push('<path d="M' + dkNum(bx - hw + 2.4) + ' ' + dkNum(yy) + 'h' + dkNum(bw - 4.8) + '" stroke="#000" stroke-width=".7" opacity=".22"/>');
-      s.push('<circle cx="' + dkNum(bx) + '" cy="' + dkNum(yy) + '" r=".85" fill="#000" opacity=".25"/>');
-    }
-    s.push('<path d="M' + dkNum(bx - hw + 1.4) + ' ' + dkNum(top + 2.2) + 'C' + dkNum(bx - hw + 3.6) + ' ' + dkNum(top - .6) + ' ' + dkNum(bx + hw - 3.6) + ' ' + dkNum(top - .6) + ' ' + dkNum(bx + hw - 1.4) + ' ' + dkNum(top + 2.2) + '" stroke="' + c.chFrame + '" stroke-width="1.5" stroke-linecap="round" fill="none"/>');
-  } else if (kind === "mesh") {
-    for (var j = 0; j < 4; j++) {
-      s.push('<path d="M' + dkNum(bx - hw + 2.2) + ' ' + dkNum(top + 7 + j * 5.4) + 'h' + dkNum(bw - 4.4) + '" stroke="#FFF" stroke-width=".45" opacity=".13"/>');
-    }
-    s.push('<path d="M' + dkNum(bx - hw + 1.4) + ' ' + dkNum(top + 2.2) + 'C' + dkNum(bx - hw + 3.6) + ' ' + dkNum(top - .4) + ' ' + dkNum(bx + hw - 3.6) + ' ' + dkNum(top - .4) + ' ' + dkNum(bx + hw - 1.4) + ' ' + dkNum(top + 2.2) + '" stroke="' + c.chFrame + '" stroke-width="1.1" stroke-linecap="round" fill="none" opacity=".8"/>');
-  }
-  if (kind !== "stool") {
-    /* 팔걸이 */
-    s.push('<path d="M' + dkNum(bx - hw - 3) + ' ' + dkNum(by - 12) + 'l-2.6 -1.6" stroke="' + c.chFrame + '" stroke-width="1.4" stroke-linecap="round"/>');
-    s.push('<path d="M' + dkNum(bx + hw + 3) + ' ' + dkNum(by - 12) + 'l2.6 -1.6" stroke="' + c.chFrame + '" stroke-width="1.4" stroke-linecap="round"/>');
-  }
-  /* 시트 */
-  s.push('<path d="M' + dkNum(bx - hw - 1.4) + ' ' + dkNum(by - 2) + 'C' + dkNum(bx - hw) + ' ' + dkNum(by + 4) + ' ' + dkNum(bx + hw) + ' ' + dkNum(by + 4) + ' ' + dkNum(bx + hw + 1.4) + ' ' + dkNum(by - 2) + 'Z" fill="' + c.chSeat + '"/>');
-  s.push('<path d="M' + dkNum(bx - hw - 1.4) + ' ' + dkNum(by - 2) + 'C' + dkNum(bx - hw) + ' ' + dkNum(by + 4) + ' ' + dkNum(bx + hw) + ' ' + dkNum(by + 4) + ' ' + dkNum(bx + hw + 1.4) + ' ' + dkNum(by - 2) + '" fill="none" stroke="' + c.chFrame + '" stroke-width=".5" opacity=".4"/>');
-  /* 기둥 · 5발 */
-  s.push('<rect x="' + dkNum(bx - 1.2) + '" y="' + dkNum(by + 1) + '" width="2.4" height="8" fill="' + c.chFrame + '" opacity=".9"/>');
-  [[-8, 3.2], [-2.8, 4.4], [2.8, 4.4], [8, 3.2], [0, -1.4]].forEach(function (l) {
-    s.push('<path d="M' + dkNum(bx) + ' ' + dkNum(by + 8.4) + 'L' + dkNum(bx + l[0]) + ' ' + dkNum(by + 8.4 + l[1]) +
-      '" stroke="' + c.chFrame + '" stroke-width="1.5" stroke-linecap="round"/>');
-    s.push('<circle cx="' + dkNum(bx + l[0]) + '" cy="' + dkNum(by + 9.4 + l[1]) + '" r="1.1" fill="#2A2F35"/>');
-  });
-  return s.join("");
-}
-
-  /* 자리 좌표 — 캐릭터 HOME과 같은 지점(책상 앞)에 놓습니다 */
-  var DESK_POS = {
-    captain: [56, 71], p1: [30, 76],
-    p0: [34, 76], p5: [62, 79],
-    p4: [35, 77], p3: [63, 80],
-    p6: [24, 75], p2: [48, 82], p7: [70, 76]
-  };
-
-  function buildDesks() {
-    data.team.forEach(function (t) {
-      var box = $('.floor-desks[data-floor-desks="' + t.floor + '"]');
-      if (!box) return;
-      var cfg = DESK_CFG[t.id] || DESK_CFG.p2;
-      var pos = DESK_POS[t.id] || [50, 76];
-      var el = document.createElement("div");
-      el.className = "desk-unit";
-      el.setAttribute("data-desk", t.id);
-      el.setAttribute("data-rank", t.role || "");
-      el.style.left = pos[0] + "%";
-      el.style.top = pos[1] + "%";
-      el.style.setProperty("--dw", cfg.cssw + "px");
-      el.innerHTML = deskSvg(t.id);
-      box.appendChild(el);
-    });
-  }
-
   /* ------------------------------------------------------------
      시간·날짜 헬퍼
      ------------------------------------------------------------ */
@@ -1063,7 +747,6 @@ function chairSvg(c, P, cu, cv) {
     applyMapStyle(state.mapStyle, true);
     applyMotion(state.motion, true);
     renderAll();
-    buildDesks();
     buildAgents();
     applyFloorState();
     bind();
@@ -1126,7 +809,6 @@ function chairSvg(c, P, cu, cv) {
         '<span class="fl-who">' + esc(f.members) + '</span>' +
         '<span class="fl-icon" aria-hidden="true">' + esc(f.icon || "") + '</span>' +
         '</div>' +
-        '<div class="floor-desks" data-floor-desks="' + esc(f.id) + '" aria-hidden="true"></div>' +
         '<div class="floor-agents" data-floor-agents="' + esc(f.id) + '"></div>' +
         '<span class="floor-line">' + esc(f.line || "") + '</span>' +
         floorHud(f) +
@@ -2111,12 +1793,18 @@ function chairSvg(c, P, cu, cv) {
     "2": [[38, 78], [50, 74], [60, 80], [45, 84]],
     "1": [[44, 78], [56, 74], [66, 80], [50, 84]]
   };
-  var HOME = { captain: [56, 71], p1: [30, 76], p0: [34, 76], p5: [62, 79], p4: [35, 77], p3: [63, 80], p6: [24, 75], p2: [48, 82], p7: [70, 76] };
-  /* 각자 자기 책상 곁에서만 움직이도록 캐릭터별 좌표 */
+  /* 좌표는 바닥 배경 이미지에 그려진 3D 책상·의자 위치에 맞춰 둡니다 (책상 앞·옆에 서는 구도) */
+  var HOME = {
+    captain: [69, 63], p1: [37, 74],
+    p0: [33, 68], p5: [65, 67],
+    p4: [30, 63], p3: [72, 61],
+    p6: [25, 69], p2: [46.5, 75], p7: [64, 81]
+  };
+  /* 각자 자기 책상 곁에서만 조금씩 움직이도록 캐릭터별 좌표 */
   var SPOTS = {};
   Object.keys(HOME).forEach(function (id) {
     var h = HOME[id];
-    SPOTS[id] = [[h[0], h[1]], [h[0] - 4.2, h[1] + 2.4], [h[0] + 4.4, h[1] + 1.6], [h[0] + 1.8, h[1] - 2.2]];
+    SPOTS[id] = [[h[0], h[1]], [h[0] - 3, h[1] + 1.8], [h[0] + 3, h[1] + 1.2], [h[0] + 1.2, h[1] - 1.6]];
   });
   var LINES = {
     captain: ["👑 최종 의사결정 대기", "📣 08:00 브리핑 확인", "🏛️ 4F 기획실 상주", "⚡ 릴레이 보고 수신"],
