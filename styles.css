@@ -925,27 +925,30 @@ html[data-theme="dark"] .fp-duties span { background: rgba(227, 167, 100, .14); 
 /* ---------------- 7. agents ---------------- */
 .floor-agents { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
 
+/* v16 캐릭터 크기 — 회장님(호랑이) 제외 8명을 직전 크기에서 15% 축소.
+   46px → 39.1px (×0.85) · 층 뷰 40px → 34px · 층 확대 66px → 56.1px
+   transform은 breathe/bob 애니메이션이 쓰므로 width/height/margin으로 처리합니다. */
 .agent {
   position: absolute;
-  width: 46px; height: 59px;
-  margin-left: -23px; margin-top: -59px;
+  width: 39.1px; height: 50.15px;
+  margin-left: -19.55px; margin-top: -50.15px;
   left: 20%; top: 40%;
   transition: left 3s linear, top 3s linear;
   will-change: left, top;
 }
 .floor .agent {
-  width: 40px;
-  height: 51px;
-  margin-left: -20px;
-  margin-top: -51px;
+  width: 34px;
+  height: 43.35px;
+  margin-left: -17px;
+  margin-top: -43.35px;
   transition: left 2.6s linear, top 2.6s linear, opacity .35s ease, transform .4s var(--ease-spring),
     width .5s var(--ease-out), height .5s var(--ease-out), margin .5s var(--ease-out);
 }
 .floor.is-focus .agent {
-  width: 66px;
-  height: 85px;
-  margin-left: -33px;
-  margin-top: -85px;
+  width: 56.1px;
+  height: 72.25px;
+  margin-left: -28.05px;
+  margin-top: -72.25px;
   pointer-events: auto;
   cursor: pointer;
 }
@@ -1096,12 +1099,13 @@ svg.sprite .eye { transform-box: fill-box; transform-origin: center; animation: 
 .entry-count b { font-size: 8px; font-weight: 900; letter-spacing: -.2px; }
 .entry-count i { font-style: normal; font-size: 6.5px; font-weight: 800; color: #6a7f96; }
 .floor:not(.is-focus) .entry-count { display: none; }
-.floor.is-focus .entry-count { padding: 2px 7px 3px; border-radius: 9px; }
-.floor.is-focus .entry-count b { font-size: 11.5px; }
-.floor.is-focus .entry-count i { font-size: 8.5px; }
+/* 배지는 캐릭터가 작아진 만큼 조금 납작하게 — 머리 위에서 상단 안내 바를 침범하지 않도록 */
+.floor.is-focus .entry-count { padding: 1px 6px 2px; border-radius: 8px; }
+.floor.is-focus .entry-count b { font-size: 11px; }
+.floor.is-focus .entry-count i { font-size: 8px; }
 /* 배지가 머리 위에 있으니 말풍선은 배지 위로 올린다 (겹침 방지) */
-.floor .agent.has-count .bubble { bottom: calc(100% + 20px); }
-.floor.is-focus .agent.has-count .bubble { bottom: calc(100% + 31px); }
+.floor .agent.has-count .bubble { bottom: calc(100% + 18px); }
+.floor.is-focus .agent.has-count .bubble { bottom: calc(100% + 27px); }
 /* 이름표는 6명 모두 흰 바탕·어두운 글씨로 통일 (지과장·클부장만 색이 달랐던 것 제거) */
 .agent.is-picked .agent-tag { background: #eef3fa; color: #22314a; border-color: #c9d5e6; }
 
@@ -1137,7 +1141,7 @@ svg.sprite .eye { transform-box: fill-box; transform-origin: center; animation: 
 .floor .bubble { max-width: 116px; padding: 3px 7px; font-size: 8.5px; }
 .floor.is-focus .bubble { max-width: 170px; padding: 5px 9px; font-size: 11px; border-radius: 12px; }
 .agent.talk .bubble { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
-.agent.p4 .bubble { background: #eafbf4; color: #0b3b2e; }
+.agent.p4 .bubble { background: #fbebef; color: #3d1220; }
 .agent.p0 .bubble { background: #fff1e8; }
 .agent.p5 .bubble { background: #e9f2ff; color: #172b45; }
 .agent.p6 .bubble { background: #eff6ff; color: #1b3350; }
@@ -1155,7 +1159,7 @@ svg.sprite .eye { transform-box: fill-box; transform-origin: center; animation: 
   animation: typingDots .9s ease-in-out infinite;
 }
 .agent.typing .bubble::after { background: #fffdf7; }
-.agent.p4.typing .bubble::after { background: #eafbf4; }
+.agent.p4.typing .bubble::after { background: #fbebef; }
 .agent.p0.typing .bubble::after { background: #fff1e8; }
 .agent.p5.typing .bubble::after { background: #e9f2ff; }
 .agent.p6.typing .bubble::after { background: #eff6ff; }

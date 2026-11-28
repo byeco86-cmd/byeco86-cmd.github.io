@@ -87,7 +87,7 @@
   /* ------------------------------------------------------------
      캐릭터 — 정장 입은 귀여운 동물 8명 (고퀄 SVG)
      회장님 호랑이·블랙 3피스+골드타이·금메달 / 피비서 시바견·네이비 / 피사원 토끼·블루 / 클부장 곰·에스프레소+골드타이
-     지과장 여우·에메랄드+모노클 / 제미대리 다람쥐·민트 / 그록 차장 검은 늑대·딥슬레이트+아이스블루 / 피주임 펭귄·턱시도
+     지과장 여우·딥 버건디(와인)+모노클 / 제미대리 다람쥐·슬레이트 틸 / 그록 차장 검은 늑대·딥슬레이트+아이스블루 / 피주임 펭귄·턱시도
      ------------------------------------------------------------ */
   var PALETTE = {
     captain: {
@@ -112,13 +112,13 @@
     },
     p4: {
       fur: "#E79451", furDark: "#B0622A", furLight: "#FFF7EC",
-      suit: "#10A37F", suitLight: "#18B78F", lapel: "#22C79B", trouser: "#0B4C3C",
+      suit: "#6E1F32", suitLight: "#8A2B41", lapel: "#9C3650", trouser: "#4E1626",
       shirt: "#FBFCFE", tie: "#F2C64E", tieStyle: "necktie"
     },
     p3: {
       fur: "#BE8A5F", furDark: "#946440", furLight: "#F6E6D2",
-      suit: "#4FBB9D", suitLight: "#6BD0B4", lapel: "#7ADCC2", trouser: "#2E7A66",
-      shirt: "#FBFCFE", tie: "#2C8C74", tieStyle: "necktie"
+      suit: "#1F5F5C", suitLight: "#2A7571", lapel: "#39847E", trouser: "#164442",
+      shirt: "#FBFCFE", tie: "#D9B26A", tieStyle: "necktie"
     },
     p5: {
       fur: "#4C525C", furDark: "#333840", furLight: "#E7EBF1", stripe: "#22262C",
@@ -143,8 +143,8 @@
     p1: { lapel: "peak", vest: true, db: false, sheen: "#D8B451", pin: "gold", square: "#F8F1DE", squareEdge: "#D9BE72", cuff: "#E9C46A", watch: "gold", buttons: "gold" },
     p0: { lapel: "peak", vest: false, db: true, sheen: "#D9B45A", pin: null, square: "#FBEFD6", squareEdge: "#D8B466", cuff: "#E0B44A", watch: null, buttons: "gold" },
     p5: { lapel: "notch", vest: true, db: false, sheen: "#C3D6E8", pin: "silver", square: "#EEF5FC", squareEdge: "#9FB8D0", cuff: "#CFE0F0", watch: "silver", buttons: "silver" },
-    p4: { lapel: "notch", vest: false, db: false, sheen: "#7ED3B6", pin: "pale", square: "#DFFAF0", squareEdge: "#7FD8BA", cuff: "#CFEFE4", watch: "gold", buttons: "pale" },
-    p3: { lapel: "notch", vest: true, db: false, sheen: "#9EE6CF", pin: "pearl", square: "#F0FFFA", squareEdge: "#8FDCC4", cuff: "#CFEFE4", watch: null, buttons: "pale" },
+    p4: { lapel: "notch", vest: false, db: false, sheen: "#D98CA0", pin: "gold", square: "#F7E3E8", squareEdge: "#B06A7C", cuff: "#E7C3CB", watch: "gold", buttons: "gold" },
+    p3: { lapel: "notch", vest: true, db: false, sheen: "#8FD1CB", pin: "pearl", square: "#E7F5F3", squareEdge: "#7FBFB9", cuff: "#C9E4E0", watch: null, buttons: "silver" },
     p6: { lapel: "shawl", vest: false, db: false, sheen: "#4E6E96", pin: null, square: "#FFFFFF", squareEdge: "#CFDCEA", cuff: "#DCE7F3", watch: null, buttons: "pale" },
     p2: { lapel: "notch", vest: false, db: false, sheen: "#6FA3D2", pin: null, square: null, cuff: "#CFE3F5", watch: null, buttons: "pale" },
     p7: { lapel: "notch", vest: false, db: false, sheen: "#AEBBCA", pin: null, square: null, cuff: "#DCE3EC", watch: null, buttons: "pale" }
@@ -535,12 +535,12 @@
         '<path d="M20.6 44.9l.8 1.7 1.9.2-1.4 1.3.4 1.9-1.7-1-1.7 1 .4-1.9-1.4-1.3 1.9-.2z" fill="#FBE08C" stroke="#C9A02C" stroke-width=".5"/>');
     } else if (id === "p4") {
       /* 모노클 · 전구 배지 · 노트 */
-      s.push('<circle cx="33.5" cy="26.2" r="5.3" fill="rgba(255,255,255,.16)" stroke="#0B3B2E" stroke-width="1.2"/>' +
-        '<path d="M38.9 27.2c1.8 1.6 2.2 4 1 6" fill="none" stroke="#0B3B2E" stroke-width=".8" stroke-linecap="round"/>' +
+      s.push('<circle cx="33.5" cy="26.2" r="5.3" fill="rgba(255,255,255,.16)" stroke="#3A1220" stroke-width="1.2"/>' +
+        '<path d="M38.9 27.2c1.8 1.6 2.2 4 1 6" fill="none" stroke="#3A1220" stroke-width=".8" stroke-linecap="round"/>' +
         '<path d="M18.6 43.6v-2.4M17.4 42.6h2.4M17.9 41.7l1.4 1.4M19.3 41.7l-1.4 1.4" stroke="#FFE07A" stroke-width=".7" stroke-linecap="round"/>' +
         '<circle cx="18.6" cy="42.6" r="1.7" fill="#FFE07A" stroke="#C9A02C" stroke-width=".5"/>' +
-        '<rect x="31.6" y="46.6" width="4.6" height="5.4" rx=".9" fill="#EAFBF4" stroke="#0B5B49" stroke-width=".5"/>' +
-        '<path d="M32.6 48.4h2.6M32.6 49.7h2.6M32.6 51h1.7" stroke="#10A37F" stroke-width=".5" stroke-linecap="round"/>');
+        '<rect x="31.6" y="46.6" width="4.6" height="5.4" rx=".9" fill="#FBF1F3" stroke="#6E1F32" stroke-width=".5"/>' +
+        '<path d="M32.6 48.4h2.6M32.6 49.7h2.6M32.6 51h1.7" stroke="#8E3A4C" stroke-width=".5" stroke-linecap="round"/>');
     } else if (id === "p1") {
       /* 금색 라펠 핀 · 넥타이 핀 · 금 커프스 단추 — 비서 */
       s.push('<path d="M20.2 44.2v-2.2M19.1 43.2h2.2" stroke="#E9C46A" stroke-width=".7" stroke-linecap="round"/>' +
@@ -1821,7 +1821,7 @@
     captain: [68.3, 78.4], p1: [39.0, 76.9],
     p0: [33.0, 60.0], p5: [63.4, 67.0],
     p4: [34.0, 60.0], p3: [67.0, 72.2],
-    p6: [28.0, 58.0], p2: [50.0, 63.9], p7: [73.3, 75.5]
+    p6: [28.0, 68.0], p2: [50.0, 69.0], p7: [73.3, 76.5]
   };
   /* 각자 자기 자리 곁 바닥 여백을 오가며 걷습니다 — 2F·3F 중앙 라운지 테이블·스툴과
      4F 회장님 책상, 1F 3인 데스크를 지나지 않도록 캐릭터마다 손으로 잡은 좌표입니다. */
@@ -1832,9 +1832,9 @@
     p5: [[63.4, 67.0], [61.9, 69.8], [65.2, 68.6], [62.6, 63.6]],
     p4: [[34.0, 60.0], [31.0, 62.4], [35.4, 63.2], [32.0, 57.6]],
     p3: [[67.0, 72.2], [63.8, 74.6], [68.4, 74.0], [64.6, 69.9]],
-    p6: [[28.0, 58.0], [24.6, 60.4], [31.4, 59.8], [26.4, 55.6]],
-    p2: [[50.0, 63.9], [46.4, 66.4], [53.6, 65.6], [48.6, 61.6]],
-    p7: [[73.3, 75.5], [72.2, 74.0], [77.0, 75.0], [74.0, 78.0]]
+    p6: [[28.0, 68.0], [24.6, 70.4], [31.4, 69.6], [26.4, 67.6]],
+    p2: [[50.0, 69.0], [46.4, 71.2], [53.6, 70.2], [48.6, 68.0]],
+    p7: [[73.3, 76.5], [72.2, 75.2], [77.0, 76.2], [74.0, 78.4]]
   };
   var LINES = {
     captain: ["👑 최종 의사결정 대기", "📣 08:00 브리핑 확인", "🏛️ 4F 기획실 상주", "⚡ 릴레이 보고 수신"],
@@ -1845,7 +1845,7 @@
     p3: ["🔎 리서치 정리 중", "🗓️ 일정표 업데이트", "🎟️ 체험단 조사", "🩺 의료기기 브리핑"],
     p6: ["🏃 하루 70건 응모 지원", "🗣️ 수시 보고 체계", "📋 응모 결과 정리", "✅ 검증 통과 건 실행"],
     p2: ["🎯 하루 70건 응모 중", "☕ 0원 쿠폰 줍줍", "✅ 사전 검증 게이트", "📊 시장 조사 중"],
-    p7: ["🌱 70건 응모 루틴 배우는 중", "📋 후보 목록 정리 중", "🎟️ 쿠폰 링크 확인 중", "☕ 1F 자리 익히는 중"]
+    p7: ["🌱 70건 응모 루틴 배우는 중", "📋 후보 목록 정리 중", "🌙 새벽 12건 · 누적 21건", "☕ 1F 자리 익히는 중"]
   };
   var FLOOR_LINES = {
     "4": {
@@ -1863,7 +1863,7 @@
     "1": {
       p2: ["🎯 하루 70건 응모 중", "☕ 0원 쿠폰 줍줍", "✅ 사전 검증 게이트", "📊 시장 조사 중"],
       p6: ["🏃 하루 70건 응모 지원", "🗣️ 수시 보고 체계", "📋 응모 결과 정리", "✅ 검증 통과 건 실행"],
-      p7: ["🌱 70건 응모 루틴 배우는 중", "📋 후보 목록 정리 중", "🎟️ 쿠폰 링크 확인 중", "☕ 1F 자리 익히는 중"]
+      p7: ["🌱 70건 응모 루틴 배우는 중", "📋 후보 목록 정리 중", "🌙 새벽 12건 · 누적 21건", "☕ 1F 자리 익히는 중"]
     }
   };
 

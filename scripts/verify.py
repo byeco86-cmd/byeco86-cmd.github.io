@@ -179,18 +179,28 @@ def main():
           and "정기 보고 중단" in p6_role_txt, p6_times)
     check("juim_today_36", p6_credit.get("today") == "36건" and "36/70건" in p6_role_txt
           and "36건" in ones["p6"]["note"], (p6_credit.get("today"), ones["p6"]["note"][:80]))
-    check("entries_today_breakdown", ent.get("today") == 46
-          and (ent.get("todayBy") or {}).get("p6") == 36, ent)
+    check("entries_today_breakdown", ent.get("today") == 58
+          and (ent.get("todayBy") or {}) == {"p6": 36, "p2": 13, "p7": 9}, ent)
     # 2026-11-28 v15.1 개인별 오늘/총 누적 · 캐릭터 머리 위 숫자
     by = ent.get("byAgent") or {}
+    # 2026-11-29 v16 피비서 확인 — 피인턴 미보고 해제 · 1F 실제 실적 확정
     check("entries_by_agent", by.get("p6") == {"today": 36, "total": 36}
-          and by.get("p2") == {"today": 10, "total": 124}
-          and (by.get("p7") or {}).get("today") is None, by)
-    check("floor1_day_total_card", "당일 누적 46건" in f1_txt and "총 누적 160건" in f1_txt,
+          and by.get("p2") == {"today": 13, "total": 127}
+          and (by.get("p7") or {}).get("today") == 9
+          and (by.get("p7") or {}).get("total") == 9, by)
+    check("entries_1f_actual_v16", ent.get("total") == 172
+          and data["stats"]["tracking"].get("entered") == 172
+          and "58" in (ent.get("todayNote") or ""), (ent.get("total"), ent.get("todayNote")))
+    check("no_unreported_1f_v16",
+          "미보고" not in json.dumps(ent, ensure_ascii=False)
+          and "미확인" not in json.dumps(ent, ensure_ascii=False), ent.get("byAgentNote"))
+    check("p7_dawn12_v16", "12건" in json.dumps(ones["p7"], ensure_ascii=False)
+          and "21건" in json.dumps(ones["p7"], ensure_ascii=False), ones["p7"]["note"])
+    check("floor1_day_total_card", "당일 누적 58건" in f1_txt and "총 누적 172건" in f1_txt,
           fl["1"]["tasks"][:3])
     check("entry_badge_css", ".entry-count" in stylescss and "has-count .bubble" in stylescss,
           "styles.css 숫자 배지·말풍선 높이 조정")
-    check("version_v15", data["version"] == "v15", data["version"])
+    check("version_v16", data["version"] == "v16", data["version"])
     # 2026-11-28 21:20 피주임·피인턴 가동 전환 — 대기 표현이 데이터에 남으면 실패
     waiting_left = [name for name, obj in (("피주임", juim), ("피인턴", intern)) if "연동 대기" in json.dumps(obj, ensure_ascii=False)]
     waiting_left += [name for name, obj in (("p6 상세", [m for m in data["roleDetails"]["members"] if m["id"] == "p6"][0]),
@@ -209,7 +219,7 @@ def main():
           and '["p1", "p3", "p2", "p6"]' not in appjs,
           (relay_roles["p3"], data["credits"]["rules"][1]))
     check("bld_sign_v5", "바이코 AI 오피스" in indexhtml, "건물 간판·타이틀")
-    check("foot_v15", "바이코 AI 오피스 v15" in indexhtml and "피인턴" in indexhtml, "푸터 9명")
+    check("foot_v16", "바이코 AI 오피스 v16" in indexhtml and "피인턴" in indexhtml, "푸터 9명")
     check("title_v5", "<title>바이코 AI 오피스</title>" in indexhtml, "")
     dow_ko = ["월", "화", "수", "목", "금", "토", "일"]
     for a in data.get("awards", []):
@@ -376,9 +386,24 @@ def main():
           };
         }""")
         results.append(("captain_style", cap_style))
-        check("captain_scale_115", abs(cap_style["w"] / cap_style["refW"] - 1.155) < 0.012
-              and abs(cap_style["h"] / cap_style["refH"] - 1.155) < 0.012,
+        # v16: 회장님은 크기 유지, 나머지 8명은 40px→34px(×0.85)로 축소 → 비율 46.2/34 = 1.3588
+        check("captain_scale_v16", abs(cap_style["w"] / cap_style["refW"] - 1.359) < 0.012
+              and abs(cap_style["h"] / cap_style["refH"] - 1.359) < 0.012,
               (round(cap_style["w"] / cap_style["refW"], 4), round(cap_style["h"] / cap_style["refH"], 4)))
+        shrink = page.evaluate("""() => {
+          const o = {};
+          ['p1','p0','p5','p4','p3','p6','p2','p7','captain'].forEach(id => {
+            const r = document.querySelector('.agent[data-agent="' + id + '"]').getBoundingClientRect();
+            o[id] = [+r.width.toFixed(2), +r.height.toFixed(2)];
+          });
+          return o;
+        }""")
+        results.append(("agent_sizes_all", shrink))
+        eight = ["p1", "p0", "p5", "p4", "p3", "p6", "p2", "p7"]
+        check("v16_shrink_15", all(abs(shrink[i][0] - 34) < 0.3 and abs(shrink[i][1] - 43.35) < 0.3 for i in eight), shrink)
+        check("v16_captain_kept", abs(shrink["captain"][0] - 46.2) < 0.3 and abs(shrink["captain"][1] - 58.9) < 0.3,
+              shrink["captain"])
+        check("v16_shrink_ratio", all(abs(shrink[i][0] / 40 - 0.85) < 0.01 for i in eight), shrink)
         check("captain_aura_body_glow", cap_style["shadows"] >= 4 and "255, 214, 92" in cap_style["filter"]
               and "255, 170, 40" in cap_style["filter"], cap_style["filter"])
         check("captain_aura_rim", "255, 236, 168" in cap_style["filter"], cap_style["filter"])
@@ -395,8 +420,8 @@ def main():
                        ("p2", "#2E6FA8", "블루 정장"), ("p2", "#D8E5F2", "토끼 털"),
                        ("p0", "#2E2C33", "차콜 정장"), ("p0", "#C68A5A", "곰 갈색 털"),
                        ("p5", "#1B2330", "딥슬레이트 정장"), ("p5", "#4C525C", "검은 늑대 털"),
-                       ("p4", "#10A37F", "에메랄드 정장"), ("p4", "#E79451", "여우 주황 털"),
-                       ("p3", "#4FBB9D", "민트 정장"), ("p3", "#BE8A5F", "다람쥐 털"),
+                       ("p4", "#6E1F32", "딥 버건디 정장"), ("p4", "#E79451", "여우 주황 털"),
+                       ("p3", "#1F5F5C", "슬레이트 틸 정장"), ("p3", "#BE8A5F", "다람쥐 털"),
                        ("p6", "#22364F", "턱시도 네이비 정장"), ("p6", "#F5A623", "주황 부리"),
                        ("p7", "#6C7A8E", "그레이 정장"), ("p7", "#E9C79A", "햄스터 털")]
         for aid, mark, why in front_marks:
@@ -518,7 +543,12 @@ def main():
         check("p4_sprite_visible", p4_box["w"] > 20 and p4_box["h"] > 20, p4_box)
 
         p4_svg = page.eval_on_selector('.agent[data-agent="p4"] svg.sprite', "el => el.outerHTML") or ""
-        check("p4_palette", "#10A37F" in p4_svg, "에메랄드 정장")
+        check("p4_palette", "#6E1F32" in p4_svg, "딥 버건디 정장")
+        check("v16_2f_suit_colors", "#1F5F5C" in svg_by.get("p3", "")
+              and "#10A37F" not in p4_svg and "#4FBB9D" not in svg_by.get("p3", "")
+              and all(c not in p4_svg + svg_by.get("p3", "")
+                      for c in ("#26344E", "#2E2C33", "#1B2330", "#22364F", "#2E6FA8", "#6C7A8E")),
+              "2F 딥 버건디·슬레이트 틸 · 다른 층 색과 구분")
         check("p4_fur", "#E79451" in p4_svg, "여우 주황 털")
         check("p4_front_face", p4_svg.count('<g class="eye">') >= 2 and 'cx="18.4" cy="33.4"' in p4_svg,
               "정면 두 눈·볼")
@@ -545,8 +575,8 @@ def main():
           return o;
         }""")
         HOME_P = {"captain": [68.3, 78.4], "p1": [39.0, 76.9], "p0": [33.0, 60.0], "p5": [63.4, 67.0],
-                  "p4": [34.0, 60.0], "p3": [67.0, 72.2], "p6": [28.0, 58.0], "p2": [50.0, 63.9],
-                  "p7": [73.3, 75.5]}
+                  "p4": [34.0, 60.0], "p3": [67.0, 72.2], "p6": [28.0, 68.0], "p2": [50.0, 69.0],
+                  "p7": [73.3, 76.5]}
         results.append(("home_coords", home_now))
 
         # SPOTS 정적 파싱 — 9명 모두 4곳, 걷는 폭이 좁고, 2F·3F 중앙 라운지 테이블 구역을 비켜 갑니다
@@ -708,7 +738,7 @@ def main():
         # sceneZoom(1.1s)와 width 전환이 끝난 뒤에 재야 회장님 확대 배율이 정확합니다.
         try:
             page.wait_for_function(
-                "() => Math.abs(document.querySelector('.agent[data-agent=\"p1\"]').getBoundingClientRect().width - 66) < 0.6"
+                "() => Math.abs(document.querySelector('.agent[data-agent=\"p1\"]').getBoundingClientRect().width - 56.1) < 0.6"
                 " && Math.abs(document.querySelector('.agent[data-agent=\"captain\"]').getBoundingClientRect().width - 76.2) < 0.6",
                 timeout=8000)
         except Exception:
@@ -735,9 +765,10 @@ def main():
         results.append(("focus_4", focus_4))
         check("floor_focus_4", "is-focus" in focus_4["f4"] and "is-dim" in focus_4["f3"] and focus_4["h4"] > focus_4["h3"] * 2, focus_4)
         check("floor_chip_4", "4F" in page.inner_text("#floorChip"), page.inner_text("#floorChip"))
-        check("captain_focus_scale_115", abs(focus_4["capW"] / focus_4["p1W"] - 1.155) < 0.012
+        check("captain_focus_scale_v16", abs(focus_4["capW"] / focus_4["p1W"] - 1.358) < 0.012
               and abs(focus_4["capW"] - 76.2) < 1.5,
               (round(focus_4["capW"], 2), round(focus_4["p1W"], 2)))
+        check("v16_focus_p1_shrunk", abs(focus_4["p1W"] - 56.1) < 0.6, round(focus_4["p1W"], 2))
         check("captain_focus_aura", "drop-shadow" in focus_4["capAura"] and "255, 170, 40" in focus_4["capAura"],
               focus_4["capAura"])
         check("elevator_4", page.inner_text("#shaftCar") == "4F", page.get_attribute("#shaftCar", "style"))
@@ -831,9 +862,9 @@ def main():
         hud_1f = page.inner_text('#floorStack .floor[data-floor="1"] .floor-hud')
         results.append(("hud_1f", hud_1f))
         check("floor_hud_1f_210", "210" in hud_1f and "1F" in hud_1f, hud_1f)
-        check("floor_hud_1f_day_total", "당일 누적" in hud_1f and "46" in hud_1f
-              and "총 누적" in hud_1f and "160" in hud_1f, hud_1f)
-        check("floor_card_1_day_total", "당일 누적 46건" in cards_1 and "총 누적 160건" in cards_1, cards_1[:200])
+        check("floor_hud_1f_day_total", "당일 누적" in hud_1f and "58" in hud_1f
+              and "총 누적" in hud_1f and "172" in hud_1f, hud_1f)
+        check("floor_card_1_day_total", "당일 누적 58건" in cards_1 and "총 누적 172건" in cards_1, cards_1[:200])
         # 캐릭터 머리 위 개인별 응모 숫자 배지
         badges = {}
         for aid in ("p6", "p2", "p7"):
@@ -843,12 +874,59 @@ def main():
         results.append(("entry_badges", badges))
         check("map_entry_badges_1f",
               all(b["visible"] for b in badges.values())
-              and "36" in badges["p6"]["text"] and "10" in badges["p2"]["text"]
-              and "124" in badges["p2"]["text"] and "미보고" in badges["p7"]["text"], badges)
+              and "36" in badges["p6"]["text"] and "13" in badges["p2"]["text"]
+              and "127" in badges["p2"]["text"] and "9" in badges["p7"]["text"]
+              and "미보고" not in badges["p7"]["text"], badges)
         bb = page.locator('.floor[data-floor="1"] .agent.p6 .entry-count').bounding_box()
         tg = page.locator('.floor[data-floor="1"] .agent.p6 .agent-tag').bounding_box()
         results.append(("badge_box", bb, tg))
         check("map_badge_above_tag", bool(bb and tg) and bb["y"] + bb["height"] <= tg["y"], (bb, tg))
+        # v16 1F 가림 검사 — 말풍선·머리 위 배지·캐릭터가 상단 안내 바(층 헤더+층 현황 줄)에 겹치지 않는지 실측
+        page.evaluate("""() => {
+          document.querySelectorAll('.floor[data-floor="1"] .agent').forEach(a => {
+            const b = a.querySelector('.bubble');
+            if (b && !b.textContent.trim()) b.textContent = '가림 검사 문구';
+            a.classList.add('talk');
+          });
+        }""")
+        page.wait_for_timeout(600)
+        overlap = page.evaluate("""() => {
+          const fl = document.querySelector('.floor[data-floor="1"]');
+          const R = el => (el ? el.getBoundingClientRect() : null);
+          const ix = (a, b) => {
+            if (!a || !b) return 0;
+            const w = Math.min(a.right, b.right) - Math.max(a.left, b.left);
+            const h = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+            return (w > 0.5 && h > 0.5) ? +(w * h).toFixed(1) : 0;
+          };
+          const top = R(fl.querySelector('.floor-top'));
+          const line = R(fl.querySelector('.floor-line'));
+          const hud = R(fl.querySelector('.floor-hud'));
+          const fr = R(fl);
+          const out = {bar: [], hud: [], gaps: {}, outside: []};
+          fl.querySelectorAll('.agent').forEach(a => {
+            const id = a.getAttribute('data-agent');
+            const box = R(a), cnt = R(a.querySelector('.entry-count')), bub = R(a.querySelector('.bubble'));
+            [top, line].forEach(bar => {
+              if (bar && (ix(box, bar) || ix(cnt, bar) || ix(bub, bar))) out.bar.push(id);
+            });
+            if (hud && (ix(box, hud) || ix(cnt, hud) || ix(bub, hud))) out.hud.push(id);
+            if (bub) {
+              out.gaps[id] = +(bub.top - line.bottom).toFixed(1);
+              if (bub.left < fr.left - 0.5 || bub.right > fr.right + 0.5) out.outside.push(id);
+            }
+          });
+          return out;
+        }""")
+        results.append(("floor1_overlap", overlap))
+        check("v16_floor1_no_bar_overlap", not overlap["bar"], overlap)
+        check("v16_floor1_bubble_gap", bool(overlap["gaps"])
+              and all(v >= 2 for v in overlap["gaps"].values()), overlap["gaps"])
+        check("v16_floor1_bubble_inside", not overlap["outside"], overlap["outside"])
+        check("v16_floor1_no_hud_overlap", not overlap["hud"], overlap["hud"])
+        page.evaluate("""() => {
+          document.querySelectorAll('.floor[data-floor="1"] .agent').forEach(a => a.classList.remove('talk'));
+        }""")
         check("floor_card_1_juim_status", "가동 중" in cards_1 and "응모·쿠폰 지원" in cards_1, cards_1[:200])
         page.screenshot(path=str(SHOTS / "03-floor-1.png"))
 
@@ -991,8 +1069,8 @@ def main():
               and "피비서" in goal_note and "36건" in goal_note, goal_note)
         entries_sum = page.inner_text("#entriesSummary")
         results.append(("entries_summary", entries_sum.replace("\n", " ")))
-        check("entries_summary_goal_v15", "피주임 36" in entries_sum and "피사원 10" in entries_sum,
-              entries_sum.replace("\n", " "))
+        check("entries_summary_goal_v16", "피주임 36" in entries_sum and "피사원 13" in entries_sum
+              and "피인턴 9" in entries_sum, entries_sum.replace("\n", " "))
         page.screenshot(path=str(SHOTS / "05-entries-extra.png"))
 
         # ---- 수익화 8대 트랙 렌더링 ----
