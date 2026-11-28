@@ -138,21 +138,6 @@
   };
   var EAR = { captain: "tiger", p1: "shiba", p2: "rabbit", p0: "bear", p4: "fox", p3: "squirrel", p5: "wolf", p6: "penguin", p7: "hamster" };
 
-  /* 직급별 사무용 의자 — 등판·좌판·팔걸이·5발 베이스 색과 장식 */
-  var CHAIR = {
-    captain: { back: "#17161A", panel: "#222027", edge: "#D9B45A", seat: "#1D1C22", arm: "#2A2730", metal: "#B08A3A" },
-    p1: { back: "#17233A", panel: "#213049", edge: "#B79A62", seat: "#1B2941", arm: "#22304A", metal: "#8C99AB" },
-    p0: { back: "#211E24", panel: "#2E2A32", edge: "#B08C42", seat: "#262229", arm: "#2C2830", metal: "#97763A" },
-    p5: { back: "#171E27", panel: "#232C38", edge: "#8DA3BC", seat: "#1C242E", arm: "#212934", metal: "#8C99A8" },
-    p4: { back: "#0A4A3D", panel: "#0D574A", edge: "#6FBF9F", seat: "#0A4438", arm: "#0A4A3C", metal: "#8FB3A6" },
-    p3: { back: "#2A6B59", panel: "#337A66", edge: "#7FC9B2", seat: "#285F50", arm: "#296354", metal: "#94B5A9" },
-    p6: { back: "#16243A", panel: "#1F304A", edge: "#6E90B4", seat: "#1A2B42", arm: "#1B2C40", metal: "#8FA0B4" },
-    p2: { back: "#1E4A70", panel: "#265885", edge: "#7FA8CC", seat: "#234F76", arm: "#22507A", metal: "#93AEC6" },
-    p7: { back: "#48525E", panel: "#566270", edge: "#98A5B6", seat: "#48525E", arm: "#454F5C", metal: "#9AA4B0" }
-  };
-  /* 의자 가스 실린더·5발 베이스는 공통 먹색 금속 (금장으로 보이지 않도록) */
-  var CHAIR_METAL = { pole: "#3B4048", base: "#474D56", caster: "#2A2F36" };
-
   /* 직급별 수트 디테일 — 라펠·조끼·단추·포켓스퀘어·커프스 (회장님 호랑이는 별도 룩 유지) */
   var SUIT = {
     p1: { lapel: "peak", vest: true, db: false, sheen: "#D8B451", pin: "gold", square: "#F8F1DE", squareEdge: "#D9BE72", cuff: "#E9C46A", watch: "gold", buttons: "gold" },
@@ -338,92 +323,119 @@
     return "";
   }
 
-  /* 의자 — 등판·좌판·가스 실린더·5발 베이스 (몸 뒤에 깔리는 부분) */
-  function chairSvg(id, a) {
-    var c = CHAIR[id] || CHAIR.p2;
-    var exec = id === "captain" || id === "p1" || id === "p0";
-    var s = ['<g class="chair">'];
-    /* 등판 외곽 — 어깨보다 넓게 두어 앉은 자세가 한눈에 보이게 */
-    s.push('<path class="ck-back" d="M9.0 27.4c0-3.2 2.6-5.8 5.8-5.8h26.4c3.2 0 5.8 2.6 5.8 5.8l-1.3 26.5c-.2 3.2-2.8 5.7-6 5.7H16.3c-3.2 0-5.8-2.5-6-5.7z" fill="' + c.back + '"/>');
-    /* 등판 안쪽 패널 */
-    s.push('<path d="M12.7 28.6c0-1.9 1.6-3.5 3.5-3.5h23.6c1.9 0 3.5 1.6 3.5 3.5l-1.1 23.2c-.1 1.9-1.6 3.4-3.5 3.4H17.3c-1.9 0-3.4-1.5-3.5-3.4z" fill="' + c.panel + '"/>');
-    /* 상단 파이핑 */
-    s.push('<path d="M11.9 25.2c4.6-2.4 10.2-3.6 16.1-3.6s11.5 1.2 16.1 3.6" fill="none" stroke="' + c.edge + '" stroke-width=".75" opacity=".85"/>');
-    /* 등판 세로 스티치 */
-    s.push('<path d="M20.6 26.6v24.4M35.4 26.6v24.4" stroke="#000" stroke-opacity=".10" stroke-width=".7"/>');
-    if (exec) {
-      /* 집행진 — 날개형 등판 (귀퉁이가 앞으로 말린 모양) + 상단 금장 */
-      s.push('<path d="M10.2 28.2c-2.8.9-4.2 3.3-3.9 6.1l1 9c.3 2.4 2.4 4 4.8 3.8l1.5-.2" fill="' + c.panel + '" stroke="' + c.edge + '" stroke-width=".5" stroke-linejoin="round"/>');
-      s.push('<g transform="translate(56,0) scale(-1,1)"><path d="M10.2 28.2c-2.8.9-4.2 3.3-3.9 6.1l1 9c.3 2.4 2.4 4 4.8 3.8l1.5-.2" fill="' + c.panel + '" stroke="' + c.edge + '" stroke-width=".5" stroke-linejoin="round"/></g>');
-      s.push('<path d="M18.6 24.2h18.8" stroke="' + c.edge + '" stroke-width=".9" stroke-linecap="round" opacity=".9"/>');
-    }
-    if (id === "captain") {
-      /* 회장님 — 금장 스터드 6개 + 머리받이 쿠션 */
-      s.push('<path d="M21.4 20.4c0-1.8 1.5-3.2 3.3-3.2h6.6c1.8 0 3.3 1.4 3.3 3.2v3.2H21.4z" fill="' + c.back + '" stroke="' + c.edge + '" stroke-width=".45"/>');
-      [[11.6, 31.4], [11.2, 38.6], [10.8, 45.6], [44.4, 31.4], [44.8, 38.6], [45.2, 45.6]].forEach(function (p) {
-        s.push('<circle cx="' + p[0] + '" cy="' + p[1] + '" r=".55" fill="#E9C46A" opacity=".95"/>');
-      });
-    } else if (id === "p0") {
-      /* 부장 — 가죽 등판 버튼 장식 */
-      s.push('<circle cx="28" cy="30.6" r=".62" fill="' + c.edge + '" opacity=".8"/>' +
-        '<circle cx="24.2" cy="35.4" r=".62" fill="' + c.edge + '" opacity=".8"/>' +
-        '<circle cx="31.8" cy="35.4" r=".62" fill="' + c.edge + '" opacity=".8"/>');
-    } else if (id === "p1") {
-      /* 비서 — 금장 엠블럼 */
-      s.push('<circle cx="28" cy="29.4" r="1.9" fill="none" stroke="' + c.edge + '" stroke-width=".6" opacity=".9"/>' +
-        '<circle cx="28" cy="29.4" r=".8" fill="' + c.edge + '" opacity=".85"/>');
-    } else {
-      /* 실무진 — 메시 등판 결 */
-      s.push('<path d="M16.2 30.2v18.4M19.9 27.4v22.6M36.1 27.4v22.6M39.8 30.2v18.4" stroke="#000" stroke-opacity=".12" stroke-width=".6"/>');
-    }
-    /* 좌판 — 허벅지 아래로 보이는 앞단 */
-    s.push('<rect class="ck-seat" x="12.4" y="54.6" width="31.2" height="6.4" rx="3.0" fill="' + c.seat + '"/>');
-    s.push('<path d="M14.4 54.9h27.2" stroke="' + c.edge + '" stroke-width=".5" opacity=".45"/>');
-    /* 가스 실린더 · 5발 베이스 · 바퀴 */
-    s.push('<rect x="26.7" y="60.4" width="2.6" height="5.2" fill="' + CHAIR_METAL.pole + '"/>');
-    s.push('<path d="M28 65.2 19.8 68M28 65.2l8.2 2.8M28 65.2l-4.8 3.2M28 65.2l4.8 3.2" stroke="' + CHAIR_METAL.base + '" stroke-width="1.25" stroke-linecap="round" fill="none"/>');
-    s.push('<circle cx="19.6" cy="68.2" r="1.05" fill="' + CHAIR_METAL.caster + '"/><circle cx="36.4" cy="68.2" r="1.05" fill="' + CHAIR_METAL.caster + '"/>');
-    s.push('</g>');
+  /* ------------------------------------------------------------
+     앉은 자세 — 배경 이미지 속 실제 3D 의자에 앉아 자기 책상을 향해 일하는 모습
+     · 실무진 8명: 뒤에서 본 등 모습. 얼굴은 책상 쪽으로 3/4만 돌려 한쪽 눈·주둥이가 보입니다
+       의자·하체·신발은 그리지 않아 배경의 3D 의자 좌판에 자연스럽게 얹히고 다리는 책상 아래로 들어갑니다
+     · 회장님: 책상을 사이에 두고 마주 보는 정면 상반신 (하체는 책상에 가려 그리지 않음)
+     ------------------------------------------------------------ */
+  /* 책상이 오른쪽에 있는 자리는 오른쪽 3/4, 왼쪽에 있는 자리는 왼쪽 3/4 */
+  var FACE_RIGHT = { captain: true, p1: true, p5: true, p3: true };
+
+  /* 뒤에서 본 상체 — 재킷 등·깃·양팔(책상 쪽으로 뻗은 팔꿈치) */
+  function backBodySvg(id, a) {
+    var s = [];
+    /* 목·셔츠 깃 */
+    s.push('<path d="M23.6 33.4h8.8v8.8h-8.8z" fill="' + a.shirt + '"/>');
+    s.push('<path d="M23.6 33.4h8.8v1.5h-8.8z" fill="#000" opacity=".12"/>');
+    /* 재킷 등 — 어깨는 넓게, 허리는 살짝 조이게, 밑단은 둥글게 */
+    s.push('<path d="M12.6 43.0C13.2 36.4 19.0 31.8 28.0 31.8S42.8 36.4 43.4 43.0L40.8 58.6C40.6 60.8 38.8 62.4 36.6 62.4H19.4C17.2 62.4 15.4 60.8 15.2 58.6Z" fill="' + a.suit + '"/>');
+    /* 어깨 하이라이트·옆선 그늘 */
+    s.push('<path d="M13.1 43.2c.8-4.3 4.0-7.5 8.7-9-3.5 2.3-5.5 5.3-6.2 9.6z" fill="#fff" opacity=".11"/>');
+    s.push('<path d="M42.9 43.2c-.8-4.3-4.0-7.5-8.7-9 3.5 2.3 5.5 5.3 6.2 9.6z" fill="#000" opacity=".13"/>');
+    /* 어깨 요크 솔기 · 등 중앙 솔기 · 밑단 절개 */
+    s.push('<path d="M16.1 41.2c3.3 1.7 7.2 2.6 11.9 2.6s8.6-.9 11.9-2.6" stroke="#000" stroke-opacity=".10" stroke-width=".55" fill="none"/>');
+    s.push('<path d="M27.4 44.4v15.6" stroke="#000" stroke-opacity=".17" stroke-width=".65"/>');
+    s.push('<path d="M14.0 60.2h28" stroke="#000" stroke-opacity=".17" stroke-width="1.6"/>');
+    /* 깃 — 뒤에서 보이는 재킷 칼라 */
+    s.push('<path d="M21.0 35.6c2.2-1.8 4.7-2.7 7.2-2.7s5.0.9 7.2 2.7l-2.1 3.5c-1.6-1.1-3.3-1.7-5.1-1.7s-3.5.6-5.1 1.7z" fill="' + a.suitLight + '"/>');
+    s.push('<path d="M21.0 35.6c2.2-1.8 4.7-2.7 7.2-2.7s5.0.9 7.2 2.7" stroke="#000" stroke-opacity=".15" stroke-width=".4" fill="none"/>');
+    /* 양팔 — 어깨에서 책상 쪽으로 뻗어 팔꿈치가 옆으로 보이는 자세 (재킷 밖으로 살짝 나옴) */
+    s.push('<g class="arm arm-l"><path d="M13.4 41.4C9.2 44.0 7.2 48.4 7.5 53.6c.2 2.4 3.1 3.2 4.6 1.2 1.5-2.1 2.1-6.0 1.9-9.4-1.4-.3-1.9-1.9-.6-4z" fill="' + a.suit + '"/>' +
+      '<path d="M11.6 44.4c-2.0 2.3-2.9 5.5-2.6 8.9" stroke="#fff" stroke-opacity=".14" stroke-width=".9" fill="none" stroke-linecap="round"/>' +
+      '<path d="M7.9 53.4c1.2.7 2.4 1 3.5.9" stroke="' + ((SUIT[id] && SUIT[id].cuff) || "#DCE3EC") + '" stroke-width=".85" stroke-linecap="round" opacity=".85"/></g>');
+    s.push('<g class="arm arm-r"><path d="M42.6 41.4C46.8 44.0 48.8 48.4 48.5 53.6c-.2 2.4-3.1 3.2-4.6 1.2-1.5-2.1-2.1-6.0-1.9-9.4 1.4-.3 1.9-1.9.6-4z" fill="' + a.suit + '"/>' +
+      '<path d="M44.4 44.4c2.0 2.3 2.9 5.5 2.6 8.9" stroke="#000" stroke-opacity=".16" stroke-width=".9" fill="none" stroke-linecap="round"/>' +
+      '<path d="M48.1 53.4c-1.2.7-2.4 1-3.5.9" stroke="' + ((SUIT[id] && SUIT[id].cuff) || "#DCE3EC") + '" stroke-width=".85" stroke-linecap="round" opacity=".85"/></g>');
     return s.join("");
   }
 
-  /* 의자 팔걸이 — 몸 앞쪽에 보이는 부분 */
-  function armrestSvg(id) {
-    var c = CHAIR[id] || CHAIR.p2;
-    var one = '<rect x="5.4" y="47.2" width="9.2" height="3.0" rx="1.5" fill="' + c.arm + '" stroke="' + c.edge + '" stroke-width=".4"/>' +
-      '<rect x="7.0" y="49.9" width="2.2" height="6.6" rx="1.0" fill="' + c.metal + '" opacity=".9"/>';
-    return '<g class="armrest">' + one +
-      '<g transform="translate(56,0) scale(-1,1)">' + one + '</g></g>';
+  /* 뒤에서 본 머리 — 뒤통수 + 책상 쪽으로 3/4 돌린 얼굴(한쪽 눈·주둥이) */
+  function backHeadSvg(id, a, kind) {
+    var s = ['<g class="hd">'];
+    s.push(earsSvg(kind, a));
+    s.push('<ellipse cx="27.2" cy="27.2" rx="14.2" ry="13.4" fill="' + a.fur + '" stroke="rgba(38,44,54,.10)" stroke-width=".8"/>');
+    /* 뒤통수 음영·정수리 하이라이트 */
+    s.push('<ellipse cx="23.2" cy="26.2" rx="10.6" ry="11.4" fill="' + a.furDark + '" opacity=".16"/>');
+    s.push('<ellipse cx="27.6" cy="19.8" rx="6.2" ry="3.6" fill="#fff" opacity=".15"/>');
+    if (kind === "tiger") {
+      s.push('<g stroke="' + a.stripe + '" stroke-linecap="round" fill="none" opacity=".9">' +
+        '<path d="M28 15.8v3.6M25.2 16.4l-.5 3M30.8 16.4l.5 3" stroke-width="1.6"/>' +
+        '<path d="M18.6 22.6l3.2 1.6M19.0 27.4l3.4 1.4" stroke-width="1.5"/></g>');
+    }
+    if (kind === "wolf") {
+      s.push('<g stroke="' + a.furDark + '" stroke-linecap="round" fill="none" opacity=".6"><path d="M19.4 21.6l3.4 2M19.2 26.4l3.2 1.6"/></g>');
+    }
+    /* 3/4 얼굴 — 주둥이·볼 */
+    if (kind === "penguin") {
+      s.push('<ellipse cx="35.4" cy="30.6" rx="8.4" ry="8.2" fill="' + a.furLight + '" opacity=".97"/>');
+      s.push('<path d="M37.2 28.6h5.6L40.2 34.4z" fill="' + (a.beak || "#F5A623") + '" stroke="#D98A12" stroke-width=".4" stroke-linejoin="round"/>');
+      s.push('<path d="M38.0 29.6h4.0" stroke="#FFE0A8" stroke-width=".5" stroke-linecap="round" opacity=".85"/>');
+    } else if (kind === "wolf") {
+      s.push('<ellipse cx="37.2" cy="31.6" rx="7.2" ry="5.4" fill="' + a.furLight + '"/>');
+      s.push('<path d="M32.6 30.4c1.2 3 3.2 4.6 5.4 4.6 1.6 0 3-1 4-2.8" stroke="' + a.furDark + '" stroke-width=".45" fill="none" opacity=".35"/>');
+      s.push('<path d="M38.6 29.6c.5-1.6 4.4-1.6 4.8 0 .4 1.4-.8 2.5-2.4 2.5s-2.8-1.1-2.4-2.5z" fill="#1E242C"/>');
+    } else {
+      s.push('<ellipse cx="36.2" cy="31.6" rx="6.4" ry="5.4" fill="' + a.furLight + '"/>');
+      s.push('<ellipse cx="41.0" cy="30.6" rx="1.7" ry="1.35" fill="#3A2A22"/>');
+      s.push('<path d="M40.2 32.8c-1 .9-2.2.8-2.9-.2" stroke="#3A2A22" stroke-width=".8" fill="none" stroke-linecap="round"/>');
+      if (kind === "hamster" || kind === "squirrel") {
+        s.push('<rect x="37.6" y="33.4" width="1.4" height="2.2" rx=".4" fill="#FFFDF8" stroke="#C9B49B" stroke-width=".3"/>' +
+          '<rect x="39.2" y="33.4" width="1.4" height="2.2" rx=".4" fill="#FFFDF8" stroke="#C9B49B" stroke-width=".3"/>');
+      }
+      if (kind === "hamster") {
+        s.push('<ellipse cx="34.4" cy="34.2" rx="3.2" ry="2.4" fill="' + (a.cheek || "#F2B8B4") + '" opacity=".5"/>');
+      }
+      if (kind === "tiger") {
+        s.push('<ellipse cx="34.6" cy="33.4" rx="3.4" ry="3.2" fill="' + a.furLight + '" opacity=".95"/>' +
+          '<path d="M32.0 34.4h3.2" stroke="' + a.stripe + '" stroke-width=".55" stroke-linecap="round" opacity=".45"/>');
+      }
+      if (kind === "fox" || kind === "shiba") {
+        s.push('<ellipse cx="34.8" cy="33.6" rx="3.2" ry="2.8" fill="' + a.furLight + '" opacity=".9"/>');
+      }
+    }
+    /* 책상 쪽으로 돌린 한쪽 눈 (깜빡임) */
+    s.push('<g class="eye"><ellipse cx="36.0" cy="25.4" rx="2.5" ry="2.8" fill="#2B2118"/>' +
+      '<circle cx="36.8" cy="24.6" r=".9" fill="#fff"/></g>');
+    s.push('<path d="M33.2 21.4c1.4-.7 2.9-.6 4.1.2" stroke="' + a.furDark + '" stroke-width=".8" fill="none" stroke-linecap="round" opacity=".55"/>');
+    /* 귀·볼 옆면 경계 */
+    s.push('<path d="M40.4 21.4c1.4 1.4 2.2 3.2 2.4 5.2" stroke="#000" stroke-opacity=".08" stroke-width="1.4" fill="none"/>');
+    s.push('</g>');
+    return s.join("");
   }
 
   function spriteSvg(id) {
     var a = PALETTE[id] || PALETTE.p2;
     var kind = EAR[id] || "rabbit";
     var s = [];
-
-    /* 바닥 그림자 — 몸(.sb) 밖에 두어 회장님 황금 아우라가 그림자까지 감싸지 않게 합니다 */
-    s.push('<ellipse class="ground-shadow" cx="28" cy="69.3" rx="15.2" ry="2.9" fill="rgba(24,30,38,.20)"/>');
-
-    /* 몸 실루엣 묶음 — 이 그룹의 윤곽을 따라 황금 아우라가 붙습니다 (의자는 아우라 밖) */
-    s.push(chairSvg(id, a));
-    s.push('<g class="sb">' + tailSvg(kind, a));
-
-    /* 앉은 하체 — 허벅지·무릎·정강이·구두 (의자 좌판 위에 앉아 다리를 앞으로 내민 자세) */
-    s.push('<g class="legs">' +
-      /* 왼다리 */
-      '<g transform="rotate(-8 20.8 60)"><rect x="16.9" y="53.2" width="8.0" height="13.0" rx="3.9" fill="' + a.trouser + '"/></g>' +
-      '<rect x="15.2" y="63.0" width="9.6" height="4.6" rx="2.2" fill="#2A2320"/>' +
-      '<rect x="15.2" y="63.0" width="9.6" height="1.5" rx=".75" fill="#6A5C52" opacity=".55"/>' +
-      '<ellipse cx="19.0" cy="65.9" rx="1.9" ry=".75" fill="#fff" opacity=".13"/>' +
-      /* 오른다리 */
-      '<g transform="rotate(8 35.2 60)"><rect x="31.1" y="53.2" width="8.0" height="13.0" rx="3.9" fill="' + a.trouser + '"/></g>' +
-      '<rect x="31.2" y="63.0" width="9.6" height="4.6" rx="2.2" fill="#2A2320"/>' +
-      '<rect x="31.2" y="63.0" width="9.6" height="1.5" rx=".75" fill="#6A5C52" opacity=".55"/>' +
-      '<ellipse cx="35.4" cy="65.9" rx="1.9" ry=".75" fill="#fff" opacity=".13"/>' +
-      /* 무릎 앞쪽 하이라이트 · 바지 주름 */
-      '<path d="M18.6 55.4c-.9 2.2-1.1 4.6-.6 6.9M37.4 55.4c.9 2.2 1.1 4.6.6 6.9" stroke="#fff" stroke-opacity=".13" stroke-width=".7" fill="none"/>' +
-      '<path d="M20.4 62.6h3.4M32.2 62.6h3.4" stroke="#000" stroke-opacity=".12" stroke-width=".6" stroke-linecap="round"/>' +
-      '</g>');
+    /* 바닥 그림자 — 의자 좌판 아래에 깔리는 짧은 그림자 (회장님은 상반신만 그려 그림자 없음) */
+    if (id !== "captain") s.push('<ellipse class="ground-shadow" cx="28" cy="69.0" rx="13.6" ry="2.7" fill="rgba(24,30,38,.20)"/>');
+    s.push('<g class="sb">');
+    if (id === "captain") {
+      s.push(frontUpperSvg(id, a, kind));
+    } else {
+      s.push(tailSvg(kind, a));
+      s.push(backBodySvg(id, a));
+      s.push(backHeadSvg(id, a, kind));
+    }
+    s.push('</g>');
+    return '<svg class="sprite" viewBox="0 0 56 72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
+      s.join("") + '</svg>';
+  }
+  /* 회장님 정면 상반신 — 책상을 사이에 두고 마주 보는 자세
+     하체·의자는 그리지 않아 배경의 실제 책상에 자연스럽게 가립니다 */
+  function frontUpperSvg(id, a, kind) {
+    var s = [];
 
     /* 정장 — 회장님 호랑이는 기존 룩 그대로, 나머지 8명은 맞춤 수트로 맵시 있게 */
     if (kind === "tiger") {
@@ -667,13 +679,10 @@
         '<path d="M31.8 43.4 36.0 43.8 35.8 45.4 31.6 45.0Z" fill="#000" opacity=".08"/>');
     }
 
-    /* 팔걸이 — 몸 앞쪽에 보이는 의자 팔걸이 (아우라 밖) */
+    /* 팔걸이 없음 — 배경 3D 의자에 그대로 앉습니다 */
     s.push('</g>');
-    s.push('</g>');
-    s.push(armrestSvg(id));
 
-    return '<svg class="sprite" viewBox="0 0 56 72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
-      s.join("") + '</svg>';
+    return s.join("");
   }
 
   /* ------------------------------------------------------------
@@ -1888,12 +1897,12 @@
     "2": [[38, 78], [50, 74], [60, 80], [45, 84]],
     "1": [[44, 78], [56, 74], [66, 80], [50, 84]]
   };
-  /* 좌표는 바닥 배경 이미지에 그려진 3D 책상·의자 위치에 맞춰 둡니다 (자기 의자에 앉아 책상 쪽으로 일하는 구도) */
+  /* 좌표는 바닥 배경 이미지의 3D 의자 좌판 위치에 캐릭터 엉덩이가 오도록 맞춘 값입니다 */
   var HOME = {
-    captain: [49, 62], p1: [31, 82],
-    p0: [33.5, 52.7], p5: [69, 59.9],
-    p4: [26.7, 57.6], p3: [72.1, 68.9],
-    p6: [29.9, 50], p2: [49.1, 58.5], p7: [63.8, 69.8]
+    captain: [49.4, 45.1], p1: [31.1, 80.5],
+    p0: [33.5, 47.9], p5: [68.2, 57.9],
+    p4: [26.3, 54.3], p3: [72.1, 66.5],
+    p6: [29.9, 48.4], p2: [49.1, 57.0], p7: [63.8, 67.8]
   };
   /* 앉은 자리에서 의자를 조금씩 움직이듯 수십 px 안쪽의 미세한 자리 조정 */
   var SPOTS = {};
@@ -1939,6 +1948,7 @@
       if (!box) return;
       var el = document.createElement("div");
       el.className = "agent " + t.id;
+      if (!FACE_RIGHT[t.id]) el.classList.add("look-left");
       el.setAttribute("data-agent", t.id);
       el.setAttribute("data-floor", t.floor);
       el.innerHTML = '<span class="bubble"></span>' +
@@ -2048,8 +2058,6 @@
     var dur = quick ? 1.0 : Math.max(1.8, Math.min(6, dist / 7));
     setAgentPos(a, pt, dur);
     a.el.classList.add("walk");
-    if (dx < -0.8) a.el.classList.add("face-left");
-    else if (dx > 0.8) a.el.classList.remove("face-left");
     var bubble = a.el.querySelector(".bubble");
     if (bubble && Math.random() < 0.5) bubble.textContent = lineFor(a);
     window.clearTimeout(a.timer);
@@ -2063,8 +2071,7 @@
   }
 
   function faceToward(a, b) {
-    a.el.classList.toggle("face-left", b.x < a.x);
-    b.el.classList.toggle("face-left", a.x < b.x);
+    /* 앉은 자세에서는 몸을 돌리지 않습니다 (책상 쪽 방향 고정) */
   }
 
   /* 같은 층 두 명이 주고받는 대화 (3F 클부장 ↔ 그록 차장 · 2F 지과장 ↔ 제미대리 · 1F 피주임 ↔ 피사원) */

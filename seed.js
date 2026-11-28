@@ -1,6 +1,6 @@
 /* 자동 생성 파일입니다. 원본은 data.json — scripts/build-seed.py 로 다시 만듭니다. */
 window.SECRETARY_SEED = {
-  "version": "v11",
+  "version": "v12",
   "updatedAt": "2026-11-28 17:40",
   "captain": {
     "name": "회장님",
