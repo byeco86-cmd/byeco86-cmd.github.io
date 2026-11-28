@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""헤드리스 검증 — 390x844 모바일 화면, 정장 입은 동물 캐릭터 9명(피인턴 포함) 렌더링,
+"""헤드리스 검증 — 390x844 모바일 화면, 정장 입은 동물 캐릭터 9명(피인턴 포함)이 각 층 바닥을 자유롭게 걷는 렌더링,
 9명 지휘 체계·2F↔3F 교체·층 이름·직급별 책상/의자, 탭 전환, 테마/배경 전환, 수익화 8대 트랙, 콘솔 에러 0건, preview.png 갱신."""
 import http.server
 import json
@@ -62,14 +62,22 @@ def main():
           all("피비서" in s for s in (appjs, indexhtml, readme_ui))
           and "회장·비서 기획실" in indexhtml,
           "피비서·회장·비서 기획실 표기")
-    # 2026-11-28 v11: 전 층 착석·일하는 모션 · 2F·3F 중앙 라운지 보완
+    # 2026-11-28 v13: 전 층 착석 취소 → 정면 수트 캐릭터 + 층 안 자유 워킹 원복
     stylescss = (ROOT / "styles.css").read_text(encoding="utf-8")
-    for kw in ["@keyframes typeArmL", "@keyframes typeHandL", "@keyframes nodWork",
-               "@keyframes seatWork", "@keyframes seatRoll", "look-left"]:
-        check("v11_source:" + kw, kw in (stylescss + appjs), kw)
-    check("v12_readme",
-          "착석" in readme_ui and "라운지 테이블" in readme_ui and "v12" in readme_ui,
-          "README v12 이력")
+    for kw in ["@keyframes breathe", "@keyframes bob {", "@keyframes bobLeft",
+               ".agent.walk svg.sprite", ".agent.face-left svg.sprite", "body.motion-off"]:
+        check("v13_walk_css:" + kw, kw in stylescss, kw)
+    for kw in ["function moveAgent", "function pickSpot", 'classList.add("face-left")',
+               'classList.remove("face-left")', "var SPOTS = {"]:
+        check("v13_walk_js:" + kw, kw in appjs, kw)
+    seat_left = [kw for kw in ["seatWork", "typeArmL", "typeHandL", "nodWork", "seatRoll",
+                               "backBodySvg", "backHeadSvg", "frontUpperSvg", "FACE_RIGHT",
+                               "look-left"]
+                 if kw in (stylescss + appjs)]
+    check("v13_no_seat_pose", not seat_left, seat_left or "착석 포즈 코드 없음")
+    check("v13_readme",
+          "자유 워킹" in readme_ui and "v13" in readme_ui,
+          "README v13 이력")
 
     # ---- data.json 정적 점검 (요일·통계·검증 필드) ----
     import datetime as _dt
@@ -140,7 +148,7 @@ def main():
     check("credits_order_v8", [a["id"] for a in data["credits"]["agents"]] == ["p1", "p0", "p5", "p4", "p3", "p6", "p2", "p7"],
           [a["id"] for a in data["credits"]["agents"]])
     check("bld_sign_v5", "바이코 AI 오피스" in indexhtml, "건물 간판·타이틀")
-    check("foot_v12", "바이코 AI 오피스 v12" in indexhtml and "피인턴" in indexhtml, "푸터 9명")
+    check("foot_v13", "바이코 AI 오피스 v13" in indexhtml and "피인턴" in indexhtml, "푸터 9명")
     check("title_v5", "<title>바이코 AI 오피스</title>" in indexhtml, "")
     dow_ko = ["월", "화", "수", "목", "금", "토", "일"]
     for a in data.get("awards", []):
@@ -265,10 +273,13 @@ def main():
         all_svg = page.eval_on_selector_all(".agent svg.sprite", "els => els.map(e => e.outerHTML)")
         svg_by = dict(zip(agent_ids, all_svg))
         p0_svg = svg_by.get("p0", "")
-        # v12: 가짜 2D SVG 의자·바닥에 뻗은 다리는 완전히 제거 — 배경의 실제 3D 의자에 앉습니다
-        no_chair = [a for a, svg in svg_by.items() if 'class="chair"' in svg or 'class="armrest"' in svg
-                    or 'class="legs"' in svg]
-        check("no_fake_chair", not no_chair, no_chair or "2D 의자·다리 없음")
+        # v13: 정면 서 있는 전신 — 다리·구두·바닥 그림자가 다 있고, 앉은 자세·2D 의자는 없습니다
+        not_standing = [a for a, svg in svg_by.items()
+                        if '<rect x="22.0" y="52.0" width="5.7" height="11.2"' not in svg
+                        or '<rect x="19.9" y="62.4" width="8.1" height="4.2"' not in svg
+                        or 'class="ground-shadow"' not in svg or '<g class="sb">' not in svg
+                        or 'class="chair"' in svg or 'class="armrest"' in svg]
+        check("standing_full_body", not not_standing, not_standing or "9명 전신·구두·그림자")
 
         cap_box = page.eval_on_selector(
             '.agent[data-agent="captain"] svg.sprite',
@@ -318,67 +329,92 @@ def main():
               (cap_style["shadowInBody"], cap_style["bodyNodes"]))
         check("captain_ground_shadow_keep", "drop-shadow" in cap_style["spriteFilter"], cap_style["spriteFilter"])
 
-        # v12 실무진 8명 — 뒤에서 본 등 모습 (등·깃·그리고 책상 쪽으로 3/4 돌린 한쪽 눈·주둥이)
-        back_marks = [("p1", "#26344E", "네이비 재킷 등"), ("p1", "#EFBB77", "시바 털"),
-                      ("p2", "#2E6FA8", "블루 재킷 등"), ("p2", "#D8E5F2", "토끼 털"),
-                      ("p0", "#2E2C33", "차콜 재킷 등"), ("p0", "#C68A5A", "곰 갈색 털"),
-                      ("p5", "#1B2330", "딥슬레이트 재킷 등"), ("p5", "#4C525C", "검은 늑대 털"),
-                      ("p4", "#10A37F", "에메랄드 재킷 등"), ("p4", "#E79451", "여우 주황 털"),
-                      ("p3", "#4FBB9D", "민트 재킷 등"), ("p3", "#BE8A5F", "다람쥐 털"),
-                      ("p6", "#22364F", "턱시도 네이비 재킷 등"), ("p6", "#F5A623", "주황 부리"),
-                      ("p7", "#6C7A8E", "그레이 재킷 등"), ("p7", "#E9C79A", "햄스터 털")]
-        for aid, mark, why in back_marks:
-            check(f"back_mark:{aid}:{mark}", mark in svg_by.get(aid, ""), why)
-        for aid in ["p1", "p2", "p0", "p5", "p4", "p3", "p6", "p7"]:
+        # v13 정면 수트 전신 — 정장·털 색과 두 눈·넥타이가 다 보입니다 (뒤통수 3/4 아님)
+        front_marks = [("p1", "#26344E", "네이비 정장"), ("p1", "#EFBB77", "시바 털"),
+                       ("p2", "#2E6FA8", "블루 정장"), ("p2", "#D8E5F2", "토끼 털"),
+                       ("p0", "#2E2C33", "차콜 정장"), ("p0", "#C68A5A", "곰 갈색 털"),
+                       ("p5", "#1B2330", "딥슬레이트 정장"), ("p5", "#4C525C", "검은 늑대 털"),
+                       ("p4", "#10A37F", "에메랄드 정장"), ("p4", "#E79451", "여우 주황 털"),
+                       ("p3", "#4FBB9D", "민트 정장"), ("p3", "#BE8A5F", "다람쥐 털"),
+                       ("p6", "#22364F", "턱시도 네이비 정장"), ("p6", "#F5A623", "주황 부리"),
+                       ("p7", "#6C7A8E", "그레이 정장"), ("p7", "#E9C79A", "햄스터 털")]
+        for aid, mark, why in front_marks:
+            check(f"front_mark:{aid}:{mark}", mark in svg_by.get(aid, ""), why)
+        for aid in ["p1", "p2", "p0", "p5", "p4", "p3", "p6", "p7", "captain"]:
             svg = svg_by.get(aid, "")
-            # 재킷 등·깃(수트 라이트 톤)·양팔·고개 그룹이 모두 있는지
-            ok = ('M12.6 43.0C13.2 36.4' in svg and 'class="arm arm-l"' in svg
-                  and 'class="arm arm-r"' in svg and '<g class="hd">' in svg and 'class="eye"' in svg)
-            check(f"back_pose:{aid}", ok, aid)
-            # 책상 쪽으로 3/4 돌린 얼굴 (한쪽 눈 cx=36)
-            check(f"back_face_turn:{aid}", 'cx="36.0" cy="25.4"' in svg or 'cx="35.4" cy="30.6"' in svg
-                  or 'cx="37.2" cy="31.6"' in svg, aid)
+            # 앞면: 두 눈(좌·우)이 모두 있고, 어깨에서 떨어지는 양팔과 고개·몸 그룹이 있는지
+            ok = (svg.count('<g class="eye">') >= 2
+                  and '<path d="M17.4 40.9c-2.8 2.0-4.1 5.5-4.1 9.7' in svg
+                  and '<circle cx="15.7" cy="51.8" r="2.7"' in svg
+                  and '<circle cx="40.3" cy="51.8" r="2.7"' in svg)
+            check(f"front_pose:{aid}", ok, aid)
         for aid, mark, why in [("p1", "#E9C46A", "비서 골드 커프스"), ("p0", "#E0B44A", "부장 골드 커프스"),
                                ("p5", "#CFE0F0", "차장 실버 커프스"), ("p6", "#DCE7F3", "주임 커프스")]:
-            check(f"back_cuff:{aid}", mark in svg_by.get(aid, ""), why)
-        # 책상이 왼쪽인 자리는 좌우 반전해서 그쪽을 보게 합니다
-        look = page.evaluate("""() => {
-          const o = {};
-          document.querySelectorAll('.agent').forEach(a => {
-            const svg = a.querySelector('svg.sprite');
-            o[a.getAttribute('data-agent')] = {
-              cls: a.classList.contains('look-left'),
-              t: getComputedStyle(svg).transform
-            };
-          });
-          return o;
+            check(f"front_cuff:{aid}", mark in svg_by.get(aid, ""), why)
+
+        # 걷는 모션 — 기본은 호흡(breathe), 걸을 때는 상하 흔들림(bob/bobLeft)
+        for _ in range(12):
+            idle = page.evaluate("""() => {
+              const out = {};
+              document.querySelectorAll('.agent').forEach(a => {
+                out[a.getAttribute('data-agent')] = {
+                  walk: a.classList.contains('walk'),
+                  anim: getComputedStyle(a.querySelector('.sprite-wrap')).animationName,
+                  sprite: getComputedStyle(a.querySelector('svg.sprite')).animationName
+                };
+              });
+              return out;
+            }""")
+            if len([v for v in idle.values() if not v["walk"]]) >= 2:
+                break
+            page.wait_for_timeout(400)
+        results.append(("idle_anims", idle))
+        standing = {k: v for k, v in idle.items() if not v["walk"]}
+        check("idle_breathe", standing and all(v["anim"] == "breathe" for v in standing.values()),
+              {k: v for k, v in idle.items()})
+
+        # 이동 방향에 따라 face-left(좌우 반전)가 붙고, 걸을 때 bob 애니메이션이 도는지 관찰
+        walk_seen = {"walking": {}, "left": []}
+        for _ in range(24):
+            snap = page.evaluate("""() => {
+              const w = {}; const left = [];
+              document.querySelectorAll('.agent').forEach(a => {
+                const id = a.getAttribute('data-agent');
+                if (a.classList.contains('walk')) {
+                  w[id] = getComputedStyle(a.querySelector('svg.sprite')).animationName;
+                }
+                if (a.classList.contains('face-left') && !left.includes(id)) left.push(id);
+              });
+              return {walking: w, left: left};
+            }""")
+            walk_seen["walking"].update(snap["walking"])
+            for k in snap["left"]:
+                if k not in walk_seen["left"]:
+                    walk_seen["left"].append(k)
+            if walk_seen["walking"] and walk_seen["left"]:
+                break
+            page.wait_for_timeout(500)
+        results.append(("walk_seen", walk_seen))
+        check("walk_bob_anim", bool(walk_seen["walking"]) and
+              all(v in ("bob", "bobLeft") for v in walk_seen["walking"].values()), walk_seen["walking"])
+        check("walk_face_left_used", bool(walk_seen["left"]), walk_seen["left"] or "10초 관찰에서 좌우 반전 못 봄")
+        # 좌우 반전은 실제로 좌우를 뒤집습니다 (얼굴이 왼쪽을 향할 때만)
+        flip = page.evaluate("""() => {
+          const a = document.querySelector('.agent[data-agent="p6"]');
+          const svg = a.querySelector('svg.sprite');
+          const before = getComputedStyle(svg).transform;
+          a.classList.add('face-left');
+          const on = getComputedStyle(svg).transform;
+          a.classList.remove('face-left');
+          const off = getComputedStyle(svg).transform;
+          return {before: before, on: on, off: off};
         }""")
-        results.append(("look_dirs", look))
-        left = [k for k, v in look.items() if v["cls"]]
-        check("look_left_set", sorted(left) == ["p0", "p4"], left)
+        results.append(("face_left_flip", flip))
+
         def _sx(t):
             mm = re.match(r"matrix\(([-0-9.eE]+)", (t or "").replace(" ", ""))
             return float(mm.group(1)) if mm else 1.0
-        check("look_left_flip", all(_sx(look[k]["t"]) < 0 for k in left)
-              and all(_sx(look[k]["t"]) > 0 for k in look if k not in left),
-              {k: round(_sx(v["t"]), 3) for k, v in look.items()})
-
-        # 앉아서 일하는 모션 — 계산된 애니메이션 이름 (손 키 누름은 정면 회장님만)
-        anim = page.evaluate("""() => {
-          const a = document.querySelector('.agent[data-agent="p0"]');
-          const cap = document.querySelector('.agent[data-agent="captain"]');
-          const g = (root, s) => getComputedStyle(root.querySelector(s)).animationName;
-          const bodies = Array.from(document.querySelectorAll('.agent .sprite-wrap')).map(e => getComputedStyle(e).animationName);
-          return {arm: g(a, '.arm-l') || '', arm2: g(a, '.arm-r') || '',
-                  hand: g(cap, '.hand-l') || '',
-                  head: g(a, '.hd') || '', body: getComputedStyle(a.querySelector('.sprite-wrap')).animationName,
-                  seatBodies: bodies.filter(n => n === 'seatWork').length};
-        }""")
-        results.append(("seat_anims", anim))
-        check("seat_motion_arms", anim["arm"] == "typeArmL" and anim["arm2"] == "typeArmR", anim)
-        check("seat_motion_hands", anim["hand"] == "typeHandL", anim)
-        check("seat_motion_nod", anim["head"] == "nodWork", anim)
-        check("seat_motion_body", anim["body"] == "seatWork" or anim["seatBodies"] >= 7, anim)
+        check("face_left_mirrors", _sx(flip["on"]) < 0 and _sx(flip["off"]) > 0, flip)
 
         # ---- 3D 배경 통합 책상 (플랫 SVG 책상 제거 확인 + 배경 이미지 확인) ----
         check("no_flat_desk_units", page.locator(".desk-unit").count() == 0, page.locator(".desk-unit").count())
@@ -421,9 +457,10 @@ def main():
         check("p4_sprite_visible", p4_box["w"] > 20 and p4_box["h"] > 20, p4_box)
 
         p4_svg = page.eval_on_selector('.agent[data-agent="p4"] svg.sprite', "el => el.outerHTML") or ""
-        check("p4_palette", "#10A37F" in p4_svg, "에메랄드 정장(등)")
+        check("p4_palette", "#10A37F" in p4_svg, "에메랄드 정장")
         check("p4_fur", "#E79451" in p4_svg, "여우 주황 털")
-        check("p4_face_turn", 'cx="36.0" cy="25.4"' in p4_svg, "책상 쪽 3/4 얼굴")
+        check("p4_front_face", p4_svg.count('<g class="eye">') >= 2 and 'cx="18.4" cy="33.4"' in p4_svg,
+              "정면 두 눈·볼")
 
         # 각 캐릭터가 맵 안(0~100%)에 있는지
         in_stage = page.evaluate("""() => {
@@ -438,7 +475,7 @@ def main():
         results.append(("agent_positions", in_stage))
         check("agents_in_stage", len(in_stage) == 9 and all(0 <= a["x"] <= 100 and 0 <= a["y"] <= 100 for a in in_stage), in_stage)
 
-        # v11 착석 좌표 — 모두 자기 의자 자리에서 ±1.6% 안쪽만 움직입니다 (층별 책상·의자 좌표)
+        # v13 걷기 좌표 — 9명 모두 HOME에서 시작하고, 배회 지점(SPOTS)은 가구를 피한 자기 자리 주변입니다
         home_now = page.evaluate("""() => {
           const o = {};
           document.querySelectorAll('.agent').forEach(a => {
@@ -446,12 +483,41 @@ def main():
           });
           return o;
         }""")
-        SEAT = {"captain": [49.4, 45.1], "p1": [31.1, 80.5], "p0": [33.5, 47.9], "p5": [68.2, 57.9],
-                "p4": [26.3, 54.3], "p3": [72.1, 66.5], "p6": [29.9, 48.4], "p2": [49.1, 57.0], "p7": [63.8, 67.8]}
-        results.append(("seat_coords", home_now))
-        far = [k for k, v in SEAT.items()
-               if not home_now.get(k) or abs(home_now[k][0] - v[0]) > 1.6 or abs(home_now[k][1] - v[1]) > 1.0]
-        check("agents_seated_at_chairs", not far, far or home_now)
+        HOME_P = {"captain": [68.3, 78.4], "p1": [39.0, 76.9], "p0": [33.0, 60.0], "p5": [63.4, 67.0],
+                  "p4": [34.0, 60.0], "p3": [67.0, 72.2], "p6": [28.0, 58.0], "p2": [50.0, 63.9],
+                  "p7": [73.3, 75.5]}
+        results.append(("home_coords", home_now))
+
+        # SPOTS 정적 파싱 — 9명 모두 4곳, 걷는 폭이 좁고, 2F·3F 중앙 라운지 테이블 구역을 비켜 갑니다
+        raw_spots = re.search(r"var SPOTS = \{(.*?)\n  \};", appjs, re.S)
+        spots = {}
+        if raw_spots:
+            for m in re.finditer(r"(\w+): \[((?:\[-?[\d.]+, -?[\d.]+\],? ?)+)\]", raw_spots.group(1)):
+                spots[m.group(1)] = [[float(a), float(b)] for a, b in
+                                     re.findall(r"\[(-?[\d.]+), (-?[\d.]+)\]", m.group(2))]
+        results.append(("spots", spots))
+        check("spots_9_agents", sorted(spots.keys()) == sorted(HOME_P.keys())
+              and all(len(v) >= 4 for v in spots.values()), {k: len(v) for k, v in spots.items()})
+        # HOME은 자기 배회 지점 안에 있어야 하고, 지금 위치도 배회 지점 중 하나여야 합니다
+        home_bad = [k for k, v in HOME_P.items()
+                    if not any(abs(v[0] - p[0]) < .01 and abs(v[1] - p[1]) < .01 for p in spots.get(k, []))]
+        check("home_in_spots", not home_bad, home_bad or "9명 HOME이 배회 지점 안")
+        off_spots = [k for k, v in home_now.items()
+                     if not any(abs(v[0] - p[0]) < .01 and abs(v[1] - p[1]) < .01 for p in spots.get(k, []))]
+        check("agents_at_spots", not off_spots, off_spots or home_now)
+        # 2F·3F 라운지 테이블: 이미지 536~712px(가로) · 604~748px(세로) → 전체 보기 % 기준
+        LOUNGE = {"p0": (41.5, 57.4, 16.0, 60.5), "p5": (41.5, 57.4, 16.0, 60.5),
+                  "p4": (41.5, 57.4, 16.0, 60.5), "p3": (41.5, 57.4, 16.0, 60.5)}
+        in_table = []
+        for aid, box in LOUNGE.items():
+            for p in spots.get(aid, []):
+                if box[0] <= p[0] <= box[1] and box[2] <= p[1] <= box[3]:
+                    in_table.append((aid, p))
+        check("spots_clear_lounge", not in_table, in_table or "2F·3F 라운지 테이블 구역 비켜 감")
+        wide = [(k, round(max(p[0] for p in v) - min(p[0] for p in v), 1)) for k, v in spots.items()
+                if v and max(p[0] for p in v) - min(p[0] for p in v) > 10]
+        check("spots_within_floor", not wide and all(all(10 <= p[0] <= 90 and 40 <= p[1] <= 92 for p in v)
+                                                     for v in spots.values()), wide or "모든 배회 지점이 층 안")
 
         # 인원 표기 8명 ON / 로스터
         on_count = page.inner_text("#onCount")
@@ -553,30 +619,28 @@ def main():
         page.click('.seg-btn[data-style="basic"]')
         page.wait_for_timeout(400)
 
-        # 움직임 끄기 → 켜기 (앉아서 일하는 모션도 함께 멈추는지)
+        # 움직임 끄기 → 켜기 (걷기 흔들림·호흡 모션도 함께 멈추는지)
         page.click("#motionBtn")
         page.wait_for_timeout(300)
         results.append(("motion_off_label", page.inner_text("#motionLabel")))
         off_anim = page.evaluate("""() => {
           const a = document.querySelector('.agent[data-agent="p0"]');
-          const cap = document.querySelector('.agent[data-agent="captain"]');
+          const b = document.querySelector('.agent[data-agent="p1"]');
           const g = (root, s) => getComputedStyle(root.querySelector(s)).animationName;
-          return {arm: g(a, '.arm-l'), hand: g(cap, '.hand-l'), head: g(a, '.hd'),
-                  body: getComputedStyle(a.querySelector('.sprite-wrap')).animationName,
+          return {sprite: g(a, 'svg.sprite'), wrap: g(a, '.sprite-wrap'), wrap2: g(b, '.sprite-wrap'),
                   cls: document.body.className};
         }""")
         results.append(("motion_off_anim", off_anim))
-        check("motion_off_stops_work", off_anim["arm"] == "none" and off_anim["hand"] == "none"
-              and off_anim["head"] == "none" and off_anim["body"] == "none"
-              and "motion-off" in off_anim["cls"], off_anim)
+        check("motion_off_stops_walk", off_anim["sprite"] == "none" and off_anim["wrap"] == "none"
+              and off_anim["wrap2"] == "none" and "motion-off" in off_anim["cls"], off_anim)
         page.click("#motionBtn")
         page.wait_for_timeout(300)
         results.append(("motion_on_label", page.inner_text("#motionLabel")))
         on_anim = page.evaluate("""() => {
           const a = document.querySelector('.agent[data-agent=\"p0\"]');
-          return getComputedStyle(a.querySelector('.arm-l')).animationName;
+          return getComputedStyle(a.querySelector('.sprite-wrap')).animationName;
         }""")
-        check("motion_on_resumes_work", on_anim == "typeArmL", on_anim)
+        check("motion_on_resumes_walk", on_anim == "breathe", on_anim)
 
         # ---- 층 전환: 4F ----
         page.click('.floor-btn[data-floor="4"]')

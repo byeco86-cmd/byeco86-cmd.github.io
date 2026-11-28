@@ -75,6 +75,14 @@
 
 ### v5 직급 개편 (11/27 밤 · 회장님 지시)
 
+### v13 착석 취소 · 전 층 9명 자유 워킹 원복 (11/28 밤 · 회장님 지시)
+
+- **의자 착석 포즈 취소** — v11·v12에서 앉혀 두었던 9명을 **취소하고**, v10(`c2a80d4`)의 **정면 수트 캐릭터**로 되돌렸습니다. 뒤통수 3/4 얼굴·등 모습·2D 의자·타이핑 팔·고개 끄덕임·의자 굴림 코드는 `app.js`·`styles.css`에서 모두 걷어냈고(검사 `v13_no_seat_pose`), 캐릭터는 다시 다리·구두·바닥 그림자가 있는 전신(`standing_full_body`)에 두 눈·라펠·넥타이·커프스가 보이는 앞면입니다.
+- **층 안 자유 워킹** — 각자 자기 자리 곁 바닥 여백을 오가며 걷습니다. `HOME`은 4F 회장님 대형 책상 앞 러그·피비서 구석 책상, 3F·2F 벽 쪽 책상 곁, 1F 3인 데스크 사이 통로로 잡았고, `SPOTS`는 **2F·3F 중앙 라운지 테이블·스툴과 4F 회장님 책상·1F 데스크를 지나지 않도록** 캐릭터마다 손으로 좌표를 지정했습니다(검사 `spots_clear_lounge`·`spots_within_floor`). 걷는 방향에 따라 `face-left`로 좌우를 뒤집고, 걸을 때는 상하 흔들림(`bob`/`bobLeft`), 설 때는 호흡(`breathe`)이 돕니다. `움직임 OFF`면 `body.motion-off`로 이 모션도 멈춥니다.
+- **유지한 것** — 직책명 `피비서`, 층 이름 `회장·비서 기획실`·`현장 실행·응모실`, 4개 층 3D 배경과 가구(`floor-4f~1f.webp`·`clay-4f~1f.webp` 그대로, 2F·3F 중앙 라운지 포함), 8명 정장 맵시, 회장님 호랑이 크기 +15%·몸 테두리 황금 아우라, 흰 바탕 이름표.
+- **버전** — 푸터·`data.json`·`seed.js` **v13**. 기존 `back_pose:*`·`back_mark:*`·`back_face_turn:*`·`look_left_*`·`seat_motion_*`·`agents_seated_at_chairs` 검사를 없애고 `front_pose:*`·`front_mark:*`·`idle_breathe`·`walk_bob_anim`·`walk_face_left_used`·`face_left_mirrors`·`motion_off_stops_walk`·`agents_start_at_home`·`spots_*`를 새로 넣었습니다.
+- 검증: `python3 scripts/verify.py` → **258/258 통과 · 콘솔 에러 0건**.
+
 <!-- legacy-titles:start -->
 - **오피스 명칭** — `대장님 AI 오피스` → **`바이코 AI 오피스`** (페이지 제목·헤더·맵 건물 간판·매니페스트·README·푸터까지 전부).
 - **직급·명칭** — `회장 > 피비서 > 클부장 > 지과장 > 제미대리 > 피사원` 순서로 통일했습니다.
