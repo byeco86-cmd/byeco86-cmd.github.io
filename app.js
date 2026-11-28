@@ -2054,6 +2054,7 @@
   function pokeFloorAgents(delay) {
     var shown = agents.filter(visible);
     var talker = state.floor === "all" ? pick(shown) : null;
+    var seq = 0;   /* 같은 층 인사가 한꺼번에 터지면 말풍선끼리 서로 가리므로 차례로 말합니다 */
     agents.forEach(function (a) {
       var on = visible(a);
       a.el.classList.toggle("is-hidden", !on);
@@ -2066,8 +2067,10 @@
       }
       setAgentPos(a, pickSpot(a), 1.0);
       if (state.floor !== "all" || a === talker) {
-        speak(a, lineFor(a), 3000, delay || 0);
-        hopAgent(a, delay || 0);
+        var at = (delay || 0) + seq * 1900;
+        seq += 1;
+        speak(a, lineFor(a), 2600, at);
+        hopAgent(a, at);
       }
     });
   }

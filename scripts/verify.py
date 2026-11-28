@@ -198,6 +198,8 @@ def main():
           and "21건" in json.dumps(ones["p7"], ensure_ascii=False), ones["p7"]["note"])
     check("floor1_day_total_card", "당일 누적 58건" in f1_txt and "총 누적 172건" in f1_txt,
           fl["1"]["tasks"][:3])
+    check("v16_greeting_stagger", "seq * 1900" in appjs and "speak(a, lineFor(a), 2600, at)" in appjs,
+          "같은 층 인사는 1.9초 간격으로 차례로")
     check("entry_badge_css", ".entry-count" in stylescss and "has-count .bubble" in stylescss,
           "styles.css 숫자 배지·말풍선 높이 조정")
     check("version_v16", data["version"] == "v16", data["version"])
@@ -744,6 +746,8 @@ def main():
         except Exception:
             pass
         page.wait_for_timeout(200)
+        # v16: 같은 층 인사가 1.9초 간격으로 차례로 뜹니다 — 피비서(두 번째) 말풍선을 기다립니다
+        page.wait_for_timeout(1900)
         focus_4 = page.evaluate("""() => {
           const f4 = document.querySelector('.floor[data-floor="4"]');
           const f3 = document.querySelector('.floor[data-floor="3"]');
@@ -825,7 +829,7 @@ def main():
 
         # ---- 층 전환: 3F (핵심 실무·개발실 — 클부장 · 그록 차장) ----
         page.click('.floor-btn[data-floor="3"]')
-        page.wait_for_timeout(750)
+        page.wait_for_timeout(2400)
         focus_3 = page.evaluate("""() => {
           const f3 = document.querySelector('.floor[data-floor="3"]');
           const f4 = document.querySelector('.floor[data-floor="4"]');
@@ -853,6 +857,9 @@ def main():
           return o;
         }""")
         results.append(("visible_1", vis_1))
+        talk_now = page.evaluate("""() => document.querySelectorAll('.floor[data-floor="1"] .agent.talk').length""")
+        results.append(("floor1_talk_at_once", talk_now))
+        check("v16_greeting_one_by_one", talk_now <= 1, talk_now)
         check("floor_visible_1", vis_1 == {"captain": False, "p1": False, "p2": True, "p4": False, "p0": False, "p3": False, "p5": False, "p6": True, "p7": True}, vis_1)
         cards_1 = page.inner_text("#floorCards")
         results.append(("floor_cards_1", cards_1[:220]))
