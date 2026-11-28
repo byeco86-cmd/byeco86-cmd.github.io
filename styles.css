@@ -1072,6 +1072,36 @@ svg.sprite .eye { transform-box: fill-box; transform-origin: center; animation: 
 }
 .floor .agent-tag { max-width: 100px; overflow: hidden; text-overflow: ellipsis; font-size: 8px; padding: 1px 5px; }
 .floor.is-focus .agent-tag { font-size: 9.5px; padding: 1.5px 7px; }
+
+/* 1F 캐릭터 머리 위 응모 숫자 배지 — 오늘 / 총 누적 */
+.entry-count {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% - 1px);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1px 5px 2px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, .95);
+  color: #1b4d86;
+  border: 1px solid rgba(86, 132, 190, .6);
+  box-shadow: 0 2px 7px -3px rgba(30, 50, 80, .5), inset 0 1px 0 #fff;
+  white-space: nowrap;
+  line-height: 1.12;
+  z-index: 5;
+  pointer-events: none;
+}
+.entry-count b { font-size: 8px; font-weight: 900; letter-spacing: -.2px; }
+.entry-count i { font-style: normal; font-size: 6.5px; font-weight: 800; color: #6a7f96; }
+.floor:not(.is-focus) .entry-count { display: none; }
+.floor.is-focus .entry-count { padding: 2px 7px 3px; border-radius: 9px; }
+.floor.is-focus .entry-count b { font-size: 11.5px; }
+.floor.is-focus .entry-count i { font-size: 8.5px; }
+/* 배지가 머리 위에 있으니 말풍선은 배지 위로 올린다 (겹침 방지) */
+.floor .agent.has-count .bubble { bottom: calc(100% + 20px); }
+.floor.is-focus .agent.has-count .bubble { bottom: calc(100% + 31px); }
 /* 이름표는 6명 모두 흰 바탕·어두운 글씨로 통일 (지과장·클부장만 색이 달랐던 것 제거) */
 .agent.is-picked .agent-tag { background: #eef3fa; color: #22314a; border-color: #c9d5e6; }
 
@@ -2429,6 +2459,17 @@ html[data-theme="dark"] .relay-node.is-now { background: linear-gradient(160deg,
   pointer-events: none;
 }
 .floor.is-focus .floor-hud { opacity: 1; transform: none; }
+/* 1F는 캐릭터 머리 위 숫자 배지와 겹치지 않도록 모니터를 위쪽 2×2로 모읍니다 */
+.floor[data-floor="1"] .floor-hud {
+  top: auto;
+  bottom: 8px;
+  left: 7px;
+  right: auto;
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 4px;
+  align-items: end;
+}
 .floor.is-focus .hud-btn { pointer-events: auto; }
 .hud-tile {
   display: inline-flex; align-items: center; gap: 4px;

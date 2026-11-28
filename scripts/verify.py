@@ -181,6 +181,15 @@ def main():
           and "36건" in ones["p6"]["note"], (p6_credit.get("today"), ones["p6"]["note"][:80]))
     check("entries_today_breakdown", ent.get("today") == 46
           and (ent.get("todayBy") or {}).get("p6") == 36, ent)
+    # 2026-11-28 v15.1 개인별 오늘/총 누적 · 캐릭터 머리 위 숫자
+    by = ent.get("byAgent") or {}
+    check("entries_by_agent", by.get("p6") == {"today": 36, "total": 36}
+          and by.get("p2") == {"today": 10, "total": 124}
+          and (by.get("p7") or {}).get("today") is None, by)
+    check("floor1_day_total_card", "당일 누적 46건" in f1_txt and "총 누적 160건" in f1_txt,
+          fl["1"]["tasks"][:3])
+    check("entry_badge_css", ".entry-count" in stylescss and "has-count .bubble" in stylescss,
+          "styles.css 숫자 배지·말풍선 높이 조정")
     check("version_v15", data["version"] == "v15", data["version"])
     # 2026-11-28 21:20 피주임·피인턴 가동 전환 — 대기 표현이 데이터에 남으면 실패
     waiting_left = [name for name, obj in (("피주임", juim), ("피인턴", intern)) if "연동 대기" in json.dumps(obj, ensure_ascii=False)]
@@ -813,6 +822,24 @@ def main():
         hud_1f = page.inner_text('#floorStack .floor[data-floor="1"] .floor-hud')
         results.append(("hud_1f", hud_1f))
         check("floor_hud_1f_210", "210" in hud_1f and "1F" in hud_1f, hud_1f)
+        check("floor_hud_1f_day_total", "당일 누적" in hud_1f and "46" in hud_1f
+              and "총 누적" in hud_1f and "160" in hud_1f, hud_1f)
+        check("floor_card_1_day_total", "당일 누적 46건" in cards_1 and "총 누적 160건" in cards_1, cards_1[:200])
+        # 캐릭터 머리 위 개인별 응모 숫자 배지
+        badges = {}
+        for aid in ("p6", "p2", "p7"):
+            loc = page.locator('.floor[data-floor="1"] .agent.' + aid + ' .entry-count')
+            badges[aid] = {"text": loc.inner_text().replace("\n", " ") if loc.count() else "",
+                           "visible": loc.is_visible() if loc.count() else False}
+        results.append(("entry_badges", badges))
+        check("map_entry_badges_1f",
+              all(b["visible"] for b in badges.values())
+              and "36" in badges["p6"]["text"] and "10" in badges["p2"]["text"]
+              and "124" in badges["p2"]["text"] and "미보고" in badges["p7"]["text"], badges)
+        bb = page.locator('.floor[data-floor="1"] .agent.p6 .entry-count').bounding_box()
+        tg = page.locator('.floor[data-floor="1"] .agent.p6 .agent-tag').bounding_box()
+        results.append(("badge_box", bb, tg))
+        check("map_badge_above_tag", bool(bb and tg) and bb["y"] + bb["height"] <= tg["y"], (bb, tg))
         check("floor_card_1_juim_status", "가동 중" in cards_1 and "응모·쿠폰 지원" in cards_1, cards_1[:200])
         page.screenshot(path=str(SHOTS / "03-floor-1.png"))
 

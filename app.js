@@ -1587,7 +1587,8 @@
         '<span class="hud-tile">🔗 GitHub 동기화 <b>✓</b></span>'],
       "2": ['<span class="hud-tile">🔍 게이트 ② 검증</span>',
         '<span class="hud-tile">🧭 체험단 <b>' + ((s.deals && s.deals.total) || 0) + '</b>건 점수화</span>'],
-      "1": ['<span class="hud-tile">🎟️ 누적 <b>' + ((s.entries && s.entries.total) || 0) + '</b>건</span>',
+      "1": ['<span class="hud-tile day">📅 당일 누적 <b>' + ((s.entries && s.entries.today) || 0) + '</b>건</span>',
+        '<span class="hud-tile">🎟️ 총 누적 <b>' + ((s.entries && s.entries.total) || 0) + '</b>건</span>',
         '<span class="hud-tile">🎯 1F <b>' + ((s.entries && s.entries.dailyGoal) || 210) + '</b>건/일</span>',
         '<span class="hud-tile">🎫 0원 쿠폰 <b>' + ((s.coupons && s.coupons.zero) || 0) + '</b>종</span>']
     }[f.id] || [];
@@ -1866,16 +1867,32 @@
     }
   };
 
+  function entryCountHtml(id) {
+    var e = (data.stats && data.stats.entries) || {};
+    var by = e.byAgent || {};
+    var c = by[id];
+    if (!c) return "";
+    var t = teamById(id);
+    var name = t ? t.name : id;
+    var todayTxt = (c.today === null || c.today === undefined) ? "미보고" : c.today + "건";
+    var totalTxt = (c.total === null || c.total === undefined) ? "미보고" : c.total + "건";
+    var label = name + " 오늘 응모 " + todayTxt + " · 총 누적 " + totalTxt;
+    return '<span class="entry-count" role="img" aria-label="' + esc(label) + '" title="' + esc(label) + '">' +
+      '<b>오늘 ' + ((c.today === null || c.today === undefined) ? "미보고" : c.today) + '</b>' +
+      '<i>총 ' + ((c.total === null || c.total === undefined) ? "—" : c.total) + '</i></span>';
+  }
+
   function buildAgents() {
     agents = [];
     data.team.forEach(function (t) {
       var box = $('.floor-agents[data-floor-agents="' + t.floor + '"]');
       if (!box) return;
       var el = document.createElement("div");
-      el.className = "agent " + t.id;
+      var count = entryCountHtml(t.id);
+      el.className = "agent " + t.id + (count ? " has-count" : "");
       el.setAttribute("data-agent", t.id);
       el.setAttribute("data-floor", t.floor);
-      el.innerHTML = '<span class="bubble"></span>' +
+      el.innerHTML = '<span class="bubble"></span>' + count +
         '<span class="sprite-wrap">' + spriteSvg(t.id) + '</span>' +
         '<span class="agent-tag">' + esc(t.name) + '</span>';
       box.appendChild(el);
