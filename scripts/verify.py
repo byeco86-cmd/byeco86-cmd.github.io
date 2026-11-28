@@ -469,8 +469,8 @@ def main():
           });
           return o;
         }""")
-        SEAT = {"captain": [49, 62], "p1": [29.5, 75], "p0": [22, 48.5], "p5": [58, 51],
-                "p4": [22, 53], "p3": [58, 67], "p6": [24.5, 43], "p2": [39.5, 50.5], "p7": [55, 62]}
+        SEAT = {"captain": [49, 62], "p1": [31, 82], "p0": [33.5, 52.7], "p5": [69, 59.9],
+                "p4": [26.7, 57.6], "p3": [72.1, 68.9], "p6": [29.9, 50], "p2": [49.1, 58.5], "p7": [63.8, 69.8]}
         results.append(("seat_coords", home_now))
         far = [k for k, v in SEAT.items()
                if not home_now.get(k) or abs(home_now[k][0] - v[0]) > 1.6 or abs(home_now[k][1] - v[1]) > 1.0]
