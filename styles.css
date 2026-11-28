@@ -1459,7 +1459,7 @@ button.floor-card:active { transform: scale(.98); box-shadow: none; }
 .chain-card .card-head .muted-sm { text-align: left; font-size: 11px; }
 .chain-strip {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 5px;
 }
 .chain-node {
@@ -1486,8 +1486,8 @@ button.floor-card:active { transform: scale(.98); box-shadow: none; }
   color: var(--accent);
   text-align: center;
 }
-/* 8명 체제: 4개씩 두 줄 — 줄 끝(8번째) 화살표는 지운다 */
-.chain-node:nth-of-type(4n)::after { content: none; }
+/* 9명 체제: 3개씩 세 줄 — 줄 끝 화살표는 지운다 */
+.chain-node:nth-of-type(3n)::after { content: none; }
 .chain-node .cn-ava {
   width: 30px; height: 30px;
   display: grid; place-items: center;

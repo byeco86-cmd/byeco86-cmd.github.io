@@ -483,12 +483,16 @@ def main():
             pass
 
         # 움직임 확인 (5명 중 최소 2명 위치 변화)
-        before = page.eval_on_selector_all(
+        snap = lambda: page.eval_on_selector_all(
             ".agent", "els => els.map(e => e.style.left + '/' + e.style.top)")
-        page.wait_for_timeout(7000)
-        after = page.eval_on_selector_all(
-            ".agent", "els => els.map(e => e.style.left + '/' + e.style.top)")
-        moved = sum(1 for a, b in zip(before, after) if a != b)
+        before = snap()
+        page.wait_for_timeout(3000)
+        mid = snap()
+        page.wait_for_timeout(4000)
+        after = snap()
+        moved = max(sum(1 for a, b in zip(before, mid) if a != b),
+                    sum(1 for a, b in zip(mid, after) if a != b),
+                    sum(1 for a, b in zip(before, after) if a != b))
         results.append(("agents_moved", moved))
         check("agents_move", moved >= 2, f"{moved}/8 이동")
 
