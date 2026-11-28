@@ -356,7 +356,11 @@
       '<path d="M7.9 53.4c1.2.7 2.4 1 3.5.9" stroke="' + ((SUIT[id] && SUIT[id].cuff) || "#DCE3EC") + '" stroke-width=".85" stroke-linecap="round" opacity=".85"/></g>');
     s.push('<g class="arm arm-r"><path d="M42.6 41.4C46.8 44.0 48.8 48.4 48.5 53.6c-.2 2.4-3.1 3.2-4.6 1.2-1.5-2.1-2.1-6.0-1.9-9.4 1.4-.3 1.9-1.9.6-4z" fill="' + a.suit + '"/>' +
       '<path d="M44.4 44.4c2.0 2.3 2.9 5.5 2.6 8.9" stroke="#000" stroke-opacity=".16" stroke-width=".9" fill="none" stroke-linecap="round"/>' +
-      '<path d="M48.1 53.4c-1.2.7-2.4 1-3.5.9" stroke="' + ((SUIT[id] && SUIT[id].cuff) || "#DCE3EC") + '" stroke-width=".85" stroke-linecap="round" opacity=".85"/></g>');
+      '<path d="M48.1 53.4c-1.2.7-2.4 1-3.5.9" stroke="' + ((SUIT[id] && SUIT[id].cuff) || "#DCE3EC") + '" stroke-width=".85" stroke-linecap="round" opacity=".85"/>' +
+      /* 책상 위 키보드로 뻗은 오른손 (얼굴을 돌린 쪽) */
+      '<path d="M46.6 54.2c2.0-1.4 4.2-2.1 6.5-2.1" fill="none" stroke="' + a.suit + '" stroke-width="4.2" stroke-linecap="round"/>' +
+      '<circle cx="53.2" cy="51.9" r="2.1" fill="' + a.fur + '"/>' +
+      '<circle cx="53.2" cy="51.9" r="2.1" fill="' + a.furDark + '" opacity=".16"/></g>');
     return s.join("");
   }
 
