@@ -18,7 +18,7 @@ SHOTS.mkdir(exist_ok=True)
 REQUIRED_LINES = [
     "🛠️ 웹앱 3F 개편", "📣 08:00 통합 브리핑", "🔗 GitHub 동기화",
     "🔍 교차 검증 완료", "💡 아이디어 제안", "💬 전략 조언",
-    "🛠️ 코드 리뷰 2건", "📈 X 실시간 트렌드", "👋 연동 대기 중",
+    "🛠️ 코드 리뷰 2건", "📈 X 실시간 트렌드", "🏃 1F 응모 지원 중", "🌱 응모 루틴 배우는 중",
 ]
 
 
@@ -131,8 +131,8 @@ def main():
           and grok["handle"] == "Grok", grok)
     intern = [t for t in data["team"] if t["id"] == "p7"][0]
     check("intern_team", intern["name"] == "피인턴" and intern["role"] == "인턴" and intern["floor"] == "1"
-          and intern["status"] == "연동 대기", intern)
-    check("intern_credit", any(a["id"] == "p7" and a["state"] == "연동 대기" for a in data["credits"]["agents"]),
+          and intern["status"] == "가동 중" and intern.get("handle") == "@5ho7", intern)
+    check("intern_credit", any(a["id"] == "p7" and a["state"] == "정상 가동" for a in data["credits"]["agents"]),
           [a["id"] for a in data["credits"]["agents"]])
     check("intern_role_detail", any(m["id"] == "p7" and len(m.get("goals", [])) >= 3
                                     for m in data["roleDetails"]["members"]), "피인턴 역할 상세")
@@ -140,11 +140,17 @@ def main():
           [f for f in data["floors"] if f["id"] == "1"][0]["tasks"])
     juim = [t for t in data["team"] if t["id"] == "p6"][0]
     check("juim_team", juim["name"] == "피주임" and juim["role"] == "주임" and juim["floor"] == "1"
-          and juim["status"] == "연동 대기", juim)
+          and juim["status"] == "가동 중" and juim.get("handle") == "@3ho8", juim)
     check("grok_credit", any(a["id"] == "p5" and "Grok" in a["note"] for a in data["credits"]["agents"]),
           [a["id"] for a in data["credits"]["agents"]])
-    check("juim_credit", any(a["id"] == "p6" and a["state"] == "연동 대기" for a in data["credits"]["agents"]),
+    check("juim_credit", any(a["id"] == "p6" and a["state"] == "정상 가동" for a in data["credits"]["agents"]),
           [a["id"] for a in data["credits"]["agents"]])
+    # 2026-11-28 21:20 피주임·피인턴 가동 전환 — 대기 표현이 데이터에 남으면 실패
+    waiting_left = [name for name, obj in (("피주임", juim), ("피인턴", intern)) if "연동 대기" in json.dumps(obj, ensure_ascii=False)]
+    waiting_left += [name for name, obj in (("p6 상세", [m for m in data["roleDetails"]["members"] if m["id"] == "p6"][0]),
+                                            ("p7 상세", [m for m in data["roleDetails"]["members"] if m["id"] == "p7"][0]))
+                     if "연동 대기" in json.dumps(obj, ensure_ascii=False)]
+    check("no_waiting_left_1f", not waiting_left, waiting_left or "1F 전원 가동 표기")
     check("credits_order_v8", [a["id"] for a in data["credits"]["agents"]] == ["p1", "p0", "p5", "p4", "p3", "p6", "p2", "p7"],
           [a["id"] for a in data["credits"]["agents"]])
     check("bld_sign_v5", "바이코 AI 오피스" in indexhtml, "건물 간판·타이틀")
@@ -765,7 +771,7 @@ def main():
         cards_1 = page.inner_text("#floorCards")
         results.append(("floor_cards_1", cards_1[:220]))
         check("floor_card_1", all(k in cards_1 for k in ["현장 실행·응모실", "피주임", "피사원", "무료 경품·퀴즈 응모 124건+", "0원 쿠폰 줍줍"]), cards_1[:140])
-        check("floor_card_1_juim_status", "연동 대기" in cards_1, cards_1[:200])
+        check("floor_card_1_juim_status", "가동 중" in cards_1 and "응모·쿠폰 지원" in cards_1, cards_1[:200])
         page.screenshot(path=str(SHOTS / "03-floor-1.png"))
 
         # ---- 층 카드에서 2F, 다시 전체 ----
@@ -812,7 +818,7 @@ def main():
         results.append(("relay_text", relay_txt.replace("\n", " ")))
         check("relay_4_nodes", page.locator("#sheetBody .relay-node").count() == 4, relay_txt)
         check("relay_order_v8", all(k in relay_txt for k in ["피비서", "제미대리", "피사원", "피주임"])
-              and "연동 대기" in relay_txt and "합류 대기" not in relay_txt, relay_txt.replace("\n", " "))
+              and "가동 중" in relay_txt and "연동 대기" not in relay_txt and "합류 대기" not in relay_txt, relay_txt.replace("\n", " "))
         page.click("#sheetClose")
 
         # 회의실: 지휘 체계 + 팀 카드 5명
@@ -834,7 +840,7 @@ def main():
         team_txt = page.inner_text("#teamGrid")
         check("team_gemini_rendered", "Gemini" in team_txt, team_txt[:120])
         check("team_grok_rendered", "Grok" in team_txt, team_txt[:120])
-        check("team_juim_waiting", "연동 대기" in team_txt, team_txt[:120])
+        check("team_juim_active", "가동 중" in team_txt and "응모·쿠폰 지원" in team_txt, team_txt[:120])
         picker = page.eval_on_selector_all("#rolePicker button", "els => els.map(e => e.textContent.trim())")
         results.append(("role_picker", picker))
         check("role_picker_9", len(picker) == 9, picker)
