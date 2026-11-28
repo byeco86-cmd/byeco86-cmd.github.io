@@ -330,7 +330,7 @@
      · 회장님: 책상을 사이에 두고 마주 보는 정면 상반신 (하체는 책상에 가려 그리지 않음)
      ------------------------------------------------------------ */
   /* 책상이 오른쪽에 있는 자리는 오른쪽 3/4, 왼쪽에 있는 자리는 왼쪽 3/4 */
-  var FACE_RIGHT = { captain: true, p1: true, p5: true, p3: true };
+  var FACE_RIGHT = { captain: true, p1: true, p5: true, p3: true, p6: true, p2: true, p7: true };
 
   /* 뒤에서 본 상체 — 재킷 등·깃·양팔(책상 쪽으로 뻗은 팔꿈치) */
   function backBodySvg(id, a) {

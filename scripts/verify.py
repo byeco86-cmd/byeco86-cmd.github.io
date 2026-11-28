@@ -355,7 +355,7 @@ def main():
         }""")
         results.append(("look_dirs", look))
         left = [k for k, v in look.items() if v["cls"]]
-        check("look_left_set", sorted(left) == ["p0", "p2", "p4", "p6", "p7"], left)
+        check("look_left_set", sorted(left) == ["p0", "p4"], left)
         def _sx(t):
             mm = re.match(r"matrix\(([-0-9.eE]+)", (t or "").replace(" ", ""))
             return float(mm.group(1)) if mm else 1.0
