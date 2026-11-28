@@ -97,41 +97,145 @@
     },
     p1: {
       fur: "#EFBB77", furDark: "#C0863F", furLight: "#FFF3E0",
-      suit: "#26344E", suitLight: "#33456A", trouser: "#222C3C",
+      suit: "#26344E", suitLight: "#33456A", lapel: "#40587C", trouser: "#222C3C",
       shirt: "#FBFCFE", tie: "#B0392F", tieStyle: "necktie"
     },
     p2: {
       fur: "#D8E5F2", furDark: "#9EB6CE", furLight: "#FFFFFF",
-      suit: "#2E6FA8", suitLight: "#3E86C2", trouser: "#27587E",
-      shirt: "#FBFCFE", tie: "#7FB3DC", tieStyle: "bow"
+      suit: "#2E6FA8", suitLight: "#3E86C2", lapel: "#4F92CC", trouser: "#27587E",
+      shirt: "#FBFCFE", tie: "#2B5C8E", tieStyle: "necktie"
     },
     p0: {
       fur: "#C68A5A", furDark: "#96613A", furLight: "#F3DCC2",
-      suit: "#2E2C33", suitLight: "#403D47", trouser: "#26242A",
+      suit: "#2E2C33", suitLight: "#403D47", lapel: "#4A4754", trouser: "#26242A",
       shirt: "#FBFCFE", tie: "#DEAF3D", tieStyle: "necktie"
     },
     p4: {
       fur: "#E79451", furDark: "#B0622A", furLight: "#FFF7EC",
-      suit: "#10A37F", suitLight: "#18B78F", trouser: "#0B4C3C",
+      suit: "#10A37F", suitLight: "#18B78F", lapel: "#22C79B", trouser: "#0B4C3C",
       shirt: "#FBFCFE", tie: "#F2C64E", tieStyle: "necktie"
     },
     p3: {
       fur: "#BE8A5F", furDark: "#946440", furLight: "#F6E6D2",
-      suit: "#4FBB9D", suitLight: "#6BD0B4", trouser: "#2E7A66",
+      suit: "#4FBB9D", suitLight: "#6BD0B4", lapel: "#7ADCC2", trouser: "#2E7A66",
       shirt: "#FBFCFE", tie: "#2C8C74", tieStyle: "necktie"
     },
     p5: {
       fur: "#4C525C", furDark: "#333840", furLight: "#E7EBF1", stripe: "#22262C",
-      suit: "#1B2330", suitLight: "#29323F", trouser: "#141A23",
+      suit: "#1B2330", suitLight: "#29323F", lapel: "#38455A", trouser: "#141A23",
       shirt: "#F4F7FB", tie: "#38BDF8", tieStyle: "necktie"
     },
     p6: {
       fur: "#2B313A", furDark: "#1B2028", furLight: "#F7FAFC", beak: "#F5A623",
-      suit: "#22364F", suitLight: "#2E4866", trouser: "#182838",
+      suit: "#22364F", suitLight: "#2E4866", lapel: "#3B5B80", trouser: "#182838",
       shirt: "#FFFFFF", tie: "#F2A03D", tieStyle: "necktie"
+    },
+    p7: {
+      fur: "#E9C79A", furDark: "#C49A66", furLight: "#FFF8EC", cheek: "#F2B8B4",
+      suit: "#6C7A8E", suitLight: "#8593A7", lapel: "#9BA9BC", trouser: "#5A6779",
+      shirt: "#FFFFFF", tie: "#3F6EA8", tieStyle: "necktie"
     }
   };
-  var EAR = { captain: "tiger", p1: "shiba", p2: "rabbit", p0: "bear", p4: "fox", p3: "squirrel", p5: "wolf", p6: "penguin" };
+  var EAR = { captain: "tiger", p1: "shiba", p2: "rabbit", p0: "bear", p4: "fox", p3: "squirrel", p5: "wolf", p6: "penguin", p7: "hamster" };
+
+  /* 직급별 수트 디테일 — 라펠·조끼·단추·포켓스퀘어·커프스 (회장님 호랑이는 별도 룩 유지) */
+  var SUIT = {
+    p1: { lapel: "peak", vest: true, db: false, sheen: "#D8B451", pin: "gold", square: "#F8F1DE", squareEdge: "#D9BE72", cuff: "#E9C46A", watch: "gold", buttons: "gold" },
+    p0: { lapel: "peak", vest: false, db: true, sheen: "#D9B45A", pin: null, square: "#FBEFD6", squareEdge: "#D8B466", cuff: "#E0B44A", watch: null, buttons: "gold" },
+    p5: { lapel: "notch", vest: true, db: false, sheen: "#C3D6E8", pin: "silver", square: "#EEF5FC", squareEdge: "#9FB8D0", cuff: "#CFE0F0", watch: "silver", buttons: "silver" },
+    p4: { lapel: "notch", vest: false, db: false, sheen: "#7ED3B6", pin: "pale", square: "#DFFAF0", squareEdge: "#7FD8BA", cuff: "#CFEFE4", watch: "gold", buttons: "pale" },
+    p3: { lapel: "notch", vest: true, db: false, sheen: "#9EE6CF", pin: "pearl", square: "#F0FFFA", squareEdge: "#8FDCC4", cuff: "#CFEFE4", watch: null, buttons: "pale" },
+    p6: { lapel: "shawl", vest: false, db: false, sheen: "#4E6E96", pin: null, square: "#FFFFFF", squareEdge: "#CFDCEA", cuff: "#DCE7F3", watch: null, buttons: "pale" },
+    p2: { lapel: "notch", vest: false, db: false, sheen: "#6FA3D2", pin: null, square: null, cuff: "#CFE3F5", watch: null, buttons: "pale" },
+    p7: { lapel: "notch", vest: false, db: false, sheen: "#AEBBCA", pin: null, square: null, cuff: "#DCE3EC", watch: null, buttons: "pale" }
+  };
+  var PIN_COL = { gold: "#E9C46A", silver: "#D2DCE6", pale: "#DFF7EE", pearl: "#FBF3F7" };
+  var BTN_COL = { gold: "#E2BC5C", silver: "#C2CCD6", pale: "#5D6B80" };
+
+  /* 맞춤 정장 — 슬림한 허리 · 각 잡힌 어깨 · 날렵한 라펠 · 실크 넥타이 */
+  function suitSvg(kind, a, id) {
+    var c = SUIT[id] || SUIT.p2;
+    var s = [];
+    var btn = id === "p3" || id === "p4" || id === "p6" || id === "p2" || id === "p7" ? a.suitLight : (BTN_COL[c.buttons] || a.suitLight);
+
+    /* 재킷 실루엣 — 어깨는 각지게, 허리는 조이게, 밑단은 살짝만 퍼지게 */
+    s.push('<path d="M17.3 40.5C18.6 37.4 20.2 36.1 22.4 36.0L33.6 36.0C35.8 36.1 37.4 37.4 38.7 40.5' +
+      'C38.0 42.8 37.6 45.2 37.5 47.5C37.7 51.2 38.0 54.6 38.1 57.9L17.9 57.9C18.0 54.6 18.3 51.2 18.5 47.5' +
+      'C18.4 45.2 18.0 42.8 17.3 40.5Z" fill="' + a.suit + '"/>');
+    /* 어깨 패드 · 옆선 그늘 · 허리 조임 */
+    s.push('<path d="M17.7 40.5c1.1-2.8 2.4-4.1 4.2-4.5-2.1 1.8-3.2 4.0-3.6 7.5z" fill="#fff" opacity=".13"/>');
+    s.push('<path d="M38.3 40.5c-1.0-2.8-2.3-4.1-4.0-4.5 2.0 1.8 3.1 4.0 3.4 7.5z" fill="#000" opacity=".14"/>');
+    s.push('<path d="M18.4 47.4c.3 3.4.3 6.9.2 10.5M37.6 47.4c-.3 3.4-.3 6.9-.2 10.5" stroke="#000" stroke-opacity=".11" stroke-width=".6" fill="none"/>');
+    /* 흰 셔츠 V */
+    s.push('<path d="M22.2 36.7 28 51.6 33.8 36.7Z" fill="' + a.shirt + '"/>');
+    s.push('<path d="M22.2 36.7 28 51.6 33.8 36.7" fill="none" stroke="#000" stroke-opacity=".09" stroke-width=".35"/>');
+    s.push('<path d="M28 42.2v7.6" stroke="#000" stroke-opacity=".05" stroke-width=".55"/>');
+    /* 셔츠 칼라 */
+    s.push('<path d="M26.7 36.7 23.6 37.0 25.4 41.2 27.5 38.8Z" fill="#fff" stroke="#CBD5E0" stroke-width=".25"/>');
+    s.push('<path d="M29.3 36.7 32.4 37.0 30.6 41.2 28.5 38.8Z" fill="#fff" stroke="#CBD5E0" stroke-width=".25"/>');
+    /* 펭귄 턱시도 흰 앞면 */
+    if (kind === "penguin") {
+      s.push('<path d="M23.2 40.0c1.2 7.6 2.5 12.0 4.8 12.0s3.6-4.4 4.8-12.0c-3.2-1.4-6.4-1.4-9.6 0z" fill="' + a.shirt + '"/>');
+      s.push('<path d="M24.0 41.0c.9 6.1 2.0 9.9 4.4 9.9" fill="none" stroke="#DCE6F2" stroke-width=".45" opacity=".8"/>');
+    }
+    /* 3피스 조끼 — 재킷 안쪽으로 비치는 웨이스트코트 */
+    if (c.vest) {
+      s.push('<path d="M25.1 43.0 30.9 43.0 30.2 53.6 25.8 53.6Z" fill="' + a.suitLight + '"/>');
+      s.push('<path d="M25.1 43.0 28 43.4 30.9 43.0 30.2 53.6 25.8 53.6Z" fill="none" stroke="#000" stroke-opacity=".12" stroke-width=".35"/>');
+      s.push('<circle cx="28" cy="51.2" r=".42" fill="' + btn + '"/>');
+      s.push('<circle cx="28" cy="52.6" r=".42" fill="' + btn + '"/>');
+    }
+    /* 라펠 — 피크/노치/숄 (재킷과 톤을 달리해 또렷하게) */
+    var lap;
+    if (c.lapel === "shawl") {
+      lap = 'M27.2 37.0C25.2 37.7 22.6 39.2 21.4 41.2 23.0 43.0 25.4 44.6 27.8 48.6Z';
+    } else if (c.lapel === "peak") {
+      lap = 'M27.1 36.9 22.6 36.4 19.9 40.0 22.2 41.9 27.8 48.6Z';
+    } else {
+      lap = 'M27.1 37.1 23.2 36.8 20.9 40.4 22.3 41.7 27.8 48.6Z';
+    }
+    s.push('<path d="' + lap + '" fill="' + (a.lapel || a.suitLight) + '"/>');
+    s.push('<path d="' + lap + '" fill="none" stroke="#000" stroke-opacity=".14" stroke-width=".3"/>');
+    s.push('<g transform="translate(56,0) scale(-1,1)"><path d="' + lap + '" fill="' + (a.lapel || a.suitLight) + '"/><path d="' + lap + '" fill="none" stroke="#000" stroke-opacity=".14" stroke-width=".3"/></g>');
+    /* 라펠 새틴 광 */
+    s.push('<path d="M27.1 37.4 27.7 48.4" stroke="' + c.sheen + '" stroke-width=".5" opacity=".55"/>');
+    s.push('<path d="M28.9 37.4 28.3 48.4" stroke="' + c.sheen + '" stroke-width=".5" opacity=".45"/>');
+    /* 앞여밈 · 단추 */
+    s.push('<path d="M27.7 48.7 27.5 57.9" stroke="#000" stroke-opacity=".2" stroke-width=".55"/>');
+    s.push('<path d="M27.5 48.7 22.5 48.2" stroke="#000" stroke-opacity=".13" stroke-width=".45"/>');
+    if (c.db) {
+      [[25.8, 47.2], [30.2, 47.2], [25.8, 50.2], [30.2, 50.2], [25.8, 53.2], [30.2, 53.2]].forEach(function (p) {
+        s.push('<circle cx="' + p[0] + '" cy="' + p[1] + '" r=".72" fill="' + BTN_COL[c.buttons] + '"/>');
+        s.push('<circle cx="' + (p[0] - .18) + '" cy="' + (p[1] - .22) + '" r=".26" fill="#FFF6D2" opacity=".85"/>');
+      });
+    } else {
+      s.push('<circle cx="28.9" cy="48.9" r=".72" fill="' + btn + '"/>');
+      s.push('<circle cx="28.9" cy="52.2" r=".72" fill="' + btn + '"/>');
+      s.push('<circle cx="28.7" cy="48.7" r=".25" fill="#fff" opacity=".55"/>');
+      s.push('<circle cx="28.7" cy="52.0" r=".25" fill="#fff" opacity=".55"/>');
+    }
+    /* 포켓스퀘어 (가슴 주머니) */
+    if (c.square) {
+      s.push('<path d="M31.6 45.0 35.2 45.4 35.0 46.6 31.4 46.2Z" fill="#000" opacity=".10"/>');
+      s.push('<path d="M31.9 44.9 32.7 44.0 33.5 44.9 34.2 44.3 35.2 46.1 31.7 45.7Z" fill="' + c.square + '" stroke="' + c.squareEdge + '" stroke-width=".2"/>');
+    }
+    /* 힙 포켓 플랩 */
+    s.push('<path d="M19.4 52.0 22.6 52.6 22.5 53.4 19.3 52.8Z" fill="#000" opacity=".11"/>');
+    s.push('<path d="M36.6 52.0 33.4 52.6 33.5 53.4 36.7 52.8Z" fill="#000" opacity=".11"/>');
+    /* 넥타이 — 살아 있는 매듭 + 실크 광 */
+    if (a.tieStyle === "bow") {
+      s.push('<path d="M24.0 41.2c1.8-.9 3.1-.2 3.9 1.1.8-1.3 2.1-2 3.9-1.1 1 1.9.2 3.8-1.6 4.3-1 .3-1.8 0-2.3-.8-.5.8-1.3 1.1-2.3.8-1.8-.5-2.6-2.4-1.6-4.3z" fill="' + a.tie + '"/>' +
+        '<circle cx="28" cy="43.3" r="1.5" fill="' + a.tie + '" stroke="' + a.suit + '" stroke-width=".45"/>');
+    } else {
+      s.push('<path d="M26.5 40.8 29.5 40.8 29.1 42.7 28 43.5 26.9 42.7Z" fill="' + a.tie + '"/>');
+      s.push('<path d="M26.8 42.7 28 43.6 29.2 42.7 29.8 50.4 28 52.6 26.2 50.4Z" fill="' + a.tie + '"/>');
+      s.push('<path d="M28 43.6v8.6" stroke="#000" stroke-opacity=".2" stroke-width=".7"/>');
+      s.push('<path d="M26.3 41.4h3.4" stroke="#fff" stroke-opacity=".42" stroke-width=".38"/>');
+      s.push('<path d="M26.9 44.8 26.8 49.8" stroke="#fff" stroke-opacity=".3" stroke-width=".45"/>');
+      s.push('<path d="M26.5 50.0h3" stroke="#fff" stroke-opacity=".34" stroke-width=".45"/>');
+    }
+    return s.join("");
+  }
 
   /* 머리 뒤로 나온 귀 */
   function earsSvg(kind, a) {
@@ -185,6 +289,13 @@
       return '<path d="M28 15.6c.9-1.7 1.6-2.9 2.5-3.7-.3 1.5-.2 2.7.2 3.7z" fill="' + a.fur + '"/>' +
         '<path d="M25 15.8c-.6-1.4-1-2.4-1.7-3.1.6 1.2.8 2.2.8 3.1z" fill="' + a.furDark + '" opacity=".85"/>';
     }
+    if (kind === "hamster") {
+      /* 햄스터 — 동글동글한 작은 귀 (신입 인턴) */
+      return '<circle cx="19.7" cy="18.4" r="3.8" fill="' + a.fur + '"/>' +
+        '<circle cx="19.7" cy="18.6" r="1.9" fill="' + (a.cheek || "#F0B9B4") + '" opacity=".85"/>' +
+        '<circle cx="36.3" cy="18.4" r="3.8" fill="' + a.fur + '"/>' +
+        '<circle cx="36.3" cy="18.6" r="1.9" fill="' + (a.cheek || "#F0B9B4") + '" opacity=".85"/>';
+    }
     /* squirrel */
     return '<path d="M19.4 20.6L16.2 11.2l6.6 3.7z" fill="' + a.fur + '"/>' +
       '<path d="M19.9 18.3l-1.5-4.4 3 1.7z" fill="' + a.furLight + '"/>' +
@@ -224,21 +335,23 @@
     s.push('<g class="sb">' + tailSvg(kind, a));
 
     /* 다리 · 구두 */
-    s.push('<rect x="21.5" y="52.2" width="6.2" height="11" rx="3" fill="' + a.trouser + '"/>' +
-      '<rect x="28.3" y="52.2" width="6.2" height="11" rx="3" fill="' + a.trouser + '"/>' +
-      '<rect x="19.4" y="62.6" width="8.2" height="4.2" rx="2.1" fill="#2A2320"/>' +
-      '<rect x="28.4" y="62.6" width="8.2" height="4.2" rx="2.1" fill="#2A2320"/>' +
-      '<rect x="19.4" y="62.6" width="8.2" height="1.5" rx=".75" fill="#5A4E46" opacity=".6"/>' +
-      '<rect x="28.4" y="62.6" width="8.2" height="1.5" rx=".75" fill="#5A4E46" opacity=".6"/>');
+    s.push('<rect x="22.0" y="52.0" width="5.7" height="11.2" rx="2.6" fill="' + a.trouser + '"/>' +
+      '<rect x="28.3" y="52.0" width="5.7" height="11.2" rx="2.6" fill="' + a.trouser + '"/>' +
+      '<path d="M24.9 53.4v9.2M31.1 53.4v9.2" stroke="#fff" stroke-opacity=".14" stroke-width=".5"/>' +
+      '<rect x="19.9" y="62.4" width="8.1" height="4.2" rx="2.0" fill="#2A2320"/>' +
+      '<rect x="28.0" y="62.4" width="8.1" height="4.2" rx="2.0" fill="#2A2320"/>' +
+      '<rect x="19.9" y="62.4" width="8.1" height="1.4" rx=".7" fill="#6A5C52" opacity=".55"/>' +
+      '<rect x="28.0" y="62.4" width="8.1" height="1.4" rx=".7" fill="#6A5C52" opacity=".55"/>' +
+      '<ellipse cx="22.2" cy="65.1" rx="1.7" ry=".7" fill="#fff" opacity=".14"/>' +
+      '<ellipse cx="30.3" cy="65.1" rx="1.7" ry=".7" fill="#fff" opacity=".14"/>');
 
-    /* 재킷 · 셔츠 · 라펠 */
+    /* 정장 — 회장님 호랑이는 기존 룩 그대로, 나머지 8명은 맞춤 수트로 맵시 있게 */
     if (kind === "tiger") {
       /* 회장님 호랑이 — 당당한 어깨선 (어깨 요크·각진 견갑) */
       s.push('<path d="M15.5 43.6c.4-6.7 5.5-10.8 12.5-10.8s12.1 4.1 12.5 10.8l.6 4.8H14.9z" fill="' + a.suit + '"/>' +
         '<path d="M15.6 43.1c.6-5.3 4.6-8.9 9.4-9.2-2.9 2.4-4.5 5.5-4.8 9.7z" fill="#fff" opacity=".07"/>' +
         '<path d="M40.4 43.1c-.6-5.3-4.6-8.9-9.4-9.2 2.9 2.4 4.5 5.5 4.8 9.7z" fill="#fff" opacity=".07"/>' +
         '<path d="M15.9 41.6h5.1l-.7 2.9h-4.9zM35.7 41.6h5.1l-.5 2.9h-4.9z" fill="' + a.suitLight + '" opacity=".85"/>');
-    }
     s.push('<path d="M17.2 44.4c0-6.2 4.6-9.8 10.8-9.8s10.8 3.6 10.8 9.8l1.35 12.7c.16 1.5-.94 2.7-2.45 2.7H18.3c-1.51 0-2.61-1.2-2.45-2.7z" fill="' + a.suit + '"/>' +
       '<path d="M22.4 36.4L28 47.6l5.6-11.2c-3.4-1-7.8-1-11.2 0z" fill="' + a.shirt + '"/>' +
       '<path d="M22.2 36 28 47.8 24.6 49 19.2 39.2z" fill="' + a.suitLight + '"/>' +
@@ -264,14 +377,29 @@
         '<path d="M28 41.1v10.4" stroke="#000" stroke-opacity=".14" stroke-width=".8"/>' +
         '<path d="M25.9 46.6h4.2" stroke="#fff" stroke-opacity=".35" stroke-width=".9"/>');
     }
+    } else {
+      s.push(suitSvg(kind, a, id));
+    }
 
-    /* 팔 · 손 */
-    s.push('<path d="M17.4 41.2c-2.7 1.9-4 5.4-4 9.5 0 2 2.4 2.6 3.5 1 1.1-1.7 1.5-4.9 1.5-8z" fill="' + a.suit + '"/>' +
-      '<path d="M38.6 41.2c2.7 1.9 4 5.4 4 9.5 0 2-2.4 2.6-3.5 1-1.1-1.7-1.5-4.9-1.5-8z" fill="' + a.suit + '"/>' +
-      '<circle cx="15.7" cy="51.7" r="2.7" fill="' + a.fur + '"/>' +
-      '<circle cx="40.3" cy="51.7" r="2.7" fill="' + a.fur + '"/>' +
-      '<circle cx="15.7" cy="51.7" r="2.7" fill="' + a.furDark + '" opacity=".18"/>' +
-      '<circle cx="40.3" cy="51.7" r="2.7" fill="' + a.furDark + '" opacity=".18"/>');
+    /* 팔 · 손 — 어깨선에서 자연스럽게 떨어지는 슬리브 + 커프스 */
+    s.push('<path d="M17.4 40.9c-2.8 2.0-4.1 5.5-4.1 9.7 0 2 2.4 2.6 3.5 1 1.1-1.7 1.5-4.9 1.5-8z" fill="' + a.suit + '"/>' +
+      '<path d="M38.6 40.9c2.8 2.0 4.1 5.5 4.1 9.7 0 2-2.4 2.6-3.5 1-1.1-1.7-1.5-4.9-1.5-8z" fill="' + a.suit + '"/>' +
+      '<path d="M15.1 42.6c-1.9 1.9-2.5 4.9-2.2 8.3" stroke="#000" stroke-opacity=".14" stroke-width=".6" fill="none"/>' +
+      '<path d="M40.9 42.6c1.9 1.9 2.5 4.9 2.2 8.3" stroke="#000" stroke-opacity=".18" stroke-width=".6" fill="none"/>' +
+      '<path d="M14.0 49.0c1.2.8 2.6 1.1 3.9.9M42.0 49.0c-1.2.8-2.6 1.1-3.9.9" stroke="#000" stroke-opacity=".13" stroke-width=".55" fill="none"/>' +
+      '<circle cx="15.7" cy="51.8" r="2.7" fill="' + a.fur + '"/>' +
+      '<circle cx="40.3" cy="51.8" r="2.7" fill="' + a.fur + '"/>' +
+      '<circle cx="15.7" cy="51.8" r="2.7" fill="' + a.furDark + '" opacity=".18"/>' +
+      '<circle cx="40.3" cy="51.8" r="2.7" fill="' + a.furDark + '" opacity=".18"/>');
+    if (kind !== "tiger") {
+      var cuff = (SUIT[id] && SUIT[id].cuff) || "#DCE3EC";
+      var met = (SUIT[id] && SUIT[id].watch);
+      s.push('<path d="M13.9 49.2c1.2.9 2.7 1.2 4.1 1M42.1 49.2c-1.2.9-2.7 1.2-4.1 1" stroke="' + cuff + '" stroke-width=".9" stroke-linecap="round" opacity=".85"/>');
+      if (met) {
+        s.push('<rect x="13.2" y="50.2" width="3.2" height="1.5" rx=".7" fill="' + (met === "gold" ? "#E9C46A" : "#D2DCE6") + '"/>' +
+          '<circle cx="14.8" cy="50.9" r=".95" fill="' + (met === "gold" ? "#F6E3A8" : "#F2F6FA") + '" stroke="' + (met === "gold" ? "#B8862F" : "#9AA4AE") + '" stroke-width=".25"/>');
+      }
+    }
 
     /* 귀 · 머리 */
     s.push(earsSvg(kind, a) +
@@ -309,6 +437,13 @@
     if (kind === "fox") {
       s.push('<ellipse cx="18.4" cy="33.4" rx="3.4" ry="3.1" fill="' + a.furLight + '"/>' +
         '<ellipse cx="37.6" cy="33.4" rx="3.4" ry="3.1" fill="' + a.furLight + '"/>');
+    }
+    if (kind === "hamster") {
+      /* 햄스터 — 동글동글 볼주머니 */
+      s.push('<ellipse cx="20.7" cy="33.4" rx="4.7" ry="4.1" fill="' + a.furLight + '"/>' +
+        '<ellipse cx="35.3" cy="33.4" rx="4.7" ry="4.1" fill="' + a.furLight + '"/>' +
+        '<ellipse cx="20.7" cy="34.3" rx="3.0" ry="2.2" fill="' + (a.cheek || "#F2B8B4") + '" opacity=".4"/>' +
+        '<ellipse cx="35.3" cy="34.3" rx="3.0" ry="2.2" fill="' + (a.cheek || "#F2B8B4") + '" opacity=".4"/>');
     }
     if (kind === "squirrel") {
       s.push('<ellipse cx="28" cy="30.4" rx="3.6" ry="2.6" fill="' + a.furLight + '" opacity=".9"/>');
@@ -369,6 +504,11 @@
       s.push('<rect x="26.4" y="34.6" width="1.5" height="2.4" rx=".5" fill="#FFFDF8" stroke="#C9B49B" stroke-width=".3"/>' +
         '<rect x="28.1" y="34.6" width="1.5" height="2.4" rx=".5" fill="#FFFDF8" stroke="#C9B49B" stroke-width=".3"/>');
     }
+    if (kind === "hamster") {
+      s.push('<path d="M16.4 32.2 13.2 31.5M16.5 33.4 13.1 34M39.6 32.2 42.8 31.5M39.5 33.4 42.9 34" stroke="#9A8266" stroke-width=".4" stroke-linecap="round" opacity=".6"/>' +
+        '<rect x="26.2" y="34.6" width="1.6" height="2.5" rx=".5" fill="#FFFDF8" stroke="#C9B49B" stroke-width=".3"/>' +
+        '<rect x="28.2" y="34.6" width="1.6" height="2.5" rx=".5" fill="#FFFDF8" stroke="#C9B49B" stroke-width=".3"/>');
+    }
     if (kind === "fox") {
       s.push('<path d="M28 36.2v.9" stroke="#3A2A22" stroke-width=".8" stroke-linecap="round"/>');
     }
@@ -402,9 +542,11 @@
         '<rect x="31.6" y="46.6" width="4.6" height="5.4" rx=".9" fill="#EAFBF4" stroke="#0B5B49" stroke-width=".5"/>' +
         '<path d="M32.6 48.4h2.6M32.6 49.7h2.6M32.6 51h1.7" stroke="#10A37F" stroke-width=".5" stroke-linecap="round"/>');
     } else if (id === "p1") {
-      /* 금색 라펠 핀 */
+      /* 금색 라펠 핀 · 넥타이 핀 · 금 커프스 단추 — 사장 */
       s.push('<path d="M20.2 44.2v-2.2M19.1 43.2h2.2" stroke="#E9C46A" stroke-width=".7" stroke-linecap="round"/>' +
-        '<circle cx="20.2" cy="43.2" r="1.1" fill="#E9C46A" stroke="#B8862F" stroke-width=".4"/>');
+        '<circle cx="20.2" cy="43.2" r=".85" fill="#E9C46A" stroke="#B8862F" stroke-width=".35"/>' +
+        '<path d="M26.0 47.2 30.0 47.6" stroke="#E9C46A" stroke-width=".7" stroke-linecap="round"/>' +
+        '<circle cx="28.0" cy="47.4" r=".55" fill="#FFF0BF"/>');
     } else if (id === "p3") {
       /* 도토리 배지 */
       s.push('<path d="M18.2 42.2c0-1.4 1.2-2.4 2.5-2.4s2.5 1 2.5 2.4z" fill="#8A5A32"/>' +
@@ -416,7 +558,9 @@
         '<rect x="29.6" y="23.2" width="8" height="5.8" rx="1.7"/>' +
         '<path d="M26.4 25.6h3.2"/></g>' +
         '<rect x="30.9" y="46.2" width="6.4" height="5.8" rx="1.3" fill="#0E1A2A" stroke="#38BDF8" stroke-width=".55"/>' +
-        '<path d="M32.9 47.8l-1.5 1.7 1.5 1.7M35.3 47.8l1.5 1.7-1.5 1.7" stroke="#38BDF8" stroke-width=".55" fill="none" stroke-linecap="round" stroke-linejoin="round"/>');
+        '<path d="M32.9 47.8l-1.5 1.7 1.5 1.7M35.3 47.8l1.5 1.7-1.5 1.7" stroke="#38BDF8" stroke-width=".55" fill="none" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '<path d="M25.7 46.8 30.3 47.2" stroke="#D2DCE6" stroke-width=".8" stroke-linecap="round"/>' +
+        '<circle cx="20.2" cy="43.0" r=".9" fill="#D2DCE6" stroke="#8A96A2" stroke-width=".35"/>');
     } else if (id === "p6") {
       /* 신입 사원증 배지 · 펭귄 주황 발 */
       s.push('<ellipse cx="23.2" cy="66" rx="4.8" ry="2.5" fill="' + (a.beak || "#F5A623") + '"/>' +
@@ -424,10 +568,333 @@
         '<path d="M32.8 44.6h5.2v4.4h-5.2z" fill="#F4F7FB" stroke="#C6D2E0" stroke-width=".4"/>' +
         '<path d="M33.6 45.8h3.4M33.6 47.1h3.4" stroke="#8FA3BC" stroke-width=".5" stroke-linecap="round"/>' +
         '<circle cx="34.6" cy="48.3" r=".62" fill="#7FD1F0"/>');
+    } else if (id === "p7") {
+      /* 신입 인턴 — 사원증 목걸이 + 수첩 */
+      s.push('<path d="M24.4 38.6 26.9 44.0M31.6 38.6 29.1 44.0" stroke="#3F6EA8" stroke-width=".65" stroke-linecap="round" opacity=".9"/>' +
+        '<rect x="26.6" y="43.8" width="4.4" height="5.2" rx=".9" fill="#F7FAFD" stroke="#AEBBCA" stroke-width=".4"/>' +
+        '<circle cx="28.8" cy="45.6" r="1.05" fill="#7FB3DC"/>' +
+        '<path d="M27.4 47.4h2.8M27.4 48.2h2.2" stroke="#9AA9B8" stroke-width=".45" stroke-linecap="round"/>' +
+        '<path d="M31.8 43.4 36.0 43.8 35.8 45.4 31.6 45.0Z" fill="#000" opacity=".08"/>');
     }
 
     return '<svg class="sprite" viewBox="0 0 56 72" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
       s.join("") + '</g></svg>';
+  }
+
+/* ---- 자리 책상·의자 (아이소메트릭) v3 ---- */
+var DESK_CFG = {
+  captain: {
+    w: 112, d: 44, h: 28, F: [87.8, 126], style: "exec", cssw: 145,
+    top: "#2C1E18", topHi: "#4A332A", edge: "#D9B44A", edge2: "#8A6A22",
+    face: "#241811", faceDark: "#170F0A", faceHi: "#39281F", trim: "#D9B44A",
+    chair: "president", chBack: "#4E1418", chBack2: "#2E0B0D", chSeat: "#5C1A1E", chFrame: "#D0A64A",
+    items: ["lamp", "dual-l", "tray", "blotter"],
+    plate: "CHAIRMAN", plateGold: true
+  },
+  p1: {
+    w: 100, d: 40, h: 26, F: [84.0, 126], style: "exec", cssw: 130,
+    top: "#5E3C23", topHi: "#825736", edge: "#C9A24C", edge2: "#8A6A22",
+    face: "#3E2717", faceDark: "#2A1B10", faceHi: "#523420", trim: "#C9A24C",
+    chair: "exec", chBack: "#3E2C24", chBack2: "#261913", chSeat: "#4E382C", chFrame: "#9A9288",
+    items: ["laptop", "monitor", "cup"],
+    plate: "사장", plateGold: true
+  },
+  p0: {
+    w: 96, d: 38, h: 24, F: [82.1, 126], style: "modern", cssw: 124,
+    top: "#3E3E45", topHi: "#5A5A63", edge: "#AEB4BA", edge2: "#5A6068",
+    face: "#2A2A30", faceDark: "#1D1D22", faceHi: "#3A3A41", trim: "#AEB4BA",
+    chair: "mesh", chBack: "#23272D", chBack2: "#15181C", chSeat: "#2B3037", chFrame: "#7E868E",
+    items: ["dual", "keyboard", "cup"],
+    plate: "부장"
+  },
+  p5: {
+    w: 92, d: 37, h: 23, F: [81.2, 126], style: "modern", cssw: 120,
+    top: "#363B41", topHi: "#4E555E", edge: "#8C949C", edge2: "#525A64",
+    face: "#262A30", faceDark: "#1A1E23", faceHi: "#31363C", trim: "#8C949C",
+    chair: "mesh", chBack: "#1F2329", chBack2: "#131619", chSeat: "#272C32", chFrame: "#6E7881",
+    items: ["dual-s", "keyboard", "paper"],
+    plate: "차장"
+  },
+  p4: {
+    w: 90, d: 36, h: 22, F: [80.2, 126], style: "modern", cssw: 116,
+    top: "#CBA87B", topHi: "#E6C9A4", edge: "#8A6A42", edge2: "#B08A5C",
+    face: "#A08054", faceDark: "#7E6240", faceHi: "#B4906A", trim: "#B08A5C",
+    chair: "std", chBack: "#414A55", chBack2: "#2C333A", chSeat: "#4D5762", chFrame: "#95A0AA",
+    items: ["monitor", "keyboard", "paper", "cup"],
+    plate: "과장"
+  },
+  p3: {
+    w: 86, d: 34, h: 21, F: [78.3, 126], style: "modern", cssw: 114,
+    top: "#E8E4DC", topHi: "#FAF7F1", edge: "#B9B2A4", edge2: "#CFC9BC",
+    face: "#DAD5CA", faceDark: "#BFB9AC", faceHi: "#E8E4DA", trim: "#CFC9BC",
+    chair: "std", chBack: "#5A6A78", chBack2: "#3E4A55", chSeat: "#68798A", chFrame: "#9AA4AE",
+    items: ["monitor", "keyboard", "paper"],
+    plate: "대리"
+  },
+  p6: {
+    w: 88, d: 35, h: 21, F: [79.2, 126], style: "modern", cssw: 112,
+    top: "#949BA3", topHi: "#B2B8BF", edge: "#6E767E", edge2: "#848C94",
+    face: "#7E858D", faceDark: "#666C74", faceHi: "#8E959D", trim: "#848C94",
+    chair: "task", chBack: "#2E3C50", chBack2: "#1F2B3B", chSeat: "#36465C", chFrame: "#8794A0",
+    items: ["monitor", "keyboard", "trayf"],
+    plate: "주임"
+  },
+  p2: {
+    w: 82, d: 32, h: 20, F: [76.4, 126], style: "modern", cssw: 106,
+    top: "#7FABD3", topHi: "#A3C8E7", edge: "#5E86AE", edge2: "#7A9CC0",
+    face: "#7193B7", faceDark: "#5A7898", faceHi: "#82A2C6", trim: "#7A9CC0",
+    chair: "task", chBack: "#303F53", chBack2: "#212D3B", chSeat: "#3A4B60", chFrame: "#84909C",
+    items: ["monitor", "keyboard"],
+    plate: "사원"
+  },
+  p7: {
+    w: 74, d: 29, h: 18, F: [73.5, 126], style: "modern", cssw: 98,
+    top: "#B7BDC5", topHi: "#D2D7DD", edge: "#8C939C", edge2: "#A6ADB6",
+    face: "#ABB1B9", faceDark: "#8A9098", faceHi: "#B9BFC7", trim: "#A6ADB6",
+    chair: "stool", chBack: "#4C5868", chBack2: "#38424F", chSeat: "#5C6A7A", chFrame: "#96A0AA",
+    items: ["tablet", "notebook"],
+    plate: "인턴"
+  }
+};
+
+function dkNum(v) { return (Math.round(v * 10) / 10).toFixed(1); }
+
+function deskSvg(id) {
+  var c = DESK_CFG[id] || DESK_CFG.p2;
+  var W = c.w, D = c.d, H = c.h, F = c.F;
+  var solid = c.style === "exec";
+  var slab = solid ? 5.6 : 3.4;
+  var CU = 0.95, CV = 0.36;
+
+  function P(u, v, z) {
+    return [F[0] + (u - v) * CU, F[1] - (u + v) * CV - (z || 0)];
+  }
+  function n(p) { return dkNum(p[0]) + "," + dkNum(p[1]); }
+  function poly(list, fill, extra) {
+    return '<polygon points="' + list.map(n).join(" ") + '" fill="' + fill + '"' + (extra ? " " + extra : "") + '/>';
+  }
+  var s = [];
+
+  /* 바닥 그림자 */
+  var cen = P(W * 0.42, D * 0.55, 0);
+  s.push('<ellipse cx="' + dkNum(cen[0]) + '" cy="' + dkNum(cen[1] + 1.4) + '" rx="' + dkNum(W * 0.54) +
+    '" ry="' + dkNum((W + D) * 0.105) + '" fill="rgba(26,32,40,.17)"/>');
+
+  var tF = P(0, 0, H), tE = P(W, 0, H), tN = P(W, D, H), tW = P(0, D, H);
+
+  /* ---- 다리 ---- */
+  var legW = solid ? 4.2 : 2.6;
+  [[1.2, D * 0.18], [W - legW - 1.2, D * 0.18], [W - legW - 1.2, D - 5], [1.2, D - 5]].forEach(function (l) {
+    var a = P(l[0], l[1], 0), b = P(l[0] + legW, l[1], 0), t = P(l[0] + legW, l[1], H - slab);
+    s.push('<path d="M' + n(a) + ' L' + n(b) + ' L' + n(t) + ' L' + n(P(l[0], l[1], H - slab)) + ' Z" fill="' + c.faceDark + '"/>');
+    s.push('<rect x="' + dkNum(a[0]) + '" y="' + dkNum(t[1]) + '" width="' + legW + '" height="' + dkNum(a[1] - t[1]) + '" fill="' + c.faceDark + '"/>');
+  });
+
+  /* ---- 무릎 공간 뒤 가림판 (모뎀시 패널) ---- */
+  var mp = D * 0.62;
+  s.push(poly([P(5, mp, H - slab), P(W - 5, mp, H - slab), P(W - 5, mp, 7), P(5, mp, 7)], c.faceDark, 'opacity=".92"'));
+  s.push(poly([P(5, mp, H - slab - 0.6), P(W - 5, mp, H - slab - 0.6), P(W - 5, mp, H - slab - 2.6), P(5, mp, H - slab - 2.6)], "#000", 'opacity=".18"'));
+
+  /* ---- 서랍 페데스탈 (오른쪽) ---- */
+  var du0 = W * 0.56, du1 = W - 2.4, dv0 = 2.4, dv1 = D * 0.60, dz1 = H - slab - 0.4, dz0 = 1.2;
+  var dr = c.chair === "president" || c.chair === "exec";
+  s.push(poly([P(du0, dv0, dz1), P(du1, dv0, dz1), P(du1, dv0, dz0), P(du0, dv0, dz0)], c.face));
+  s.push(poly([P(du1, dv0, dz1), P(du1, dv1, dz1), P(du1, dv1, dz0), P(du1, dv0, dz0)], c.faceDark));
+  s.push(poly([P(du0, dv0, dz1), P(du1, dv0, dz1), P(du1, dv1, dz1), P(du0, dv1, dz1)], c.faceHi));
+  for (var i = 0; i < 3; i++) {
+    var z1 = dz1 - 2.2 - i * 6.2, z0 = z1 - 5.2;
+    s.push(poly([P(du0 + 1.6, dv0, z1), P(du1 - 1.6, dv0, z1), P(du1 - 1.6, dv0, z0), P(du0 + 1.6, dv0, z0)], c.faceHi, 'stroke="' + c.faceDark + '" stroke-width=".5"'));
+    s.push('<path d="M' + n(P(du0 + 4.2, dv0, (z0 + z1) / 2)) + ' L' + n(P(du1 - 4.2, dv0, (z0 + z1) / 2)) +
+      '" stroke="' + c.trim + '" stroke-width="1.1" stroke-linecap="round" opacity=".8"/>');
+  }
+
+  /* ---- 상판 ---- */
+  s.push(poly([tF, tE, P(W, 0, H - slab), P(0, 0, H - slab)], c.faceHi));
+  s.push(poly([tF, tW, P(0, D, H - slab), P(0, 0, H - slab)], c.topHi));
+  s.push(poly([tF, tE, P(W, 0, H - slab), P(0, 0, H - slab)], "#000", 'opacity=".10"'));
+  s.push(poly([tF, tE, tN, tW], c.top));
+  /* 상판 광택 */
+  s.push(poly([tF, P(W * 0.62, 0, H), P(W * 0.44, D * 0.34, H), P(W * 0.08, D * 0.34, H)], c.topHi, 'opacity=".26"'));
+  s.push(poly([P(0, D, H), P(W * 0.30, D * 0.92, H), P(W * 0.30, D, H)], "#000", 'opacity=".10"'));
+  /* 테두리 인레이 */
+  s.push('<path d="M' + n(tF) + ' L' + n(tE) + ' L' + n(tN) + ' L' + n(tW) + ' Z" fill="none" stroke="' + c.edge +
+    '" stroke-width="1.15" stroke-linejoin="round" opacity=".95"/>');
+  s.push('<path d="M' + n(P(W * 0.02, D * 0.02, H + .1)) + ' L' + n(P(W * 0.98, D * 0.02, H + .1)) + ' L' +
+    n(P(W * 0.98, D * 0.98, H + .1)) + ' L' + n(P(W * 0.02, D * 0.98, H + .1)) + ' Z" fill="none" stroke="' + c.edge2 +
+    '" stroke-width="2.4" stroke-linejoin="round" opacity=".16"/>');
+
+  /* ---- 소품 ---- */
+  var items = c.items || [];
+  if (items.indexOf("blotter") >= 0) {
+    var q = [P(W * 0.08, D * 0.26, H + .2), P(W * 0.34, D * 0.26, H + .2), P(W * 0.34, D * 0.72, H + .2), P(W * 0.08, D * 0.72, H + .2)];
+    s.push(poly(q, "#241A14", 'stroke="#4E3A2E" stroke-width=".7"'));
+    s.push(poly(q, "none", 'stroke="' + c.edge + '" stroke-width=".5" opacity=".45"'));
+  }
+  if (items.indexOf("dual-l") >= 0) {
+    s.push(monitor(P(W * 0.24, D * 0.28, H), 26, 16, "#141A20", "#2A3A48"));
+    s.push(monitor(P(W * 0.48, D * 0.28, H), 26, 16, "#141A20", "#2A3A48"));
+  } else if (items.indexOf("dual") >= 0) {
+    s.push(monitor(P(W * 0.22, D * 0.26, H), 24, 15, "#141A20", "#2A3A48"));
+    s.push(monitor(P(W * 0.46, D * 0.26, H), 24, 15, "#141A20", "#2A3A48"));
+  } else if (items.indexOf("dual-s") >= 0) {
+    s.push(monitor(P(W * 0.24, D * 0.24, H), 21, 13, "#141A20", "#24333F"));
+    s.push(monitor(P(W * 0.47, D * 0.24, H), 21, 13, "#141A20", "#24333F"));
+  } else if (items.indexOf("monitor") >= 0) {
+    s.push(monitor(P(W * 0.32, D * 0.26, H), 24, 15, "#161C22", "#2C3C4A"));
+  }
+  if (items.indexOf("lamp") >= 0) {
+    var lp = P(W * 0.10, D * 0.22, H);
+    s.push('<ellipse cx="' + dkNum(lp[0]) + '" cy="' + dkNum(lp[1] + .8) + '" rx="6.8" ry="2.5" fill="#0E0A08" opacity=".45"/>');
+    s.push('<ellipse cx="' + dkNum(lp[0]) + '" cy="' + dkNum(lp[1]) + '" rx="4.2" ry="1.7" fill="' + c.edge + '"/>');
+    s.push('<rect x="' + dkNum(lp[0] - 1) + '" y="' + dkNum(lp[1] - 9) + '" width="2" height="9" rx="1" fill="' + c.edge + '"/>');
+    s.push('<path d="M' + dkNum(lp[0] - 1) + ' ' + dkNum(lp[1] - 9) + 'h2l5.8 -4h-13.6z" fill="' + c.edge + '"/>');
+    s.push('<ellipse cx="' + dkNum(lp[0] - 3.9) + '" cy="' + dkNum(lp[1] - 9.4) + '" rx="4.8" ry="1.9" fill="#FFEDB0"/>');
+    s.push('<ellipse cx="' + dkNum(lp[0] - 3.9) + '" cy="' + dkNum(lp[1] - 10) + '" rx="9" ry="4.2" fill="#FFD976" opacity=".24"/>');
+  }
+  if (items.indexOf("tray") >= 0) {
+    var tr = P(W * 0.70, D * 0.58, H);
+    s.push('<ellipse cx="' + dkNum(tr[0]) + '" cy="' + dkNum(tr[1]) + '" rx="8.6" ry="3.4" fill="' + c.edge + '"/>');
+    s.push('<ellipse cx="' + dkNum(tr[0]) + '" cy="' + dkNum(tr[1] - 1.2) + '" rx="6.9" ry="2.4" fill="#FFF0BF" opacity=".85"/>');
+    s.push('<rect x="' + dkNum(tr[0] - 5.4) + '" y="' + dkNum(tr[1] - 4.2) + '" width="10.8" height="1.7" rx=".85" fill="#8A6A22" transform="rotate(-10 ' + dkNum(tr[0]) + ' ' + dkNum(tr[1] - 3.3) + ')"/>');
+  }
+  if (items.indexOf("keyboard") >= 0) {
+    var k = [P(W * 0.20, D * 0.62, H + .4), P(W * 0.50, D * 0.62, H + .4), P(W * 0.50, D * 0.82, H + .4), P(W * 0.20, D * 0.82, H + .4)];
+    s.push(poly(k, "#E8ECF1", 'stroke="#9AA4AE" stroke-width=".45"'));
+    s.push(poly([P(W * 0.22, D * 0.66, H + .5), P(W * 0.48, D * 0.66, H + .5), P(W * 0.48, D * 0.78, H + .5), P(W * 0.22, D * 0.78, H + .5)], "none", 'stroke="#B6BFCA" stroke-width=".4"'));
+  }
+  if (items.indexOf("paper") >= 0) {
+    var pp = [P(W * 0.08, D * 0.56, H + .3), P(W * 0.22, D * 0.48, H + .3), P(W * 0.27, D * 0.74, H + .3), P(W * 0.13, D * 0.82, H + .3)];
+    s.push(poly(pp, "#FBFCFE", 'stroke="#C6D0DA" stroke-width=".45"'));
+    s.push('<path d="M' + n(pp[0]) + ' L' + n(pp[2]) + '" stroke="#DCE3EA" stroke-width=".35"/>');
+  }
+  if (items.indexOf("trayf") >= 0) {
+    var tt = P(W * 0.16, D * 0.44, H);
+    s.push('<rect x="' + dkNum(tt[0] - 5.4) + '" y="' + dkNum(tt[1] - 2.2) + '" width="10.8" height="3.4" rx="1.5" fill="#5A6169"/>');
+    s.push('<rect x="' + dkNum(tt[0] - 4.6) + '" y="' + dkNum(tt[1] - 4.2) + '" width="9" height="2.8" rx="1.3" fill="#767D85"/>');
+  }
+  if (items.indexOf("cup") >= 0) {
+    var cp = P(W * 0.72, D * 0.20, H);
+    s.push('<rect x="' + dkNum(cp[0] - 2.2) + '" y="' + dkNum(cp[1] - 5) + '" width="4.4" height="5" rx="1.3" fill="#F7FAFC" stroke="#C6D0DA" stroke-width=".35"/>');
+    s.push('<ellipse cx="' + dkNum(cp[0]) + '" cy="' + dkNum(cp[1] - 4.8) + '" rx="2.2" ry=".85" fill="#6B4A2F" opacity=".85"/>');
+  }
+  if (items.indexOf("laptop") >= 0) {
+    var lc = P(W * 0.18, D * 0.44, H);
+    s.push('<path d="M' + dkNum(lc[0] - 9) + ' ' + dkNum(lc[1] + 1) + 'h18l-3.6 -12h-10.8z" fill="#DDE3EA" stroke="#9AA6B2" stroke-width=".45"/>');
+    s.push('<rect x="' + dkNum(lc[0] - 7.6) + '" y="' + dkNum(lc[1] - 10.2) + '" width="15.2" height="9" rx=".9" fill="#2A3540"/>');
+  }
+  if (items.indexOf("tablet") >= 0) {
+    var tb = P(W * 0.18, D * 0.48, H);
+    s.push('<rect x="' + dkNum(tb[0] - 7) + '" y="' + dkNum(tb[1] - 2.6) + '" width="14" height="9" rx="1.3" fill="#EAF0F6" stroke="#A8B2BC" stroke-width=".45" transform="rotate(-13 ' + dkNum(tb[0]) + ' ' + dkNum(tb[1]) + ')"/>');
+  }
+  if (items.indexOf("notebook") >= 0) {
+    var nb = P(W * 0.58, D * 0.68, H);
+    s.push('<rect x="' + dkNum(nb[0] - 5.4) + '" y="' + dkNum(nb[1] - 3.6) + '" width="11.6" height="7.2" rx="1" fill="#F4F8FC" stroke="#B6C0CA" stroke-width=".45" transform="rotate(-10 ' + dkNum(nb[0]) + ' ' + dkNum(nb[1]) + ')"/>');
+    s.push('<rect x="' + dkNum(nb[0] - 5.4) + '" y="' + dkNum(nb[1] - 3.6) + '" width="2.8" height="7.2" rx="1" fill="#D9A93E" transform="rotate(-10 ' + dkNum(nb[0]) + ' ' + dkNum(nb[1]) + ')"/>');
+  }
+
+  /* ---- 명패 (상판 앞쪽, 캐릭터 오른편에 보이게) ---- */
+  if (c.plate) {
+    var u0 = W * 0.40, u1 = W * 0.64, pz1 = H + 8.4, pz0 = H;
+    var pa = P(u1, 0.6, pz1), pb = P(u0, 0.6, pz1), pbb = P(u0, 0.6, pz0), paa = P(u1, 0.6, pz0);
+    s.push(poly([pa, pb, pbb, paa], c.plateGold ? "#1A1410" : "#F4F6F9", 'stroke="' + (c.plateGold ? "#D4AF37" : "#9AA4AE") + '" stroke-width=".55"'));
+    var mid = P((u0 + u1) / 2, 0.6, (pz0 + pz1) / 2 + .6);
+    s.push('<text x="' + dkNum(mid[0]) + '" y="' + dkNum(mid[1]) + '" text-anchor="middle" dominant-baseline="middle" ' +
+      'font-family="Pretendard, -apple-system, sans-serif" font-size="' + (c.plateGold ? 4.6 : 4.2) + '" font-weight="800" letter-spacing=".2" fill="' +
+      (c.plateGold ? "#F2C64E" : "#39424E") + '">' + c.plate + '</text>');
+  }
+
+  /* ---- 의자 (책상 오른쪽 앞) ---- */
+  s.push(chairSvg(c, P, W * 0.84, -D * 0.14));
+
+  return '<svg class="desk" viewBox="0 0 240 132" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' + s.join("") + '</svg>';
+}
+
+/* 모니터 */
+function monitor(p, w, h, frame, glow) {
+  var x = p[0], y = p[1];
+  return '<g>' +
+    '<ellipse cx="' + dkNum(x) + '" cy="' + dkNum(y + .5) + '" rx="' + dkNum(w * .38) + '" ry="1.9" fill="#0E1216" opacity=".28"/>' +
+    '<rect x="' + dkNum(x - 1.3) + '" y="' + dkNum(y - 3.6) + '" width="2.6" height="3.8" rx="1" fill="' + frame + '"/>' +
+    '<rect x="' + dkNum(x - w / 2) + '" y="' + dkNum(y - h - 3.4) + '" width="' + w + '" height="' + h + '" rx="1.6" fill="' + frame + '"/>' +
+    '<rect x="' + dkNum(x - w / 2 + 1.3) + '" y="' + dkNum(y - h - 2.1) + '" width="' + dkNum(w - 2.6) + '" height="' + dkNum(h - 2.4) + '" rx=".9" fill="' + glow + '"/>' +
+    '<path d="M' + dkNum(x - w / 2 + 2.2) + ' ' + dkNum(y - h + .4) + 'h' + dkNum(w - 6) +
+    'M' + dkNum(x - w / 2 + 2.2) + ' ' + dkNum(y - h + 2.6) + 'h' + dkNum(w - 11) +
+    'M' + dkNum(x - w / 2 + 2.2) + ' ' + dkNum(y - h + 4.8) + 'h' + dkNum(w - 8) +
+    '" stroke="#7FD1F0" stroke-width=".45" opacity=".5"/>' +
+    '</g>';
+}
+
+/* 의자 — 책상 오른쪽에 빼 놓아 등받이가 또렷하게 보이게 */
+function chairSvg(c, P, cu, cv) {
+  var b = P(cu, cv, 0), bx = b[0], by = b[1];
+  var kind = c.chair;
+  var hb = kind === "president" ? 40 : kind === "exec" ? 33 : kind === "mesh" ? 30 : kind === "std" ? 26 : kind === "task" ? 24 : 12;
+  var bw = kind === "president" ? 19 : kind === "exec" ? 17 : kind === "mesh" ? 16 : kind === "stool" ? 14 : 15;
+  var s = [];
+  s.push('<ellipse cx="' + dkNum(bx) + '" cy="' + dkNum(by + 7) + '" rx="' + dkNum(bw * .64) + '" ry="3.6" fill="rgba(26,32,40,.18)"/>');
+  /* 등받이 — 둥근 상단 */
+  var top = by - hb, hw = bw / 2;
+  s.push('<path d="M' + dkNum(bx - hw) + ' ' + dkNum(by - 4) +
+    'C' + dkNum(bx - hw - .6) + ' ' + dkNum(top + 8) + ' ' + dkNum(bx - hw + 2) + ' ' + dkNum(top) + ' ' + dkNum(bx) + ' ' + dkNum(top) +
+    'C' + dkNum(bx + hw - 2) + ' ' + dkNum(top) + ' ' + dkNum(bx + hw + .6) + ' ' + dkNum(top + 8) + ' ' + dkNum(bx + hw) + ' ' + dkNum(by - 4) + 'Z" fill="' + c.chBack + '"/>');
+  s.push('<path d="M' + dkNum(bx - hw + 1.6) + ' ' + dkNum(by - 5.4) +
+    'C' + dkNum(bx - hw + 1.2) + ' ' + dkNum(top + 8.6) + ' ' + dkNum(bx - hw + 3.2) + ' ' + dkNum(top + 1.4) + ' ' + dkNum(bx) + ' ' + dkNum(top + 1.4) +
+    'C' + dkNum(bx + hw - 3.2) + ' ' + dkNum(top + 1.4) + ' ' + dkNum(bx + hw - 1.2) + ' ' + dkNum(top + 8.6) + ' ' + dkNum(bx + hw - 1.6) + ' ' + dkNum(by - 5.4) + 'Z" fill="' + c.chBack2 + '"/>');
+  if (kind === "president" || kind === "exec") {
+    for (var i = 0; i < 3; i++) {
+      var yy = top + 8 + i * (hb - 10) / 3;
+      s.push('<path d="M' + dkNum(bx - hw + 2.4) + ' ' + dkNum(yy) + 'h' + dkNum(bw - 4.8) + '" stroke="#000" stroke-width=".7" opacity=".22"/>');
+      s.push('<circle cx="' + dkNum(bx) + '" cy="' + dkNum(yy) + '" r=".85" fill="#000" opacity=".25"/>');
+    }
+    s.push('<path d="M' + dkNum(bx - hw + 1.4) + ' ' + dkNum(top + 2.2) + 'C' + dkNum(bx - hw + 3.6) + ' ' + dkNum(top - .6) + ' ' + dkNum(bx + hw - 3.6) + ' ' + dkNum(top - .6) + ' ' + dkNum(bx + hw - 1.4) + ' ' + dkNum(top + 2.2) + '" stroke="' + c.chFrame + '" stroke-width="1.5" stroke-linecap="round" fill="none"/>');
+  } else if (kind === "mesh") {
+    for (var j = 0; j < 4; j++) {
+      s.push('<path d="M' + dkNum(bx - hw + 2.2) + ' ' + dkNum(top + 7 + j * 5.4) + 'h' + dkNum(bw - 4.4) + '" stroke="#FFF" stroke-width=".45" opacity=".13"/>');
+    }
+    s.push('<path d="M' + dkNum(bx - hw + 1.4) + ' ' + dkNum(top + 2.2) + 'C' + dkNum(bx - hw + 3.6) + ' ' + dkNum(top - .4) + ' ' + dkNum(bx + hw - 3.6) + ' ' + dkNum(top - .4) + ' ' + dkNum(bx + hw - 1.4) + ' ' + dkNum(top + 2.2) + '" stroke="' + c.chFrame + '" stroke-width="1.1" stroke-linecap="round" fill="none" opacity=".8"/>');
+  }
+  if (kind !== "stool") {
+    /* 팔걸이 */
+    s.push('<path d="M' + dkNum(bx - hw - 3) + ' ' + dkNum(by - 12) + 'l-2.6 -1.6" stroke="' + c.chFrame + '" stroke-width="1.4" stroke-linecap="round"/>');
+    s.push('<path d="M' + dkNum(bx + hw + 3) + ' ' + dkNum(by - 12) + 'l2.6 -1.6" stroke="' + c.chFrame + '" stroke-width="1.4" stroke-linecap="round"/>');
+  }
+  /* 시트 */
+  s.push('<path d="M' + dkNum(bx - hw - 1.4) + ' ' + dkNum(by - 2) + 'C' + dkNum(bx - hw) + ' ' + dkNum(by + 4) + ' ' + dkNum(bx + hw) + ' ' + dkNum(by + 4) + ' ' + dkNum(bx + hw + 1.4) + ' ' + dkNum(by - 2) + 'Z" fill="' + c.chSeat + '"/>');
+  s.push('<path d="M' + dkNum(bx - hw - 1.4) + ' ' + dkNum(by - 2) + 'C' + dkNum(bx - hw) + ' ' + dkNum(by + 4) + ' ' + dkNum(bx + hw) + ' ' + dkNum(by + 4) + ' ' + dkNum(bx + hw + 1.4) + ' ' + dkNum(by - 2) + '" fill="none" stroke="' + c.chFrame + '" stroke-width=".5" opacity=".4"/>');
+  /* 기둥 · 5발 */
+  s.push('<rect x="' + dkNum(bx - 1.2) + '" y="' + dkNum(by + 1) + '" width="2.4" height="8" fill="' + c.chFrame + '" opacity=".9"/>');
+  [[-8, 3.2], [-2.8, 4.4], [2.8, 4.4], [8, 3.2], [0, -1.4]].forEach(function (l) {
+    s.push('<path d="M' + dkNum(bx) + ' ' + dkNum(by + 8.4) + 'L' + dkNum(bx + l[0]) + ' ' + dkNum(by + 8.4 + l[1]) +
+      '" stroke="' + c.chFrame + '" stroke-width="1.5" stroke-linecap="round"/>');
+    s.push('<circle cx="' + dkNum(bx + l[0]) + '" cy="' + dkNum(by + 9.4 + l[1]) + '" r="1.1" fill="#2A2F35"/>');
+  });
+  return s.join("");
+}
+
+  /* 자리 좌표 — 캐릭터 HOME과 같은 지점(책상 앞)에 놓습니다 */
+  var DESK_POS = {
+    captain: [56, 71], p1: [30, 76],
+    p0: [34, 76], p5: [62, 79],
+    p4: [35, 77], p3: [63, 80],
+    p6: [24, 75], p2: [48, 82], p7: [70, 76]
+  };
+
+  function buildDesks() {
+    data.team.forEach(function (t) {
+      var box = $('.floor-desks[data-floor-desks="' + t.floor + '"]');
+      if (!box) return;
+      var cfg = DESK_CFG[t.id] || DESK_CFG.p2;
+      var pos = DESK_POS[t.id] || [50, 76];
+      var el = document.createElement("div");
+      el.className = "desk-unit";
+      el.setAttribute("data-desk", t.id);
+      el.setAttribute("data-rank", t.role || "");
+      el.style.left = pos[0] + "%";
+      el.style.top = pos[1] + "%";
+      el.style.setProperty("--dw", cfg.cssw + "px");
+      el.innerHTML = deskSvg(t.id);
+      box.appendChild(el);
+    });
   }
 
   /* ------------------------------------------------------------
@@ -596,6 +1063,7 @@
     applyMapStyle(state.mapStyle, true);
     applyMotion(state.motion, true);
     renderAll();
+    buildDesks();
     buildAgents();
     applyFloorState();
     bind();
@@ -658,6 +1126,7 @@
         '<span class="fl-who">' + esc(f.members) + '</span>' +
         '<span class="fl-icon" aria-hidden="true">' + esc(f.icon || "") + '</span>' +
         '</div>' +
+        '<div class="floor-desks" data-floor-desks="' + esc(f.id) + '" aria-hidden="true"></div>' +
         '<div class="floor-agents" data-floor-agents="' + esc(f.id) + '"></div>' +
         '<span class="floor-line">' + esc(f.line || "") + '</span>' +
         floorHud(f) +
@@ -818,7 +1287,7 @@
       }).join("") + '</ol><p class="eff-note">' + esc(p.note || "") + '</p>';
   }
 
-  var WHO = { p0: "클부장", p1: "피사장", p2: "피사원", p3: "제미대리", p4: "지과장", captain: "회장님" };
+  var WHO = { p0: "클부장", p1: "피사장", p2: "피사원", p3: "제미대리", p4: "지과장", p5: "그록 차장", p6: "피주임", p7: "피인턴", captain: "회장님" };
 
   function renderLogs() {
     var box = $("#logList");
@@ -1642,7 +2111,13 @@
     "2": [[38, 78], [50, 74], [60, 80], [45, 84]],
     "1": [[44, 78], [56, 74], [66, 80], [50, 84]]
   };
-  var HOME = { captain: [66, 72], p1: [46, 74], p2: [44, 78], p4: [38, 78], p0: [45, 78], p3: [54, 74], p5: [59, 76], p6: [61, 79] };
+  var HOME = { captain: [56, 71], p1: [30, 76], p0: [34, 76], p5: [62, 79], p4: [35, 77], p3: [63, 80], p6: [24, 75], p2: [48, 82], p7: [70, 76] };
+  /* 각자 자기 책상 곁에서만 움직이도록 캐릭터별 좌표 */
+  var SPOTS = {};
+  Object.keys(HOME).forEach(function (id) {
+    var h = HOME[id];
+    SPOTS[id] = [[h[0], h[1]], [h[0] - 4.2, h[1] + 2.4], [h[0] + 4.4, h[1] + 1.6], [h[0] + 1.8, h[1] - 2.2]];
+  });
   var LINES = {
     captain: ["👑 최종 의사결정 대기", "📣 08:00 브리핑 확인", "🏛️ 4F 기획실 상주", "⚡ 릴레이 보고 수신"],
     p0: ["🛠️ 웹앱 3F 개편", "🔗 GitHub 동기화", "⚙️ 자동화 개발 중", "📋 고난도 실무 처리"],
@@ -1651,7 +2126,8 @@
     p4: ["🔍 교차 검증 완료", "💡 아이디어 제안", "💬 전략 조언", "📰 아침 뉴스 브리핑"],
     p3: ["🔎 리서치 정리 중", "🗓️ 일정표 업데이트", "🎟️ 체험단 조사", "🩺 의료기기 브리핑"],
     p6: ["👋 연동 대기 중", "📋 응모 루틴 인수인계", "🎟️ 응모 보조 준비", "🕒 곧 합류합니다"],
-    p2: ["🎯 응모 124건 진행", "☕ 0원 쿠폰 줍줍", "✅ 사전 검증 게이트", "📊 시장 조사 중"]
+    p2: ["🎯 응모 124건 진행", "☕ 0원 쿠폰 줍줍", "✅ 사전 검증 게이트", "📊 시장 조사 중"],
+    p7: ["🌱 신입 인턴 세팅 중", "📋 응모 루틴 배우는 중", "☕ 자리 익히는 중", "🕒 연동 대기 중"]
   };
   var FLOOR_LINES = {
     "4": {
@@ -1668,7 +2144,8 @@
     },
     "1": {
       p2: ["🎯 응모 124건 진행", "☕ 0원 쿠폰 줍줍", "✅ 사전 검증 게이트", "📊 시장 조사 중"],
-      p6: ["👋 연동 대기 중", "📋 응모 루틴 인수인계", "🎟️ 응모 보조 준비", "🕒 곧 합류합니다"]
+      p6: ["👋 연동 대기 중", "📋 응모 루틴 인수인계", "🎟️ 응모 보조 준비", "🕒 곧 합류합니다"],
+      p7: ["🌱 신입 인턴 세팅 중", "📋 응모 루틴 배우는 중", "☕ 자리 익히는 중", "🕒 연동 대기 중"]
     }
   };
 
@@ -1749,11 +2226,11 @@
   }
 
   function pickSpot(a) {
-    var all = (FLOOR_SPOTS[a.floor] || [[50, 74]]).slice();
+    var all = (SPOTS[a.id] || FLOOR_SPOTS[a.floor] || [[50, 74]]).slice();
     var spots = all.filter(function (p) {
       var dx = p[0] - a.x;
       var dy = p[1] - a.y;
-      return Math.sqrt(dx * dx + dy * dy) >= 6;
+      return Math.sqrt(dx * dx + dy * dy) >= 3.5;
     });
     if (!spots.length) spots = all;
     spots.sort(function () { return Math.random() - 0.5; });

@@ -922,6 +922,28 @@ html[data-theme="dark"] .fp-note { color: #cdbea9; }
 .fp-duties span { flex: 0 0 auto; font-size: 9.5px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: #edf2f9; color: #3d5a80; white-space: nowrap; }
 html[data-theme="dark"] .fp-duties span { background: rgba(227, 167, 100, .14); color: #f2c089; }
 
+/* ---------------- 6-5. 자리 책상·의자 ---------------- */
+.floor-desks { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+.desk-unit {
+  position: absolute;
+  width: calc(var(--dw, 118px) * 0.42);
+  transform: translate(-14%, -100%);
+  transform-origin: 14% 100%;
+  opacity: .92;
+  transition: width .55s var(--ease-out), opacity .4s ease, filter .4s ease;
+  filter: drop-shadow(0 6px 6px rgba(24, 32, 44, .10));
+}
+.desk-unit > svg { display: block; width: 100%; height: auto; overflow: visible; }
+.floor.is-focus .desk-unit { width: var(--dw, 118px); opacity: 1; }
+.floor.is-dim .desk-unit { opacity: .3; filter: grayscale(.45) drop-shadow(0 4px 4px rgba(24, 32, 44, .08)); }
+.desk-unit .plate-txt { font-family: inherit; }
+html[data-theme="dark"] .floor-desks { filter: brightness(.66) saturate(.85); }
+/* 회장님 자리만 은은한 골드 후광 */
+.desk-unit[data-desk="captain"] { filter: drop-shadow(0 0 6px rgba(242, 198, 78, .45)) drop-shadow(0 7px 7px rgba(24, 32, 44, .16)); }
+.floor.is-focus .desk-unit[data-desk="captain"] { filter: drop-shadow(0 0 9px rgba(242, 198, 78, .55)) drop-shadow(0 8px 8px rgba(24, 32, 44, .18)); }
+/* 작은 층(전체 보기)에서는 명패 글씨 등 미세 디테일을 숨겨 깔끔하게 */
+.floor:not(.is-focus) .desk-unit text { display: none; }
+
 /* ---------------- 7. agents ---------------- */
 .floor-agents { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
 
