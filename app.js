@@ -1217,7 +1217,7 @@
 
     var chain = $("#relayChain");
     if (chain) {
-      var order = ["p1", "p3", "p2", "p6"];
+      var order = ["p1", "p2", "p6"];
       chain.innerHTML = order.map(function (id, i) {
         var t = data.team.filter(function (x) { return x.id === id; })[0];
         var now = id === "p2";
@@ -2391,7 +2391,7 @@
   }
 
   function openRelay() {
-    var order = ["p1", "p3", "p2", "p6"];
+    var order = ["p1", "p2", "p6"];
     var chain = order.map(function (id, i) {
       var t = data.team.filter(function (x) { return x.id === id; })[0];
       var now = id === "p2";

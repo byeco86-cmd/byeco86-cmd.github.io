@@ -199,6 +199,15 @@ def main():
     check("no_waiting_left_1f", not waiting_left, waiting_left or "1F 전원 가동 표기")
     check("credits_order_v8", [a["id"] for a in data["credits"]["agents"]] == ["p1", "p0", "p5", "p4", "p3", "p6", "p2", "p7"],
           [a["id"] for a in data["credits"]["agents"]])
+    # 2026-11-29 크레딧 릴레이에서 제미대리(p3) 제외 — 피비서 → 피사원 → 피주임
+    relay_roles = {m["id"]: m.get("relay", "") for m in data["roleDetails"]["members"]}
+    check("relay_order_data", "1번 주자" in relay_roles["p1"] and "2번 주자" in relay_roles["p2"]
+          and "3번 주자" in relay_roles["p6"], relay_roles)
+    check("relay_no_gemini", "릴레이 제외" in relay_roles["p3"]
+          and "제미대리는 릴레이 제외" in data["credits"]["rules"][1]
+          and 'var order = ["p1", "p2", "p6"]' in appjs
+          and '["p1", "p3", "p2", "p6"]' not in appjs,
+          (relay_roles["p3"], data["credits"]["rules"][1]))
     check("bld_sign_v5", "바이코 AI 오피스" in indexhtml, "건물 간판·타이틀")
     check("foot_v15", "바이코 AI 오피스 v15" in indexhtml and "피인턴" in indexhtml, "푸터 9명")
     check("title_v5", "<title>바이코 AI 오피스</title>" in indexhtml, "")
@@ -885,9 +894,13 @@ def main():
         results.append(("relay_nodes", page.locator("#sheetBody .relay-node").count()))
         relay_txt = page.inner_text("#sheetBody .relay-chain")
         results.append(("relay_text", relay_txt.replace("\n", " ")))
-        check("relay_4_nodes", page.locator("#sheetBody .relay-node").count() == 4, relay_txt)
-        check("relay_order_v8", all(k in relay_txt for k in ["피비서", "제미대리", "피사원", "피주임"])
+        check("relay_no_gemini_nodes", page.locator("#sheetBody .relay-node").count() == 3, relay_txt)
+        check("relay_order_v15", all(k in relay_txt for k in ["피비서", "피사원", "피주임"])
+              and "제미대리" not in relay_txt
               and "가동 중" in relay_txt and "연동 대기" not in relay_txt and "합류 대기" not in relay_txt, relay_txt.replace("\n", " "))
+        relay_sheet_txt = page.inner_text("#sheetBody")
+        results.append(("relay_sheet", relay_sheet_txt.replace("\n", " ")))
+        check("relay_sheet_excludes_gemini", "제미대리는 릴레이 제외" in relay_sheet_txt, relay_sheet_txt[:200])
         page.click("#sheetClose")
 
         # 회의실: 지휘 체계 + 팀 카드 5명
@@ -1026,6 +1039,14 @@ def main():
         check("credit_p0_note", "Claude Pro" in p0_note and "GitHub" in p0_note, p0_note)
         idx4 = credit_names.index("지과장") if "지과장" in credit_names else -1
         p4_note = credit_notes[idx4] if idx4 >= 0 and idx4 < len(credit_notes) else ""
+        idx3 = credit_names.index("제미대리") if "제미대리" in credit_names else -1
+        p3_note = credit_notes[idx3] if idx3 >= 0 and idx3 < len(credit_notes) else ""
+        check("credit_gemini_relay_out", "릴레이 제외" in p3_note, p3_note)
+        relay_board = page.inner_text("#relayChain")
+        results.append(("relay_board", relay_board.replace("\n", " ")))
+        check("relay_chain_dom", page.locator("#relayChain .relay-node").count() == 3
+              and "제미대리" not in relay_board
+              and all(k in relay_board for k in ["피비서", "피사원", "피주임"]), relay_board.replace("\n", " "))
         p4_state = page.eval_on_selector_all("#creditList .cc-state", "els => els.map(e => e.textContent.trim())")
         results.append(("credit_states", p4_state))
         check("credit_p4_note", "data.json" in p4_note and "교차 검증" in p4_note, p4_note)
