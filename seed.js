@@ -1,7 +1,7 @@
 /* 자동 생성 파일입니다. 원본은 data.json — scripts/build-seed.py 로 다시 만듭니다. */
 window.SECRETARY_SEED = {
   "version": "v13",
-  "updatedAt": "2026-11-28 21:12",
+  "updatedAt": "2026-11-28 21:17",
   "captain": {
     "name": "회장님",
     "badge": "회장님 전용",
@@ -1486,7 +1486,7 @@ window.SECRETARY_SEED = {
         "0원 쿠폰 줍줍",
         "사전/사후 검증 게이트",
         "시장 조사(크몽/리셀)",
-        "신입 인턴 온보딩"
+        "1F 3인 분업 · 피인턴 자료 정리"
       ],
       "line": "피사원 · [04:08] 응모 124건 진행 · 피주임·피인턴 응모·쿠폰 지원 가동"
     }
