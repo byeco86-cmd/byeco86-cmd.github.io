@@ -62,6 +62,14 @@ def main():
           all("피비서" in s for s in (appjs, indexhtml, readme_ui))
           and "회장·비서 기획실" in indexhtml,
           "피비서·회장·비서 기획실 표기")
+    # 2026-11-28 v11: 전 층 착석·일하는 모션 · 2F·3F 중앙 라운지 보완
+    stylescss = (ROOT / "styles.css").read_text(encoding="utf-8")
+    for kw in ["@keyframes typeArmL", "@keyframes typeHandL", "@keyframes nodWork",
+               "@keyframes seatWork", "@keyframes seatRoll", "class=\"chair\""]:
+        check("v11_source:" + kw, kw in (stylescss + appjs), kw)
+    check("v11_readme_lounge",
+          "착석" in readme_ui and "라운지 테이블" in readme_ui and "v11" in readme_ui,
+          "README v11 이력")
 
     # ---- data.json 정적 점검 (요일·통계·검증 필드) ----
     import datetime as _dt
@@ -132,7 +140,7 @@ def main():
     check("credits_order_v8", [a["id"] for a in data["credits"]["agents"]] == ["p1", "p0", "p5", "p4", "p3", "p6", "p2", "p7"],
           [a["id"] for a in data["credits"]["agents"]])
     check("bld_sign_v5", "바이코 AI 오피스" in indexhtml, "건물 간판·타이틀")
-    check("foot_v10", "바이코 AI 오피스 v10" in indexhtml and "피인턴" in indexhtml, "푸터 9명")
+    check("foot_v11", "바이코 AI 오피스 v11" in indexhtml and "피인턴" in indexhtml, "푸터 9명")
     check("title_v5", "<title>바이코 AI 오피스</title>" in indexhtml, "")
     dow_ko = ["월", "화", "수", "목", "금", "토", "일"]
     for a in data.get("awards", []):
@@ -343,6 +351,41 @@ def main():
         check("p7_sprite_visible", p7_box["w"] > 20 and p7_box["h"] > 20, p7_box)
         check("p7_tag", "피인턴" in tags, tags)
 
+        # ---- v11: 전 층 착석 포즈 (직급별 의자·앉은 하체·타이핑 팔·고개 그룹) ----
+        seat_marks = {"chair": '<g class="chair">', "armrest": '<g class="armrest">',
+                      "legs": '<g class="legs">', "arm_l": 'class="arm arm-l"', "arm_r": 'class="arm arm-r"',
+                      "hand_l": 'class="hand hand-l"', "hand_r": 'class="hand hand-r"', "head": '<g class="hd">'}
+        all_svg = page.eval_on_selector_all(".agent svg.sprite", "els => els.map(e => e.outerHTML)")
+        for key, mark in seat_marks.items():
+            miss = [a for a, svg in zip(agent_ids, all_svg) if mark not in svg]
+            check(f"seat_mark:{key}", len(all_svg) == 9 and not miss, miss)
+        for aid, mark, why in [("captain", "#D9B45A", "회장 금장 등판"), ("p0", "#B08C42", "부장 가죽 등판"),
+                               ("p4", "#6FBF9F", "과장 에메랄드 의자"), ("p2", "#7FA8CC", "사원 블루 의자")]:
+            svg = page.eval_on_selector(f'.agent[data-agent="{aid}"] svg.sprite', "el => el.outerHTML") or ""
+            check(f"chair_rank:{aid}", mark in svg, why)
+        # 팔걸이가 몸(.sb) 밖에 있어 회장님 아우라가 의자까지 감싸지 않습니다
+        cap_chair_outside = page.evaluate("""() => {
+          const a = document.querySelector('.agent[data-agent=\"captain\"] svg.sprite');
+          const sb = a.querySelector('.sb');
+          return !sb.querySelector('.chair') && !sb.querySelector('.armrest') && !!a.querySelector('.chair');
+        }""")
+        check("chair_outside_aura", cap_chair_outside, "의자·팔걸이 아우라 밖")
+
+        # 앉아서 일하는 모션 — 계산된 애니메이션 이름
+        anim = page.evaluate("""() => {
+          const a = document.querySelector('.agent[data-agent=\"p0\"]');
+          const g = s => getComputedStyle(a.querySelector(s)).animationName;
+          const bodies = Array.from(document.querySelectorAll('.agent .sprite-wrap')).map(e => getComputedStyle(e).animationName);
+          return {arm: g('.arm-l') || '', arm2: g('.arm-r') || '', hand: g('.hand-l') || '',
+                  head: g('.hd') || '', body: getComputedStyle(a.querySelector('.sprite-wrap')).animationName,
+                  seatBodies: bodies.filter(n => n === 'seatWork').length};
+        }""")
+        results.append(("seat_anims", anim))
+        check("seat_motion_arms", anim["arm"] == "typeArmL" and anim["arm2"] == "typeArmR", anim)
+        check("seat_motion_hands", anim["hand"] in ("typeHandL", "typeHandR"), anim)
+        check("seat_motion_nod", anim["head"] == "nodWork", anim)
+        check("seat_motion_body", anim["body"] == "seatWork" or anim["seatBodies"] >= 7, anim)
+
         # ---- 정장 업그레이드 (호랑이 제외 8명) : 라펠·조끼·커프스 ----
         for aid, mark, why in [("p1", "#40587C", "피크 라펠(비서)"), ("p2", "#4F92CC", "노치 라펠(사원)"),
                                ("p0", "#4A4754", "더블브레스트 라펠(부장)"), ("p5", "#38455A", "슬레이트 라펠(차장)"),
@@ -368,6 +411,18 @@ def main():
                    "clay-4f.webp", "clay-3f.webp", "clay-2f.webp", "clay-1f.webp"]:
             fp = ROOT / fn
             check(f"img_size:{fn}", fp.exists() and fp.stat().st_size > 60000, fp.stat().st_size if fp.exists() else "missing")
+        # v11: 2F·3F 중앙 라운지(테이블·러그·스툴)가 실제 이미지에 들어갔는지 — 중앙 패치 밝기로 확인
+        try:
+            from PIL import Image as _Im
+            import numpy as _np
+            for fn, lim in [("floor-2f.webp", 190), ("floor-3f.webp", 175),
+                            ("clay-2f.webp", 185), ("clay-3f.webp", 158)]:
+                _a = _np.array(_Im.open(ROOT / fn).convert("RGB")).astype(float)
+                _patch = _a[600:730, 540:680]
+                _lum = float(_patch.mean())
+                check(f"lounge_center:{fn}", _lum < lim, round(_lum, 1))
+        except Exception as _exc:
+            check("lounge_center_images", False, str(_exc)[:120])
         # 1F 세 자리 좌우 간격 (겹치지 않게)
         pos1 = page.evaluate("""() => {
           const o = {};
@@ -405,6 +460,21 @@ def main():
         }""")
         results.append(("agent_positions", in_stage))
         check("agents_in_stage", len(in_stage) == 9 and all(0 <= a["x"] <= 100 and 0 <= a["y"] <= 100 for a in in_stage), in_stage)
+
+        # v11 착석 좌표 — 모두 자기 의자 자리에서 ±1.6% 안쪽만 움직입니다 (층별 책상·의자 좌표)
+        home_now = page.evaluate("""() => {
+          const o = {};
+          document.querySelectorAll('.agent').forEach(a => {
+            o[a.getAttribute('data-agent')] = [parseFloat(a.style.left), parseFloat(a.style.top)];
+          });
+          return o;
+        }""")
+        SEAT = {"captain": [49, 62], "p1": [29.5, 75], "p0": [22, 48.5], "p5": [58, 51],
+                "p4": [22, 53], "p3": [58, 67], "p6": [24.5, 43], "p2": [39.5, 50.5], "p7": [55, 62]}
+        results.append(("seat_coords", home_now))
+        far = [k for k, v in SEAT.items()
+               if not home_now.get(k) or abs(home_now[k][0] - v[0]) > 1.6 or abs(home_now[k][1] - v[1]) > 1.0]
+        check("agents_seated_at_chairs", not far, far or home_now)
 
         # 인원 표기 8명 ON / 로스터
         on_count = page.inner_text("#onCount")
@@ -506,13 +576,29 @@ def main():
         page.click('.seg-btn[data-style="basic"]')
         page.wait_for_timeout(400)
 
-        # 움직임 끄기 → 켜기
+        # 움직임 끄기 → 켜기 (앉아서 일하는 모션도 함께 멈추는지)
         page.click("#motionBtn")
         page.wait_for_timeout(300)
         results.append(("motion_off_label", page.inner_text("#motionLabel")))
+        off_anim = page.evaluate("""() => {
+          const a = document.querySelector('.agent[data-agent=\"p0\"]');
+          const g = s => getComputedStyle(a.querySelector(s)).animationName;
+          return {arm: g('.arm-l'), hand: g('.hand-l'), head: g('.hd'),
+                  body: getComputedStyle(a.querySelector('.sprite-wrap')).animationName,
+                  cls: document.body.className};
+        }""")
+        results.append(("motion_off_anim", off_anim))
+        check("motion_off_stops_work", off_anim["arm"] == "none" and off_anim["hand"] == "none"
+              and off_anim["head"] == "none" and off_anim["body"] == "none"
+              and "motion-off" in off_anim["cls"], off_anim)
         page.click("#motionBtn")
         page.wait_for_timeout(300)
         results.append(("motion_on_label", page.inner_text("#motionLabel")))
+        on_anim = page.evaluate("""() => {
+          const a = document.querySelector('.agent[data-agent=\"p0\"]');
+          return getComputedStyle(a.querySelector('.arm-l')).animationName;
+        }""")
+        check("motion_on_resumes_work", on_anim == "typeArmL", on_anim)
 
         # ---- 층 전환: 4F ----
         page.click('.floor-btn[data-floor="4"]')
