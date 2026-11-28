@@ -175,34 +175,39 @@ def main():
     p6_role_txt = json.dumps(p6_role_obj, ensure_ascii=False)
     p6_credit = [a for a in data["credits"]["agents"] if a["id"] == "p6"][0]
     p6_times = [r.get("time") for r in p6_role_obj.get("routine", [])]
-    check("juim_susi_report", all(t in ("수시", "발표일") for t in p6_times)
+    check("juim_susi_report", all(t in ("수시", "발표일", "08:00") for t in p6_times)
           and "정기 보고 중단" in p6_role_txt, p6_times)
-    check("juim_today_36", p6_credit.get("today") == "36건" and "36/70건" in p6_role_txt
-          and "36건" in ones["p6"]["note"], (p6_credit.get("today"), ones["p6"]["note"][:80]))
-    check("entries_today_breakdown", ent.get("today") == 58
-          and (ent.get("todayBy") or {}) == {"p6": 36, "p2": 13, "p7": 9}, ent)
+    check("juim_today_72", p6_credit.get("today") == "72건" and "72/70건" in p6_role_txt
+          and "72건" in ones["p6"]["note"], (p6_credit.get("today"), ones["p6"]["note"][:80]))
+    # 2026-11-29 v17 피주임 매일 08:00 자동 응모 루틴 세팅
+    check("juim_auto_0800_v17", any(r.get("time") == "08:00" for r in p6_role_obj.get("routine", []))
+          and "매일 08:00 자동 응모 루틴" in appjs
+          and any(r.get("owner") == "피주임" and r.get("time") == "08:00" for r in data["routine"]),
+          p6_times)
+    check("entries_today_breakdown", ent.get("today") == 111
+          and (ent.get("todayBy") or {}) == {"p6": 72, "p2": 18, "p7": 21}, ent)
     # 2026-11-28 v15.1 개인별 오늘/총 누적 · 캐릭터 머리 위 숫자
     by = ent.get("byAgent") or {}
-    # 2026-11-29 v16 피비서 확인 — 피인턴 미보고 해제 · 1F 실제 실적 확정
-    check("entries_by_agent", by.get("p6") == {"today": 36, "total": 36}
-          and by.get("p2") == {"today": 13, "total": 127}
-          and (by.get("p7") or {}).get("today") == 9
-          and (by.get("p7") or {}).get("total") == 9, by)
-    check("entries_1f_actual_v16", ent.get("total") == 172
-          and data["stats"]["tracking"].get("entered") == 172
-          and "58" in (ent.get("todayNote") or ""), (ent.get("total"), ent.get("todayNote")))
-    check("no_unreported_1f_v16",
+    # 2026-11-29 v17 1F 실적 최신화 — 피주임 72 · 피사원 18/132 · 피인턴 21
+    check("entries_by_agent", by.get("p6") == {"today": 72, "total": 72}
+          and by.get("p2") == {"today": 18, "total": 132}
+          and (by.get("p7") or {}).get("today") == 21
+          and (by.get("p7") or {}).get("total") == 21, by)
+    check("entries_1f_actual_v17", ent.get("total") == 225
+          and data["stats"]["tracking"].get("entered") == 225
+          and "111" in (ent.get("todayNote") or ""), (ent.get("total"), ent.get("todayNote")))
+    check("no_unreported_1f_v17",
           "미보고" not in json.dumps(ent, ensure_ascii=False)
           and "미확인" not in json.dumps(ent, ensure_ascii=False), ent.get("byAgentNote"))
     check("p7_dawn12_v16", "12건" in json.dumps(ones["p7"], ensure_ascii=False)
           and "21건" in json.dumps(ones["p7"], ensure_ascii=False), ones["p7"]["note"])
-    check("floor1_day_total_card", "당일 누적 58건" in f1_txt and "총 누적 172건" in f1_txt,
+    check("floor1_day_total_card", "당일 누적 111건" in f1_txt and "총 누적 225건" in f1_txt,
           fl["1"]["tasks"][:3])
     check("v16_greeting_stagger", "seq * 1900" in appjs and "speak(a, lineFor(a), 2600, at)" in appjs,
           "같은 층 인사는 1.9초 간격으로 차례로")
     check("entry_badge_css", ".entry-count" in stylescss and "has-count .bubble" in stylescss,
           "styles.css 숫자 배지·말풍선 높이 조정")
-    check("version_v16", data["version"] == "v16", data["version"])
+    check("version_v17", data["version"] == "v17", data["version"])
     # 2026-11-28 21:20 피주임·피인턴 가동 전환 — 대기 표현이 데이터에 남으면 실패
     waiting_left = [name for name, obj in (("피주임", juim), ("피인턴", intern)) if "연동 대기" in json.dumps(obj, ensure_ascii=False)]
     waiting_left += [name for name, obj in (("p6 상세", [m for m in data["roleDetails"]["members"] if m["id"] == "p6"][0]),
@@ -221,7 +226,7 @@ def main():
           and '["p1", "p3", "p2", "p6"]' not in appjs,
           (relay_roles["p3"], data["credits"]["rules"][1]))
     check("bld_sign_v5", "바이코 AI 오피스" in indexhtml, "건물 간판·타이틀")
-    check("foot_v16", "바이코 AI 오피스 v16" in indexhtml and "피인턴" in indexhtml, "푸터 9명")
+    check("foot_v17", "바이코 AI 오피스 v17" in indexhtml and "피인턴" in indexhtml, "푸터 9명")
     check("title_v5", "<title>바이코 AI 오피스</title>" in indexhtml, "")
     dow_ko = ["월", "화", "수", "목", "금", "토", "일"]
     for a in data.get("awards", []):
@@ -869,9 +874,9 @@ def main():
         hud_1f = page.inner_text('#floorStack .floor[data-floor="1"] .floor-hud')
         results.append(("hud_1f", hud_1f))
         check("floor_hud_1f_210", "210" in hud_1f and "1F" in hud_1f, hud_1f)
-        check("floor_hud_1f_day_total", "당일 누적" in hud_1f and "58" in hud_1f
-              and "총 누적" in hud_1f and "172" in hud_1f, hud_1f)
-        check("floor_card_1_day_total", "당일 누적 58건" in cards_1 and "총 누적 172건" in cards_1, cards_1[:200])
+        check("floor_hud_1f_day_total", "당일 누적" in hud_1f and "111" in hud_1f
+              and "총 누적" in hud_1f and "225" in hud_1f, hud_1f)
+        check("floor_card_1_day_total", "당일 누적 111건" in cards_1 and "총 누적 225건" in cards_1, cards_1[:200])
         # 캐릭터 머리 위 개인별 응모 숫자 배지
         badges = {}
         for aid in ("p6", "p2", "p7"):
@@ -881,8 +886,8 @@ def main():
         results.append(("entry_badges", badges))
         check("map_entry_badges_1f",
               all(b["visible"] for b in badges.values())
-              and "36" in badges["p6"]["text"] and "13" in badges["p2"]["text"]
-              and "127" in badges["p2"]["text"] and "9" in badges["p7"]["text"]
+              and "72" in badges["p6"]["text"] and "18" in badges["p2"]["text"]
+              and "132" in badges["p2"]["text"] and "21" in badges["p7"]["text"]
               and "미보고" not in badges["p7"]["text"], badges)
         bb = page.locator('.floor[data-floor="1"] .agent.p6 .entry-count').bounding_box()
         tg = page.locator('.floor[data-floor="1"] .agent.p6 .agent-tag').bounding_box()
@@ -1073,11 +1078,11 @@ def main():
         goal_note = page.inner_text("#entryGoalNote")
         results.append(("entry_goal_note", goal_note))
         check("entries_goal_note_v15", "각 70건" in goal_note and "210건" in goal_note
-              and "피비서" in goal_note and "36건" in goal_note, goal_note)
+              and "피비서" in goal_note and "72건" in goal_note, goal_note)
         entries_sum = page.inner_text("#entriesSummary")
         results.append(("entries_summary", entries_sum.replace("\n", " ")))
-        check("entries_summary_goal_v16", "피주임 36" in entries_sum and "피사원 13" in entries_sum
-              and "피인턴 9" in entries_sum, entries_sum.replace("\n", " "))
+        check("entries_summary_goal_v17", "피주임 72" in entries_sum and "피사원 18" in entries_sum
+              and "피인턴 21" in entries_sum, entries_sum.replace("\n", " "))
         page.screenshot(path=str(SHOTS / "05-entries-extra.png"))
 
         # ---- 수익화 8대 트랙 렌더링 ----
