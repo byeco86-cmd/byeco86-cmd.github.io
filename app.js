@@ -1011,7 +1011,7 @@
         value: s.entries.total,
         unit: "건",
         sub: "11/26 " + s.entries.prev + " + 오늘 " + s.entries.today + " · 1F 하루 " +
-          ((s.entries && s.entries.dailyGoal) || 150) + "건 목표(각 " + ((s.entries && s.entries.perPerson) || 50) + "건)"
+          ((s.entries && s.entries.dailyGoal) || 210) + "건 목표" + quotaBrief(s.entries)
       },
       {
         label: "🛒 100% 페이백",
@@ -1239,12 +1239,30 @@
     }
   }
 
+  function quotaBrief(e) {
+    var q = e && e.quota;
+    if (!q) return "";
+    return " (피주임 " + (q.p6 || 0) + " · 피사원 " + (q.p2 || 0) + " · 피인턴 " + (q.p7 || 0) + ")";
+  }
+
+  function todayByLabel(e) {
+    var tb = e && e.todayBy;
+    if (!tb) return "오늘 응모 (1F 하루 " + ((e && e.dailyGoal) || 210) + "건 목표)";
+    var parts = [];
+    ["p6", "p2", "p7"].forEach(function (id) {
+      if (tb[id] === null || tb[id] === undefined) return;
+      var t = teamById(id);
+      parts.push((t ? t.name : id) + " " + tb[id]);
+    });
+    return parts.length ? "오늘 응모 = " + parts.join(" + ") : "오늘 응모";
+  }
+
   function renderEntries() {
     var s = data.stats;
     var sum = $("#entriesSummary");
     if (sum) {
       sum.innerHTML = [
-        { v: s.entries.today, l: "오늘 응모 (1F 하루 " + ((s.entries && s.entries.dailyGoal) || 150) + "건 목표)" },
+        { v: s.entries.today, l: todayByLabel(s.entries) },
         { v: s.entries.todayClosed || 4, l: "오늘 마감 경품" },
         { v: s.deals.under, l: "체험단 미달" },
         { v: s.coupons.zero, l: "0원 쿠폰" }
@@ -1570,7 +1588,7 @@
       "2": ['<span class="hud-tile">🔍 게이트 ② 검증</span>',
         '<span class="hud-tile">🧭 체험단 <b>' + ((s.deals && s.deals.total) || 0) + '</b>건 점수화</span>'],
       "1": ['<span class="hud-tile">🎟️ 누적 <b>' + ((s.entries && s.entries.total) || 0) + '</b>건</span>',
-        '<span class="hud-tile">🎯 1F <b>' + ((s.entries && s.entries.dailyGoal) || 150) + '</b>건/일</span>',
+        '<span class="hud-tile">🎯 1F <b>' + ((s.entries && s.entries.dailyGoal) || 210) + '</b>건/일</span>',
         '<span class="hud-tile">🎫 0원 쿠폰 <b>' + ((s.coupons && s.coupons.zero) || 0) + '</b>종</span>']
     }[f.id] || [];
     return '<div class="floor-hud">' + tiles.join("") + '</div>';
@@ -1824,9 +1842,9 @@
     p5: ["🛠️ 코드 리뷰 2건", "📈 X 실시간 트렌드", "🧪 데이터 정합성 확인", "🗂️ 클부장 백업 대기"],
     p4: ["🔍 교차 검증 완료", "💡 아이디어 제안", "💬 전략 조언", "📰 아침 뉴스 브리핑"],
     p3: ["🔎 리서치 정리 중", "🗓️ 일정표 업데이트", "🎟️ 체험단 조사", "🩺 의료기기 브리핑"],
-    p6: ["🏃 하루 50건 응모 지원", "🎟️ 쿠폰 줍는 중", "📋 응모 결과 정리", "✅ 검증 통과 건 실행"],
-    p2: ["🎯 하루 50건 응모 중", "☕ 0원 쿠폰 줍줍", "✅ 사전 검증 게이트", "📊 시장 조사 중"],
-    p7: ["🌱 50건 응모 루틴 배우는 중", "📋 후보 목록 정리 중", "🎟️ 쿠폰 링크 확인 중", "☕ 1F 자리 익히는 중"]
+    p6: ["🏃 하루 70건 응모 지원", "🗣️ 수시 보고 체계", "📋 응모 결과 정리", "✅ 검증 통과 건 실행"],
+    p2: ["🎯 하루 70건 응모 중", "☕ 0원 쿠폰 줍줍", "✅ 사전 검증 게이트", "📊 시장 조사 중"],
+    p7: ["🌱 70건 응모 루틴 배우는 중", "📋 후보 목록 정리 중", "🎟️ 쿠폰 링크 확인 중", "☕ 1F 자리 익히는 중"]
   };
   var FLOOR_LINES = {
     "4": {
@@ -1842,9 +1860,9 @@
       p3: ["🔎 리서치 정리 중", "🧺 가족 일정 확인", "🗓️ 일정표 업데이트", "🎟️ 체험단 조사"]
     },
     "1": {
-      p2: ["🎯 하루 50건 응모 중", "☕ 0원 쿠폰 줍줍", "✅ 사전 검증 게이트", "📊 시장 조사 중"],
-      p6: ["🏃 하루 50건 응모 지원", "🎟️ 쿠폰 줍는 중", "📋 응모 결과 정리", "✅ 검증 통과 건 실행"],
-      p7: ["🌱 50건 응모 루틴 배우는 중", "📋 후보 목록 정리 중", "🎟️ 쿠폰 링크 확인 중", "☕ 1F 자리 익히는 중"]
+      p2: ["🎯 하루 70건 응모 중", "☕ 0원 쿠폰 줍줍", "✅ 사전 검증 게이트", "📊 시장 조사 중"],
+      p6: ["🏃 하루 70건 응모 지원", "🗣️ 수시 보고 체계", "📋 응모 결과 정리", "✅ 검증 통과 건 실행"],
+      p7: ["🌱 70건 응모 루틴 배우는 중", "📋 후보 목록 정리 중", "🎟️ 쿠폰 링크 확인 중", "☕ 1F 자리 익히는 중"]
     }
   };
 

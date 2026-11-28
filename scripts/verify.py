@@ -18,7 +18,8 @@ SHOTS.mkdir(exist_ok=True)
 REQUIRED_LINES = [
     "🛠️ 웹앱 3F 개편", "📣 08:00 통합 브리핑", "🔗 GitHub 동기화",
     "🔍 교차 검증 완료", "💡 아이디어 제안", "💬 전략 조언",
-    "🛠️ 코드 리뷰 2건", "📈 X 실시간 트렌드", "🏃 하루 50건 응모 지원", "🌱 50건 응모 루틴 배우는 중",
+    "🛠️ 코드 리뷰 2건", "📈 X 실시간 트렌드", "🏃 하루 70건 응모 지원", "🌱 70건 응모 루틴 배우는 중",
+    "🗣️ 수시 보고 체계",
     "🧾 응모 제외 · 기획·보고 전담",
 ]
 
@@ -156,19 +157,31 @@ def main():
           not [x for x in p1_team["duties"] if "응모" in x and "제외" not in x], p1_team["duties"])
     check("pibiseo_report_kept", "08:00" in json.dumps(p1_role, ensure_ascii=False)
           and "통합 브리핑" in p1_blob, "08:00 통합 보고 유지")
-    # 2026-11-28 v14 1F 3인 각자 하루 50건 · 합산 150건/일
+    # 2026-11-28 v15 1F 3인 각자 하루 70건 · 합산 210건/일 (회장님 확정)
     ones = {t["id"]: t for t in data["team"]}
-    check("floor1_quota_50_each",
-          all("50건" in json.dumps(ones[i], ensure_ascii=False) for i in ("p6", "p2", "p7")),
+    check("floor1_quota_70_each",
+          all("70건" in json.dumps(ones[i], ensure_ascii=False) for i in ("p6", "p2", "p7")),
           {i: ones[i]["note"] for i in ("p6", "p2", "p7")})
     f1_txt = json.dumps(fl["1"], ensure_ascii=False)
-    check("floor1_quota_150_team", "1인 하루 50건" in f1_txt and "150건" in f1_txt, fl["1"]["tasks"][:2])
+    check("floor1_quota_210_team", "1인 하루 70건" in f1_txt and "210건" in f1_txt, fl["1"]["tasks"][:2])
     check("floor1_quota_roles",
-          all("50건" in json.dumps([m for m in data["roleDetails"]["members"] if m["id"] == i][0],
-                                   ensure_ascii=False) for i in ("p6", "p2", "p7")), "역할 상세 50건")
-    check("floor1_quota_stats", data["stats"]["entries"].get("dailyGoal") == 150
-          and data["stats"]["entries"].get("perPerson") == 50, data["stats"]["entries"])
-    check("version_v14", data["version"] == "v14", data["version"])
+          all("70건" in json.dumps([m for m in data["roleDetails"]["members"] if m["id"] == i][0],
+                                   ensure_ascii=False) for i in ("p6", "p2", "p7")), "역할 상세 70건")
+    ent = data["stats"]["entries"]
+    check("floor1_quota_stats", ent.get("dailyGoal") == 210 and ent.get("perPerson") == 70
+          and sum((ent.get("quota") or {}).values()) == 210, ent)
+    # 피주임 수시 보고 전환 · 오늘 36건(후보 풀 소진) — 정기 보고 시간이 남으면 실패
+    p6_role_obj = [m for m in data["roleDetails"]["members"] if m["id"] == "p6"][0]
+    p6_role_txt = json.dumps(p6_role_obj, ensure_ascii=False)
+    p6_credit = [a for a in data["credits"]["agents"] if a["id"] == "p6"][0]
+    p6_times = [r.get("time") for r in p6_role_obj.get("routine", [])]
+    check("juim_susi_report", all(t in ("수시", "발표일") for t in p6_times)
+          and "정기 보고 중단" in p6_role_txt, p6_times)
+    check("juim_today_36", p6_credit.get("today") == "36건" and "36/70건" in p6_role_txt
+          and "36건" in ones["p6"]["note"], (p6_credit.get("today"), ones["p6"]["note"][:80]))
+    check("entries_today_breakdown", ent.get("today") == 46
+          and (ent.get("todayBy") or {}).get("p6") == 36, ent)
+    check("version_v15", data["version"] == "v15", data["version"])
     # 2026-11-28 21:20 피주임·피인턴 가동 전환 — 대기 표현이 데이터에 남으면 실패
     waiting_left = [name for name, obj in (("피주임", juim), ("피인턴", intern)) if "연동 대기" in json.dumps(obj, ensure_ascii=False)]
     waiting_left += [name for name, obj in (("p6 상세", [m for m in data["roleDetails"]["members"] if m["id"] == "p6"][0]),
@@ -178,7 +191,7 @@ def main():
     check("credits_order_v8", [a["id"] for a in data["credits"]["agents"]] == ["p1", "p0", "p5", "p4", "p3", "p6", "p2", "p7"],
           [a["id"] for a in data["credits"]["agents"]])
     check("bld_sign_v5", "바이코 AI 오피스" in indexhtml, "건물 간판·타이틀")
-    check("foot_v14", "바이코 AI 오피스 v14" in indexhtml and "피인턴" in indexhtml, "푸터 9명")
+    check("foot_v15", "바이코 AI 오피스 v15" in indexhtml and "피인턴" in indexhtml, "푸터 9명")
     check("title_v5", "<title>바이코 AI 오피스</title>" in indexhtml, "")
     dow_ko = ["월", "화", "수", "목", "금", "토", "일"]
     for a in data.get("awards", []):
@@ -794,9 +807,12 @@ def main():
         check("floor_visible_1", vis_1 == {"captain": False, "p1": False, "p2": True, "p4": False, "p0": False, "p3": False, "p5": False, "p6": True, "p7": True}, vis_1)
         cards_1 = page.inner_text("#floorCards")
         results.append(("floor_cards_1", cards_1[:220]))
-        check("floor_card_1", all(k in cards_1 for k in ["현장 실행·응모실", "피주임", "피사원", "1인 하루 50건 응모", "합산 150건/일", "0원 쿠폰 줍줍"]), cards_1[:160])
-        check("floor_card_1_quota_team", "하루 50건" in json.dumps(ones["p6"], ensure_ascii=False)
-              and "하루 50건" in cards_1, cards_1[:200])
+        check("floor_card_1", all(k in cards_1 for k in ["현장 실행·응모실", "피주임", "피사원", "1인 하루 70건 응모", "합산 210건/일", "0원 쿠폰 줍줍"]), cards_1[:160])
+        check("floor_card_1_quota_team", "하루 70건" in json.dumps(ones["p6"], ensure_ascii=False)
+              and "하루 70건" in cards_1, cards_1[:200])
+        hud_1f = page.inner_text('#floorStack .floor[data-floor="1"] .floor-hud')
+        results.append(("hud_1f", hud_1f))
+        check("floor_hud_1f_210", "210" in hud_1f and "1F" in hud_1f, hud_1f)
         check("floor_card_1_juim_status", "가동 중" in cards_1 and "응모·쿠폰 지원" in cards_1, cards_1[:200])
         page.screenshot(path=str(SHOTS / "03-floor-1.png"))
 
@@ -868,7 +884,7 @@ def main():
         check("team_grok_rendered", "Grok" in team_txt, team_txt[:120])
         check("team_juim_active", "가동 중" in team_txt and "응모·쿠폰 지원" in team_txt, team_txt[:120])
         check("team_pibiseo_scope_v14", "응모 제외" in team_txt and "토큰 절약" in team_txt, team_txt[:200])
-        check("team_1f_quota_v14", team_txt.count("하루 50건") >= 3, team_txt[:200])
+        check("team_1f_quota_v15", team_txt.count("하루 70건") >= 4, team_txt[:200])
         picker = page.eval_on_selector_all("#rolePicker button", "els => els.map(e => e.textContent.trim())")
         results.append(("role_picker", picker))
         check("role_picker_9", len(picker) == 9, picker)
@@ -931,11 +947,12 @@ def main():
         page.wait_for_timeout(200)
         goal_note = page.inner_text("#entryGoalNote")
         results.append(("entry_goal_note", goal_note))
-        check("entries_goal_note_v14", "각자 50건" in goal_note and "150건" in goal_note
-              and "피비서" in goal_note, goal_note)
+        check("entries_goal_note_v15", "각 70건" in goal_note and "210건" in goal_note
+              and "피비서" in goal_note and "36건" in goal_note, goal_note)
         entries_sum = page.inner_text("#entriesSummary")
         results.append(("entries_summary", entries_sum.replace("\n", " ")))
-        check("entries_summary_goal_v14", "1F 하루 150건 목표" in entries_sum, entries_sum.replace("\n", " "))
+        check("entries_summary_goal_v15", "피주임 36" in entries_sum and "피사원 10" in entries_sum,
+              entries_sum.replace("\n", " "))
         page.screenshot(path=str(SHOTS / "05-entries-extra.png"))
 
         # ---- 수익화 8대 트랙 렌더링 ----
